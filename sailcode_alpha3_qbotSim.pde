@@ -21,7 +21,7 @@
 
 //#include <math.h> doesnt work
 
-#include <SoftwareSerial.h> 
+//#include <SoftwareSerial.h>
 //for pololu non-buffering serial channel
 #include <String.h> //for parsing - necesary?
 #include <stdio.h> //for parsing - necessary?
@@ -75,7 +75,7 @@ float roll;//roll relative to ??
 float heading_newest;//heading relative to true north
 
 //Pololu
-SoftwareSerial servo_ser = SoftwareSerial(7, txPin); // for connecting via a nonbuffered serial port to pololu -output only
+//SoftwareSerial servo_ser = SoftwareSerial(7, txPin); // for connecting via a nonbuffered serial port to pololu -output only
 
 
 int port1;//what is this?
@@ -399,10 +399,10 @@ int Parser(char *val)
 
 void servo_command(int whichservo, int position)
 {
- servo_ser.print(0xFF, BYTE); //servo control board sync
+ Serial.print(0xFF, BYTE); //servo control board sync
  //Plolou documentation is wrong on servo numbers in MiniSSCII
- servo_ser.print(whichservo+8, BYTE); //servo number, 180 mode
- servo_ser.print(position, BYTE); //servo position
+ Serial.print(whichservo+8, BYTE); //servo number, 180 mode
+ Serial.print(position, BYTE); //servo position
 }
 
 
@@ -432,7 +432,7 @@ char inputArrayPtr[256]; // look into changing this to a byte array; stores the 
 char byteRead; //used to read one single byte at a time
 int error =0; //error flag
 int i; //loop counter
-int availableBytes = Serial2.available();
+int availableBytes = Serial.available();
 
 //prevent array overflow
 if (availableBytes > 255)
@@ -442,7 +442,7 @@ if (availableBytes > 255)
 
 for(i=0; i < availableBytes; i++)
 {
-    inputArrayPtr[i] = Serial2.read();
+    inputArrayPtr[i] = Serial.read();
     if ( inputArrayPtr[i] == '\n' || inputArrayPtr[i] == '\0' )
       break;
 } 
@@ -485,7 +485,7 @@ int Wind()
 char inputArrayPtr[256]; // look into changing this to a byte array; stores the input data
 int error =0; //error flag
 int i; //loop counter
-int availableBytes = Serial3.available();
+int availableBytes = Serial.available();
 
 //prevent array overflow
 if (availableBytes > 255)
@@ -493,7 +493,7 @@ if (availableBytes > 255)
   
 for(i=0; i < availableBytes; i++)
 {
-    inputArrayPtr[i] = Serial3.read();
+    inputArrayPtr[i] = Serial.read();
     if ( inputArrayPtr[i] == '\n' || inputArrayPtr[i] == '\0' )
       break;
 } 
@@ -552,17 +552,17 @@ for(i=0; i < availableBytes; i++)
 
 void setup()
 {
-	Serial.begin(9600);
+	//Serial.begin(9600);
 	//Serial1.begin(9600);
 
  Serial.begin(9600);
- Serial2.begin(19200);
- Serial3.begin(4800);
+ //Serial2.begin(19200);
+ //Serial3.begin(4800);
 
         pinMode(txPin, OUTPUT);
         pinMode(resetPin, OUTPUT);
                
-        servo_ser.begin(2400);
+        //servo_ser.begin(2400);
 
         //next NEED to explicitly reset the Pololu board using a separate pin
         //else it times out and reports baud rate is too slow (red LED)
