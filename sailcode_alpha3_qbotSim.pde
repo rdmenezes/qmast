@@ -23,7 +23,7 @@
 
 //#include <SoftwareSerial.h>
 //for pololu non-buffering serial channel
-#include <String.h> //for parsing - necesary?
+//#include <String.h> //for parsing - necesary?
 #include <stdio.h> //for parsing - necessary?
 
 ////////////////////////////////////////////////
@@ -162,6 +162,7 @@ int Parser(char *val)
 
   Serial.println(val);//echo what we're about to parse
 
+  //elec299 sim doesnt recognize strcpy - therefore, cant port parser to it, therefore abort
   strcpy(cp, val); //make a backup copy of the data to parse; if not copied val gets corrupted when tokenized
   str = strtok(cp, ","); //find location of first ',', and copy everything before it into str1; returns a pointer to a character array. this will be the type of command, should return $xxxxx identifier
 
