@@ -1,5 +1,6 @@
 //This code hasn't been tested on the arduino yet; it should be compared to sailcode_alpha2 and 3, and to scanln
 #define SHORTEST_NMEA 5
+#define LONGEST_NMEA 120
 // what's the shortest possible data string?
 
 void loop() {
@@ -8,6 +9,7 @@ void loop() {
 		Serial.flush(); //clear the serial buffer
 		extraWindData = 0; //'clear' the extra data buffer, because any data wrapping around will be destroyed by clearing the buffer
 		savedChecksum=0;//clear the saved XOR value
+		savedXorState=0;//clear the saved XORstate value
 		lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
 	}
 	else if(!dataAvailable)
@@ -48,12 +50,14 @@ void loop() {
 				j = 0;//start at the first byte to fill the array
 				checksum=0;//set the xor checksum back to zero
 				xorState = 1;//start the Xoring for the checksum once a new $ character is found
-			} else if (array[j] == '*'){
+			} else if (j > LONGEST_NMEA){//if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
+				j = -1;//start at the first byte to fill the array
+				checksum=0;//set the xor checksum back to zero
+				xorState = 0;//only start the Xoring for the checksum once a new $ character is found, not here
+			} else if (array[j] == '*'){//if find a * within a reasonable length, stop XORing and wait for \n
 				//could set a flag to stop XORing
 				xorState = 0;
-			}
-			//for all other cases, xor unless it's after *
-			else if (xorState)
+			} else if (xorState) //for all other cases, xor unless it's after *
 				checksum^=array[j];
 
 			//removed this because it can be checked when a newline is encountered
@@ -62,7 +66,7 @@ void loop() {
 			j++;
 		}//end loop from 0 to dataAvailable
 
-		if (j > 0) { //this means that there was leftover data; set a flag and save the state globally
+		if (j > 0 && j < LONGEST_NMEA) { //this means that there was leftover data; set a flag and save the state globally
 			for (i = 0; i++; i < j)
 				extraWindDataArray[i] = array[i]; //copy the leftover data into the temp global array
 			extraWindData = j;
@@ -71,4 +75,3 @@ void loop() {
 		}
 	}//end if theres data to parse
 }//end loop
-
