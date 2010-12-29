@@ -1,4 +1,7 @@
- //GPS String
+//This file was just a temporary safe-keeper for the GPS parsing data when we were only working on the compass.
+//It is now deprecated, and should be ignored/removed from the repo in future.
+
+//GPS String
   if (strcmp(str1, "$GPGLL") == 0) 
   {
     //     ,3354.4970,N,11759.5354,W,025604,V,S*52 lat/lon; V(a=valid, v=invalid)

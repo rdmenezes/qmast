@@ -1,5 +1,6 @@
-/*
- * Test.c: Sailing algorithm diagnostics program
+/* This test of attempting to use ELEC299 simulator has failed for string parsing tests. The simulator may have future uses for sailcode.
+
+* Test.c: Sailing algorithm diagnostics program
  *
  *  Ported to Arudino November 2010 by Christine and the supercool software team
 
@@ -163,7 +164,7 @@ int Parser(char *val)
   Serial.println(val);//echo what we're about to parse
 
   //elec299 sim doesnt recognize strcpy - therefore, cant port parser to it, therefore abort
-  strcpy(cp, val); //make a backup copy of the data to parse; if not copied val gets corrupted when tokenized
+  //strcpy(cp, val); //make a backup copy of the data to parse; if not copied val gets corrupted when tokenized
   str = strtok(cp, ","); //find location of first ',', and copy everything before it into str1; returns a pointer to a character array. this will be the type of command, should return $xxxxx identifier
 
  // Serial.print("command portion from cp strtok is: ");
