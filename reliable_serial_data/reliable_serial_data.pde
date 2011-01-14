@@ -2,23 +2,50 @@
 #define SHORTEST_NMEA 5
 #define LONGEST_NMEA 120
 // what's the shortest possible data string?
+int		extraWindData = 0; //'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer
+int		savedChecksum=0;//clear the global saved XOR value
+int		savedXorState=0;//clear the global saved XORstate value
+int		lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
+int 		noData =1; // global flag to indicate serial buffer was empty
+char 		extraWindDataArray[LONGEST_NMEA]; // a buffer to store roll-over data in case this data is fetched mid-line
+
+
+int parser(char * array)
+{
+	return 0;
+}
 
 void loop() {
+
+	int dataAvailable; // how many bytes are available on the serial port
+	char array[LONGEST_NMEA];//array to hold data from serial port before parsing; 2* longest might be too long and inefficient
+
+	int checksum; //computed checksum for the NMEA data between $ and *
+
+	int xorState; //holds the XOR  state (whether to use the next data in the xor checksum) from global
+	int j; //j is a counter for the number of bytes which have been stored but not parsed yet
+
+	int i; //counter
+
+	int error;//error flag for parser
+
+
+	delay(5000);
+
 	if ((dataAvailable = Serial.available()) > 126) { //the buffer has filled up; the data is likely corrupt;
-	//may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here and when we get the data out
+		//may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here and when we get the data out
 		Serial.flush(); //clear the serial buffer
 		extraWindData = 0; //'clear' the extra data buffer, because any data wrapping around will be destroyed by clearing the buffer
-		savedChecksum=0;//clear the saved XOR value
-		savedXorState=0;//clear the saved XORstate value
+		savedChecksum = 0;//clear the saved XOR value
+		savedXorState = 0;//clear the saved XORstate value
 		lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
-	}
-	else if(!dataAvailable)
+	} else if (!dataAvailable)
 		noData = 1;//set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
 	else {
 		//first copy all the leftover data into array from the buffer
-		for (i = 0; i < extraWindData; i++){
+		for (i = 0; i < extraWindData; i++) {
 			array[i] = extraWindDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
-		//probably actually don't need the second global array
+			//probably actually don't need the second global array
 		}
 
 		//now continue filling array from the serial port
@@ -36,29 +63,30 @@ void loop() {
 			if ((array[j] == '\n' || array[j] == '\0') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
 
 				//check the XOR before bothering to parse; if its ok, reset the xor and parse, reset j
-				if (checksum==((array[j-2] << 4) | array[j-1])) //may have to do some type conversions here
+				if (checksum == ((array[j - 2] << 4) | array[j - 1])) //may have to do some type conversions here
+					//Val: to elaborate probably need to shift by 8 bits (not 4), array is of chars (1 byte) checksum is int (2 bytes)
 					error = parser(array); //checksum was successful, so parse
 
 				//regardless of checksum, reset array to beginning and reset checksum
 				j = -1;//this will start writing over the old data, need -1 because we add to j
-									//should be fine how we parse presently to have old data tagged on the end,
-									//but watch out if we change how we parse
-				checksum=0;//set the xor checksum back to zero
+				//should be fine how we parse presently to have old data tagged on the end,
+				//but watch out if we change how we parse
+				checksum = 0;//set the xor checksum back to zero
 			} else if (array[j] == '$') {//if we encounter $ its the start of new data, so restart the data
 				//if its not in the 0 position there's been an error so get rid of the data and start a new line anyways
 				array[0] = '$'; //move the $ to the first character
 				j = 0;//start at the first byte to fill the array
-				checksum=0;//set the xor checksum back to zero
+				checksum = 0;//set the xor checksum back to zero
 				xorState = 1;//start the Xoring for the checksum once a new $ character is found
-			} else if (j > LONGEST_NMEA){//if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
+			} else if (j > LONGEST_NMEA) {//if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
 				j = -1;//start at the first byte to fill the array
-				checksum=0;//set the xor checksum back to zero
+				checksum = 0;//set the xor checksum back to zero
 				xorState = 0;//only start the Xoring for the checksum once a new $ character is found, not here
-			} else if (array[j] == '*'){//if find a * within a reasonable length, stop XORing and wait for \n
+			} else if (array[j] == '*') {//if find a * within a reasonable length, stop XORing and wait for \n
 				//could set a flag to stop XORing
 				xorState = 0;
 			} else if (xorState) //for all other cases, xor unless it's after *
-				checksum^=array[j];
+				checksum ^= array[j];
 
 			//removed this because it can be checked when a newline is encountered
 			//else checksumFromNMEA=checksumFromNMEA*8+array[j];//something like this, keep shifting it up a character
@@ -70,8 +98,8 @@ void loop() {
 			for (i = 0; i++; i < j)
 				extraWindDataArray[i] = array[i]; //copy the leftover data into the temp global array
 			extraWindData = j;
-			savedChecksum=checksum;
-			savedXorState=xorState;
+			savedChecksum = checksum;
+			savedXorState = xorState;
 		}
 	}//end if theres data to parse
 }//end loop
