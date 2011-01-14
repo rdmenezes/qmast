@@ -1,0 +1,34 @@
+//this still needs dt (aka loop time) to be figured out
+
+
+//globals
+
+float prevError;				//for PID
+float prevIntegral;			//for PID
+
+
+rudderPID(int navAngle){		//gets the desired rudder angle from navigation code
+	float  Kp = 1;				//proportional coefficient
+	float Ki = 1;				//integral coefficient
+	float Kd = 1;				//derivative coefficient
+	float newAngle;				//modified angle to be sent to the rudder servo
+	float error;				
+	float rudderPosition;	//angle from rudder motor giving current position
+	float derivative;
+	float equivalentDuty;   //holds rudder position as a duty cycle
+	
+	//need something here to get rudder position from rudder
+	
+	error = navAngle - rudderPosition;
+	derivative = ( error - prevError ) / dt;    //dt is estimated time between this function being called
+	prevIntegral = prevIntegral + (error * dt);
+	
+	//below is the actual PID calc, navDuty is modified by the PID terms to make the rudders position become what nav wants it to be
+	newAngle = navAngle + (Kp*error) + (Ki*prevIntegral) + (Kd*derivative);
+	
+	
+	//angle can be turned into a duty cycle and sent to the rudder motor
+	
+	prevError = error;
+	
+	} //end rudderPID
