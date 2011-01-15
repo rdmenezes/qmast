@@ -1,6 +1,7 @@
 //This code hasn't been tested on the arduino yet; it should be compared to sailcode_alpha2 and 3, and to scanln
 #define SHORTEST_NMEA 5
 #define LONGEST_NMEA 120
+
 // what's the shortest possible data string?
 int		extraWindData = 0; //'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer
 int		savedChecksum=0;//clear the global saved XOR value
@@ -20,11 +21,28 @@ void setup()
   Serial.begin(9600);
 }
 
+//adapted from http://forum.sparkfun.com/viewtopic.php?f=17&t=9570
+//(all of our checksums have numbers or capital letters so no worries about the UTIL_TOUPPER)
+char convertASCIItoHex (const char ch)
+{
+       if(ch >= '0' && ch <= '9')
+       // if it's an ASCII number 
+       {
+         return ch - '0'; //subtract ASCII 0 value to get the hex value
+       }
+       else
+       // if its a letter (assumed upper case)
+       {
+         return (ch - 'A') + 10;//subtract ASCII A value then add 10 to get the hex value
+       }
+}
+
+
 void loop() {
   int dataAvailable; // how many bytes are available on the serial port
   char array[LONGEST_NMEA];//array to hold data from serial port before parsing; 2* longest might be too long and inefficient
 
-  int checksum; //computed checksum for the NMEA data between $ and *
+  char checksum; //computed checksum for the NMEA data between $ and *
 
   int xorState; //holds the XOR  state (whether to use the next data in the xor checksum) from global
   int j; //j is a counter for the number of bytes which have been stored but not parsed yet
@@ -49,7 +67,7 @@ void loop() {
   else if(!dataAvailable){
     noData = 1;//set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
     Serial.print("No data available. ");
-  }
+  } 
   else {
     Serial.print("There is data! ");
     //first copy all the leftover data into array from the buffer
@@ -73,8 +91,10 @@ void loop() {
       if ((array[j] == '\n' || array[j] == '\0') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
 
         //check the XOR before bothering to parse; if its ok, reset the xor and parse, reset j
-        if (checksum==((array[j-2] << 4) | array[j-1])) //may have to do some type conversions here
-          //Val: to elaborate probably need to shift by 8 bits (not 4), array is of chars (1 byte) checksum is int (2 bytes)
+        if (checksum==(( convertASCIItoHex(array[j-2]) << 4) | convertASCIItoHex(array[j-1]) ))
+        //since hex values only take 4 bits, shift the more significant half to the left by 4 bits, the bitwise or it with the least significant half
+        //then check if this value matches the calculated checksum (this part has been tested and should work)
+        
           error = parser(array); //checksum was successful, so parse
 
         //regardless of checksum, reset array to beginning and reset checksum
@@ -82,23 +102,23 @@ void loop() {
         //should be fine how we parse presently to have old data tagged on the end,
         //but watch out if we change how we parse
         checksum=0;//set the xor checksum back to zero
-      }
+      } 
       else if (array[j] == '$') {//if we encounter $ its the start of new data, so restart the data
         //if its not in the 0 position there's been an error so get rid of the data and start a new line anyways
         array[0] = '$'; //move the $ to the first character
         j = 0;//start at the first byte to fill the array
         checksum=0;//set the xor checksum back to zero
         xorState = 1;//start the Xoring for the checksum once a new $ character is found
-      }
+      } 
       else if (j > LONGEST_NMEA){//if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
         j = -1;//start at the first byte to fill the array
         checksum=0;//set the xor checksum back to zero
         xorState = 0;//only start the Xoring for the checksum once a new $ character is found, not here
-      }
+      } 
       else if (array[j] == '*'){//if find a * within a reasonable length, stop XORing and wait for \n
         //could set a flag to stop XORing
         xorState = 0;
-      }
+      } 
       else if (xorState) //for all other cases, xor unless it's after *
         checksum^=array[j];
 
@@ -116,4 +136,6 @@ void loop() {
       savedXorState=xorState;
     }
   }//end if theres data to parse
+ 
 }//end loop
+
