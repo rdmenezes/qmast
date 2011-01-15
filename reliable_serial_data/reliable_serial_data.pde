@@ -112,6 +112,7 @@ void loop() {
       } 
       else if (j > LONGEST_NMEA){//if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
         j = -1;//start at the first byte to fill the array
+        //We should flush the buffer here
         checksum=0;//set the xor checksum back to zero
         xorState = 0;//only start the Xoring for the checksum once a new $ character is found, not here
       } 
