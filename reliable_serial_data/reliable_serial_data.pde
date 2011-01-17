@@ -2,6 +2,8 @@
 #define SHORTEST_NMEA 5
 #define LONGEST_NMEA 120
 
+//test change for tortoiseHg
+
 // what's the shortest possible data string?
 int		extraWindData = 0; //'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer
 int		savedChecksum=0;//clear the global saved XOR value
