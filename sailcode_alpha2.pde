@@ -1,7 +1,7 @@
 /*
  * Test.c: Sailing algorithm diagnostics program
  *
- *  Ported to Arudino November 2010 by Christine and the amazing software team
+ *  Ported to Arudino November 2010 by Christine and the wicked software team
 
  *  Created on: 2010-05-11
  *      Author: Nader for MAST Software
