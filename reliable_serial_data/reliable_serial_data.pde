@@ -2,7 +2,7 @@
 #define SHORTEST_NMEA 5
 #define LONGEST_NMEA 120
 
-
+//!!!!when testing by sending strings through the serial monitor, you need to select "newline" ending from the dropdown beside the baud rate
 
 // what's the shortest possible data string?
 int		extraWindData = 0; //'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer
@@ -74,7 +74,7 @@ void loop() {
       array[j] = Serial.read();
       
         if ((array[j] == '\n' || array[j] == '\0') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
-        //NOT GETTING HERE??
+        //if you're not getting here and using serial monitor, make sure to select newline from the line ending dropdown near the baud rate
         Serial.println("read newline/null character, about to check checksum.");
         //check the XOR before bothering to parse; if its ok, reset the xor and parse, reset j
         if (checksum==(( convertASCIItoHex(array[j-2]) << 4) | convertASCIItoHex(array[j-1]) )){
@@ -119,6 +119,8 @@ void loop() {
       //else checksumFromNMEA=checksumFromNMEA*8+array[j];//something like this, keep shifting it up a character
 
       j++;
+      
+      Serial.println(array[j]);
     }//end loop from 0 to dataAvailable
 
     if (j > 0 && j < LONGEST_NMEA) { //this means that there was leftover data; set a flag and save the state globally
