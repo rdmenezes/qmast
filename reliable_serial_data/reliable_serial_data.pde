@@ -117,10 +117,10 @@ void loop() {
 
       //removed this because it can be checked when a newline is encountered
       //else checksumFromNMEA=checksumFromNMEA*8+array[j];//something like this, keep shifting it up a character
-
+      Serial.println(array[j]);
       j++;
       
-      Serial.println(array[j]);
+      
     }//end loop from 0 to dataAvailable
 
     if (j > 0 && j < LONGEST_NMEA) { //this means that there was leftover data; set a flag and save the state globally
