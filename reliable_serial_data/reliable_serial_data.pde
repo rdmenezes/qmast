@@ -93,6 +93,7 @@ void loop() {
           if (!twoCommasPresent) {
           	  error = parser(array); //checksum was successful, so parse
           } else {
+        	  twoCommasPresent = false;
         	  //This will be where we handle the presence of twoCommas, since it means that the boat is doing something strange
         	  //AKA tilted two far, bad compass data
         	  //GPS can't locate satellites, lots of commas, no values.
