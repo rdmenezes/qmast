@@ -23,7 +23,7 @@
 
 #include <SoftwareSerial.h> 
 //for pololu non-buffering serial channel
-#include <String.h> //for parsing - necesary?
+#include <String.h> //for parsing - necessary?
 #include <stdio.h> //for parsing - necessary?
 
 ////////////////////////////////////////////////

@@ -35,7 +35,8 @@ void loop() {
   int i; //counter
 
   int error;//error flag for parser
-
+  bool twoCommasPresent = false; //Alright, this flag will be set if the data being read in has two commas in a row. This is needed since
+  	  	  	  	  	  	  	  	 //it will crash the program as strtok will have trouble with the delimiters later.
 
     delay(5000);
 
@@ -46,7 +47,7 @@ void loop() {
     extraWindData = 0; //'clear' the extra data buffer, because any data wrapping around will be destroyed by clearing the buffer
     savedChecksum=0;//clear the saved XOR value
     savedXorState=0;//clear the saved XORstate value
-    lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
+    lostData = 1;//set a global flag to indicate that the loop isn't running fast enough to keep ahead of the data
     Serial.print("You filled the buffer. ");
   }
   else if(!dataAvailable){
@@ -73,6 +74,12 @@ void loop() {
     for (i = 0; i < dataAvailable; i++) {//this loop empties the whole serial buffer, and parses every time there is a newline
       array[j] = Serial.read();
       
+      	if (j > 0) {
+      		if (array[j] == ',' && array[j-1] == ',') {
+      			twoCommasPresent = true;
+      		}
+      	}
+
         if ((array[j] == '\n' || array[j] == '\0') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
         //if you're not getting here and using serial monitor, make sure to select newline from the line ending dropdown near the baud rate
         Serial.println("read newline/null character, about to check checksum.");
@@ -81,8 +88,19 @@ void loop() {
         //since hex values only take 4 bits, shift the more significant half to the left by 4 bits, the bitwise or it with the least significant half
         //then check if this value matches the calculated checksum (this part has been tested and should work)
           Serial.println("checksum is good, I'm parsing.");
-          error = parser(array); //checksum was successful, so parse
-        } else
+
+          //Before parsing the valid string, check to see if the string contains two consecutive commas as indicated by the twoCommasPresent flag
+          if (!twoCommasPresent) {
+          	  error = parser(array); //checksum was successful, so parse
+          } else {
+        	  twoCommasPresent = false;
+        	  //This will be where we handle the presence of twoCommas, since it means that the boat is doing something strange
+        	  //AKA tilted two far, bad compass data
+        	  //GPS can't locate satellites, lots of commas, no values.
+          }
+
+        }
+        else
         Serial.println("checksum was not good...");// else statement and this line are only here for testing
         
         //regardless of checksum, reset array to beginning and reset checksum
