@@ -43,6 +43,22 @@
 #define resetPin 8 //Pololu reset (digital pin on arduino)
 #define txPin 9 //Pololu serial pin (with SoftwareSerial library)
 
+//reliableserial data merging
+//This code hasn't been tested on the arduino yet; it should be compared to sailcode_alpha2 and 3, and to scanln
+#define SHORTEST_NMEA 5
+#define LONGEST_NMEA 120
+
+//!!!!when testing by sending strings through the serial monitor, you need to select "newline" ending from the dropdown beside the baud rate
+
+// what's the shortest possible data string?
+int		extraWindData = 0; //'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer
+int		savedChecksum=0;//clear the global saved XOR value
+int		savedXorState=0;//clear the global saved XORstate value
+int		lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
+int 		noData =1; // global flag to indicate serial buffer was empty
+char 		extraWindDataArray[LONGEST_NMEA]; // a buffer to store roll-over data in case this data is fetched mid-line
+//end reliable serial data merging
+
 //Counters (Used for averaging)
 int PTNTHTM;
 int GPGLL;
@@ -423,51 +439,136 @@ void setrudder(float ang)
   //delay(10);
 }
 
+//from reliable serial data merge
+//adapted from http://forum.sparkfun.com/viewtopic.php?f=17&t=9570
+//(all of our checksums have numbers or capital letters so no worries about the UTIL_TOUPPER)
+char convertASCIItoHex (const char ch)
+{
+       if(ch >= '0' && ch <= '9')
+       // if it's an ASCII number 
+       {
+         return ch - '0'; //subtract ASCII 0 value to get the hex value
+       }
+       else
+       // if its a letter (assumed upper case)
+       {
+         return (ch - 'A') + 10;//subtract ASCII A value then add 10 to get the hex value
+       }
+}
+
+
+
 
 int Compass() 
-{
-	//fill in code to get data from the serial port if availabile
+{ //compass connects to serial2
+  int dataAvailable; // how many bytes are available on the serial port
+  char array[LONGEST_NMEA];//array to hold data from serial port before parsing; 2* longest might be too long and inefficient
 
-char inputArrayPtr[256]; // look into changing this to a byte array; stores the input data
-char byteRead; //used to read one single byte at a time
-int error =0; //error flag
-int i; //loop counter
-int availableBytes = Serial2.available();
+  char checksum; //computed checksum for the NMEA data between $ and *
 
-//prevent array overflow
-if (availableBytes > 255)
-  availableBytes = 255;
-  
-//inputArrayPtr = (char*)malloc( sizeof(char) * availableBytes);
+  int xorState; //holds the XOR  state (whether to use the next data in the xor checksum) from global
+  int j; //j is a counter for the number of bytes which have been stored but not parsed yet
 
-for(i=0; i < availableBytes; i++)
-{
-    inputArrayPtr[i] = Serial2.read();
-    if ( inputArrayPtr[i] == '\n' || inputArrayPtr[i] == '\0' )
-      break;
-} 
- Serial.print("\nCompass string from port 2: ");
- Serial.println(inputArrayPtr);
- Serial.print("\n Avail bytes port 2: ");
- Serial.println(availableBytes);
- 
- error = Parser(inputArrayPtr); 
- 
-// free(inputArrayPtr); // release the memory we realloc'ed
-   
-//this way works to print to screen..
-//byte input; 
-//  while(Serial3.available()>0){
-//    input = Serial3.read();
-//   Serial.print(input);
-//  }
+  int i; //counter
 
-	//char sResult[254] = fromSerialPortCompass();//array of string data from wind sensor (this isnt a real function yet)
-      //if data available; can use strtok to split the data based on $ sign at beginning of data, and then send to parse to process; if not, return 1 (error code):
+  int error;//error flag for parser
+
+
+    delay(5000);
+
+  if ((dataAvailable = Serial2.available()) > 126) { //the buffer has filled up; the data is likely corrupt;
+    //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
+    //when we get the data out
+      Serial2.flush(); //clear the serial buffer
+    extraWindData = 0; //'clear' the extra data buffer, because any data wrapping around will be destroyed by clearing the buffer
+    savedChecksum=0;//clear the saved XOR value
+    savedXorState=0;//clear the saved XORstate value
+    lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
+    Serial.print("You filled the buffer. ");
+  }
+  else if(!dataAvailable){
+    noData = 1;//set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
+    Serial.print("No data available. ");
+  } 
+  else {
+    Serial.print("There is data! ");
+    //first copy all the leftover data into array from the buffer
+    for (i = 0; i < extraWindData; i++){
+      array[i] = extraWindDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
+      //probably actually don't need the second global array
+    }
+
+    //now continue filling array from the serial port
+    checksum = savedChecksum;//set the xor error checksum to the saved value (only xor if between $ and *)
+    xorState = savedXorState;//set the XOR state (whether to use the next data in the xor checksum) from global
+    j = extraWindData; //j is a counter for the number of bytes which have been stored but not parsed yet
+
+    extraWindData = 0;//reset for the next time, in case there isn't any extraData; could optimize these variable declarations
+    savedChecksum = 0;//reset for the next time
+    savedXorState = 0;//reset for next time
+
+    for (i = 0; i < dataAvailable; i++) {//this loop empties the whole serial buffer, and parses every time there is a newline
+      array[j] = Serial2.read();
       
-	  // Compass testing
-  // The 75.9 is the dip angle; 2618 is the magnetic field ; http://www.google.ca/url?sa=t&source=web&cd=3&ved=0CCEQFjAC&url=http%3A%2F%2Fgpsd.googlecode.com%2Ffiles%2Ftruenorth-reference.pdf&ei=jLn-TLaTAtvtnQeE1KGgCw&usg=AFQjCNFKgSCpWdeEoXWtQQiYeHJYXeXQ-g; http://lists.berlios.de/pipermail/gpsd-dev/2006-October/004558.html
- // int error = Parser("$PTNTHTM,71.3,N,-0.4,N,-1.4,N,75.9,2618*03"); //returning 71.30, -0.40, -1.40 -> good!
+        if ((array[j] == '\n' || array[j] == '\0') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
+        //if you're not getting here and using serial monitor, make sure to select newline from the line ending dropdown near the baud rate
+        Serial.println("read newline/null character, about to check checksum.");
+        //check the XOR before bothering to parse; if its ok, reset the xor and parse, reset j
+        if (checksum==(( convertASCIItoHex(array[j-2]) << 4) | convertASCIItoHex(array[j-1]) )){
+        //since hex values only take 4 bits, shift the more significant half to the left by 4 bits, the bitwise or it with the least significant half
+        //then check if this value matches the calculated checksum (this part has been tested and should work)
+          Serial.println("checksum is good, I'm parsing.");
+          error = Parser(array); //checksum was successful, so parse
+        } else
+        Serial.println("checksum was not good...");// else statement and this line are only here for testing
+        
+        //regardless of checksum, reset array to beginning and reset checksum
+        j = -1;//this will start writing over the old data, need -1 because we add to j
+        //should be fine how we parse presently to have old data tagged on the end,
+        //but watch out if we change how we parse
+        checksum=0;//set the xor checksum back to zero
+      } 
+      else if (array[j] == '$') {//if we encounter $ its the start of new data, so restart the data
+      Serial.println("found a $, restarting...");
+        //if its not in the 0 position there's been an error so get rid of the data and start a new line anyways
+        array[0] = '$'; //move the $ to the first character
+        j = 0;//start at the first byte to fill the array
+        checksum=0;//set the xor checksum back to zero
+        xorState = 1;//start the Xoring for the checksum once a new $ character is found
+      } 
+      else if (j > LONGEST_NMEA){//if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
+      Serial.println("string too long, clearing some stuff");
+        j = -1;//start at the first byte to fill the array
+        //We should flush the buffer here
+        Serial2.flush();
+        checksum=0;//set the xor checksum back to zero
+        xorState = 0;//only start the Xoring for the checksum once a new $ character is found, not here
+      } 
+      else if (array[j] == '*'){//if find a * within a reasonable length, stop XORing and wait for \n
+        //could set a flag to stop XORing
+        Serial.println("found a *");
+        xorState = 0;
+      } 
+      else if (xorState) //for all other cases, xor unless it's after *
+        checksum^=array[j];
+
+      //removed this because it can be checked when a newline is encountered
+      //else checksumFromNMEA=checksumFromNMEA*8+array[j];//something like this, keep shifting it up a character
+      Serial.println(array[j]);
+      j++;
+      
+      
+    }//end loop from 0 to dataAvailable
+
+    if (j > 0 && j < LONGEST_NMEA) { //this means that there was leftover data; set a flag and save the state globally
+      for (i = 0; i++; i < j)
+        extraWindDataArray[i] = array[i]; //copy the leftover data into the temp global array
+      extraWindData = j;
+      savedChecksum=checksum;
+      savedXorState=xorState;
+    }
+  }//end if theres data to parse
+ 
 
  
  /*  Serial.println(headingc);
@@ -482,30 +583,117 @@ for(i=0; i < availableBytes; i++)
 
 int Wind() 
 {	//fill in code to get data from the serial port if availabile
-char inputArrayPtr[256]; // look into changing this to a byte array; stores the input data
-int error =0; //error flag
-int i; //loop counter
-int availableBytes = Serial3.available();
+//wind connects to serial3
+  int dataAvailable; // how many bytes are available on the serial port
+  char array[LONGEST_NMEA];//array to hold data from serial port before parsing; 2* longest might be too long and inefficient
 
-//prevent array overflow
-if (availableBytes > 255)
-  availableBytes = 255;
-  
-for(i=0; i < availableBytes; i++)
-{
-    inputArrayPtr[i] = Serial3.read();
-    if ( inputArrayPtr[i] == '\n' || inputArrayPtr[i] == '\0' )
-      break;
-} 
- Serial.print("\n Wind string from port 3: ");
- Serial.println(inputArrayPtr);
-  Serial.print("\n Avail bytes port 3: ");
- Serial.println(availableBytes);
- 
- error = Parser(inputArrayPtr); 
-	//char sResult[254] = fromSerialPortWind();//array of string data from wind sensor (this isnt a real function yet)
-      //if data available; can use strtok to split the data based on $ sign at beginning of data, and then send to parse to process; if not, return 1 (error code):
+  char checksum; //computed checksum for the NMEA data between $ and *
+
+  int xorState; //holds the XOR  state (whether to use the next data in the xor checksum) from global
+  int j; //j is a counter for the number of bytes which have been stored but not parsed yet
+
+  int i; //counter
+
+  int error;//error flag for parser
+
+
+    delay(5000);
+
+  if ((dataAvailable = Serial3.available()) > 126) { //the buffer has filled up; the data is likely corrupt;
+    //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
+    //when we get the data out
+      Serial3.flush(); //clear the serial buffer
+    extraWindData = 0; //'clear' the extra data buffer, because any data wrapping around will be destroyed by clearing the buffer
+    savedChecksum=0;//clear the saved XOR value
+    savedXorState=0;//clear the saved XORstate value
+    lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
+    Serial.print("You filled the buffer. ");
+  }
+  else if(!dataAvailable){
+    noData = 1;//set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
+    Serial.print("No data available. ");
+  } 
+  else {
+    Serial.print("There is data! ");
+    //first copy all the leftover data into array from the buffer
+    for (i = 0; i < extraWindData; i++){
+      array[i] = extraWindDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
+      //probably actually don't need the second global array
+    }
+
+    //now continue filling array from the serial port
+    checksum = savedChecksum;//set the xor error checksum to the saved value (only xor if between $ and *)
+    xorState = savedXorState;//set the XOR state (whether to use the next data in the xor checksum) from global
+    j = extraWindData; //j is a counter for the number of bytes which have been stored but not parsed yet
+
+    extraWindData = 0;//reset for the next time, in case there isn't any extraData; could optimize these variable declarations
+    savedChecksum = 0;//reset for the next time
+    savedXorState = 0;//reset for next time
+
+    for (i = 0; i < dataAvailable; i++) {//this loop empties the whole serial buffer, and parses every time there is a newline
+      array[j] = Serial3.read();
       
+        if ((array[j] == '\n' || array[j] == '\0') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
+        //if you're not getting here and using serial monitor, make sure to select newline from the line ending dropdown near the baud rate
+        Serial.println("read newline/null character, about to check checksum.");
+        //check the XOR before bothering to parse; if its ok, reset the xor and parse, reset j
+        if (checksum==(( convertASCIItoHex(array[j-2]) << 4) | convertASCIItoHex(array[j-1]) )){
+        //since hex values only take 4 bits, shift the more significant half to the left by 4 bits, the bitwise or it with the least significant half
+        //then check if this value matches the calculated checksum (this part has been tested and should work)
+          Serial.println("checksum is good, I'm parsing.");
+          error = Parser(array); //checksum was successful, so parse
+        } else
+        Serial.println("checksum was not good...");// else statement and this line are only here for testing
+        
+        //regardless of checksum, reset array to beginning and reset checksum
+        j = -1;//this will start writing over the old data, need -1 because we add to j
+        //should be fine how we parse presently to have old data tagged on the end,
+        //but watch out if we change how we parse
+        checksum=0;//set the xor checksum back to zero
+      } 
+      else if (array[j] == '$') {//if we encounter $ its the start of new data, so restart the data
+      Serial.println("found a $, restarting...");
+        //if its not in the 0 position there's been an error so get rid of the data and start a new line anyways
+        array[0] = '$'; //move the $ to the first character
+        j = 0;//start at the first byte to fill the array
+        checksum=0;//set the xor checksum back to zero
+        xorState = 1;//start the Xoring for the checksum once a new $ character is found
+      } 
+      else if (j > LONGEST_NMEA){//if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
+      Serial.println("string too long, clearing some stuff");
+        j = -1;//start at the first byte to fill the array
+        //We should flush the buffer here
+        Serial.flush();
+        checksum=0;//set the xor checksum back to zero
+        xorState = 0;//only start the Xoring for the checksum once a new $ character is found, not here
+      } 
+      else if (array[j] == '*'){//if find a * within a reasonable length, stop XORing and wait for \n
+        //could set a flag to stop XORing
+        Serial.println("found a *");
+        xorState = 0;
+      } 
+      else if (xorState) //for all other cases, xor unless it's after *
+        checksum^=array[j];
+
+      //removed this because it can be checked when a newline is encountered
+      //else checksumFromNMEA=checksumFromNMEA*8+array[j];//something like this, keep shifting it up a character
+      Serial.println(array[j]);
+      j++;
+      
+      
+    }//end loop from 0 to dataAvailable
+
+    if (j > 0 && j < LONGEST_NMEA) { //this means that there was leftover data; set a flag and save the state globally
+      for (i = 0; i++; i < j)
+        extraWindDataArray[i] = array[i]; //copy the leftover data into the temp global array
+      extraWindData = j;
+      savedChecksum=checksum;
+      savedXorState=xorState;
+    }
+  }//end if theres data to parse
+ 
+
+
       //Uncomment a section to test it parsing that kind of command! (will print the global variables)
  /* //GPS testing:
  int error = Parser("$GPGLL,4413.7075,N,07629.5199,W,192945,A,A*5E"); // this is returning 44.23  and -76.49; off by 0.1, 0.2?
@@ -548,7 +736,7 @@ for(i=0; i < availableBytes; i++)
 
 	return error;
 }
-
+//end reliable serila data merge
 
 void setup()
 {
