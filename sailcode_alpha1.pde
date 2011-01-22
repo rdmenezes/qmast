@@ -5,7 +5,7 @@
 
  *  Created on: 2010-05-11
  *      Author: Nader for MAST Software
- */
+ */changing something
 //#include <math.h> doesnt work
 
 #include <SoftwareSerial.h> 
@@ -725,7 +725,7 @@ void loop()
 	
 	// see if it's running
 	//Serial.println("End of loop");    
-	
+	//change
 	delay(50);//remove this delay
 }
 
