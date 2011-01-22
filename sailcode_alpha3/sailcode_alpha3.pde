@@ -10,6 +10,8 @@
 /* ////////////////////////////////////////////////
 // Changelog
 ////////////////////////////////////////////////
+//CB Jan 21 data isnt clearing checksum?
+
 // CB, Dec 7 - added ported parser function and associated updates to the loop function
 // still missing:
 - getting data from the serial ports; 
@@ -491,7 +493,7 @@ int Compass()
   int error;//error flag for parser
 
 
-    delay(5000);
+   // delay(5000);
 
   if ((dataAvailable = Serial2.available()) > 126) { //the buffer has filled up; the data is likely corrupt;
     //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
@@ -526,7 +528,7 @@ int Compass()
 
     for (i = 0; i < dataAvailable; i++) {//this loop empties the whole serial buffer, and parses every time there is a newline
       array[j] = Serial2.read();
-      
+            
         if ((array[j] == '\n' || array[j] == '\0') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
         //if you're not getting here and using serial monitor, make sure to select newline from the line ending dropdown near the baud rate
         Serial.println("read newline/null character, about to check checksum.");
@@ -571,7 +573,7 @@ int Compass()
 
       //removed this because it can be checked when a newline is encountered
       //else checksumFromNMEA=checksumFromNMEA*8+array[j];//something like this, keep shifting it up a character
-      Serial.println(array[j]);
+     // Serial.println(array[j]);
       j++;
       
       
@@ -614,7 +616,7 @@ int Wind()
   int error;//error flag for parser
 
 
-    delay(5000);
+  //  delay(5000);
 
   if ((dataAvailable = Serial3.available()) > 126) { //the buffer has filled up; the data is likely corrupt;
     //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
@@ -821,7 +823,7 @@ void loop()
   int i;
   
   error = Compass();
-  error = Wind();   
+// error = Wind();   
   
      //this doesnt seem to be reacting to the serial data as expected - I believe the problem is largely due to how we're parsing and the lack of error checking
 //  Serial.print("\nNew heading");   
@@ -841,13 +843,13 @@ void loop()
  
  
   //setrudder(320);
-  arduinoServo(320);
-  delay(2000);
+  arduinoServo(30);
+  delay(20);
   
   Serial.print("\n10 degrees");   
 //  setrudder(10);
-  arduinoServo(10);
-  delay(2000);
+  arduinoServo(160);
+  delay(20);
   
  // for (i=0; i<10; i++) //read 10 times to ensure buffer doesnt get full
  //    error = Compass();
