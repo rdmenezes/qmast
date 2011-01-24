@@ -467,12 +467,12 @@ char convertASCIItoHex (const char ch)
        if(ch >= '0' && ch <= '9')
        // if it's an ASCII number 
        {
-         return ch - '0'; //subtract ASCII 0 value to get the hex value
+         return (ch - '0'); //subtract ASCII 0 value to get the hex value
        }
        else
        // if its a letter (assumed upper case)
        {
-         return (ch - 'A') + 10;//subtract ASCII A value then add 10 to get the hex value
+         return ((ch - 'A') + 10);//subtract ASCII A value then add 10 to get the hex value
        }
 }
 
@@ -485,7 +485,7 @@ int Compass()
   char array[LONGEST_NMEA];//array to hold data from serial port before parsing; 2* longest might be too long and inefficient
 
   char checksum; //computed checksum for the NMEA data between $ and *
-
+  char endCheckSum; //the HEX checksum that is added by the NMEA device
   int xorState; //holds the XOR  state (whether to use the next data in the xor checksum) from global
   int j; //j is a counter for the number of bytes which have been stored but not parsed yet
 
@@ -506,14 +506,14 @@ int Compass()
     savedChecksum=0;//clear the saved XOR value
     savedXorState=0;//clear the saved XORstate value
     lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
-    Serial.print("You filled the buffer. ");
+    Serial.println("You filled the buffer. ");
   }
   else if(!dataAvailable){
     noData = 1;//set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
-    Serial.print("No data available. ");
+    Serial.println("No data available. ");
   } 
   else {
-    Serial.print("There is data! ");
+    Serial.println("There is data! ");
     //first copy all the leftover data into array from the buffer
     for (i = 0; i < extraWindData; i++){
       array[i] = extraWindDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
@@ -540,9 +540,14 @@ int Compass()
 
         if ((array[j] == '\n' || array[j] == '\0') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
         //if you're not getting here and using serial monitor, make sure to select newline from the line ending dropdown near the baud rate
-        Serial.println("read newline/null character, about to check checksum.");
+        Serial.print("read newline/null character, the end checksum is:  ");
+//endCheckSum is always o with .. over it, or O with .. over it (the wingding symbol); problem with j value?
+        endCheckSum = (convertASCIItoHex(array[j-2]) << 4) | convertASCIItoHex(array[j-1]); //calculate the checksum by converting from the ASCII to HEX 
+        Serial.print(endCheckSum);
+        Serial.print("  and the checksum calculated is  ");
+        Serial.println(checksum);
         //check the XOR before bothering to parse; if its ok, reset the xor and parse, reset j
-        if (checksum==(( convertASCIItoHex(array[j-2]) << 4) | convertASCIItoHex(array[j-1]) )){
+        if (checksum==endCheckSum){
         //since hex values only take 4 bits, shift the more significant half to the left by 4 bits, the bitwise or it with the least significant half
         //then check if this value matches the calculated checksum (this part has been tested and should work)
           Serial.println("checksum is good, I'm parsing.");
@@ -645,14 +650,14 @@ int Wind()
     savedChecksum=0;//clear the saved XOR value
     savedXorState=0;//clear the saved XORstate value
     lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
-    Serial.print("You filled the buffer. ");
+    Serial.println("You filled the buffer. ");
   }
   else if(!dataAvailable){
     noData = 1;//set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
-    Serial.print("No data available. ");
+    Serial.println("No data available. ");
   } 
   else {
-    Serial.print("There is data! ");
+    Serial.println("There is data! ");
     //first copy all the leftover data into array from the buffer
     for (i = 0; i < extraWindData; i++){
       array[i] = extraWindDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
@@ -857,17 +862,17 @@ void loop()
 //we need to monitor pololu's feedback to detect these error codes
 //resetting the arduino fixed the problem
 
- Serial.print("\n 320 degrees");   
- 
- 
- 
-  //setrudder(320);
-  arduinoServo(30);
-  delay(20);
-  
-  Serial.print("\n10 degrees");   
-  setrudder(10);
-  delay(2000);
+// Serial.print("\n 320 degrees");   
+// 
+// 
+// 
+//  //setrudder(320);
+//  arduinoServo(30);
+//  delay(20);
+//  
+//  Serial.print("\n10 degrees");   
+//  setrudder(10);
+//  delay(2000);
   
  // for (i=0; i<10; i++) //read 10 times to ensure buffer doesnt get full
  //    error = Compass();
