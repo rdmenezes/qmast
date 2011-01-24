@@ -10,6 +10,8 @@
 /* ////////////////////////////////////////////////
 // Changelog
 ////////////////////////////////////////////////
+//CB Jan 21 data isnt clearing checksum?
+
 // CB, Dec 7 - added ported parser function and associated updates to the loop function
 // still missing:
 - getting data from the serial ports; 
@@ -26,7 +28,10 @@
 #include <String.h> //for parsing - necessary?
 #include <stdio.h> //for parsing - necessary?
 
-////////////////////////////////////////////////
+
+#include <Servo.h>  //for arduino generating PWM to run a servo
+ 
+
 // Global variables and constants
 ////////////////////////////////////////////////
 
@@ -43,7 +48,11 @@
 #define resetPin 8 //Pololu reset (digital pin on arduino)
 #define txPin 9 //Pololu serial pin (with SoftwareSerial library)
 
+#define servoPin 10 //arduino Servo library setup
+
 //reliableserial data merging
+//--------------------------
+
 //This code hasn't been tested on the arduino yet; it should be compared to sailcode_alpha2 and 3, and to scanln
 #define SHORTEST_NMEA 5
 #define LONGEST_NMEA 120
@@ -57,7 +66,13 @@ int		savedXorState=0;//clear the global saved XORstate value
 int		lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
 int 		noData =1; // global flag to indicate serial buffer was empty
 char 		extraWindDataArray[LONGEST_NMEA]; // a buffer to store roll-over data in case this data is fetched mid-line
+//------------------------
 //end reliable serial data merging
+
+//for arduino Servo library control
+Servo myservo;  // create servo object to control a servo 
+                // a maximum of eight servo objects can be created 
+
 
 //Counters (Used for averaging)
 int PTNTHTM;
@@ -413,6 +428,11 @@ int Parser(char *val)
 //LEVEL 3 Functions
 ////////////////////////////////////////////////////
 
+//arduino servo library
+void arduinoServo(int pos){
+      myservo.write(pos);              // tell servo to go to position in variable 'pos' 
+}
+
 void servo_command(int whichservo, int position)
 {
  servo_ser.print(0xFF, BYTE); //servo control board sync
@@ -475,7 +495,8 @@ int Compass()
   bool twoCommasPresent = false; //Alright, this flag will be set if the data being read in has two commas in a row. This is needed since
   	  	  	  	  	  	  	  	 //it will crash the program as strtok will have trouble with the delimiters later.
 
-    delay(5000);
+
+   // delay(5000);
 
   if ((dataAvailable = Serial2.available()) > 126) { //the buffer has filled up; the data is likely corrupt;
     //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
@@ -510,7 +531,7 @@ int Compass()
 
     for (i = 0; i < dataAvailable; i++) {//this loop empties the whole serial buffer, and parses every time there is a newline
       array[j] = Serial2.read();
-      
+            
     	if (j > 0) {
     		if (array[j] == ',' && array[j-1] == ',') {
     			twoCommasPresent = true;
@@ -528,7 +549,7 @@ int Compass()
 
           //Before parsing the valid string, check to see if the string contains two consecutive commas as indicated by the twoCommasPresent flag
           if (!twoCommasPresent) {
-          	  error = parser(array); //checksum was successful, so parse
+              error = Parser(array); //checksum was successful, so parse
           } else {
         	  twoCommasPresent = false;
         	  //This will be where we handle the presence of twoCommas, since it means that the boat is doing something strange
@@ -571,7 +592,7 @@ int Compass()
 
       //removed this because it can be checked when a newline is encountered
       //else checksumFromNMEA=checksumFromNMEA*8+array[j];//something like this, keep shifting it up a character
-      Serial.println(array[j]);
+     // Serial.println(array[j]);
       j++;
       
       
@@ -614,7 +635,7 @@ int Wind()
   int error;//error flag for parser
 
 
-    delay(5000);
+  //  delay(5000);
 
   if ((dataAvailable = Serial3.available()) > 126) { //the buffer has filled up; the data is likely corrupt;
     //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
@@ -764,9 +785,11 @@ void setup()
  Serial2.begin(19200);
  Serial3.begin(4800);
 
+//for pololu
         pinMode(txPin, OUTPUT);
         pinMode(resetPin, OUTPUT);
                
+             
         servo_ser.begin(2400);
 
         //next NEED to explicitly reset the Pololu board using a separate pin
@@ -774,6 +797,9 @@ void setup()
         digitalWrite(resetPin, 0);
         delay(10);
         digitalWrite(resetPin, 1);  
+        
+//for arduino Servo library
+ myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object 
         
         //initialize all counters/variables
   
@@ -816,7 +842,7 @@ void loop()
   int i;
   
   error = Compass();
-  error = Wind();   
+// error = Wind();   
   
      //this doesnt seem to be reacting to the serial data as expected - I believe the problem is largely due to how we're parsing and the lack of error checking
 //  Serial.print("\nNew heading");   
@@ -832,8 +858,12 @@ void loop()
 //resetting the arduino fixed the problem
 
  Serial.print("\n 320 degrees");   
-  setrudder(320);
-  delay(2000);
+ 
+ 
+ 
+  //setrudder(320);
+  arduinoServo(30);
+  delay(20);
   
   Serial.print("\n10 degrees");   
   setrudder(10);
