@@ -638,8 +638,10 @@ float targetang()
 	x = (longitude - GPSX);
 	y = (latitude - GPSY);
 	angle = tan(y / x); //sung: put in proper quadrant
-	
-	if (angle < 0)
+	if (y<0)
+                angle = angle +180;
+        
+        if (angle < 0)
 		angle += 360;
 	else if (angle > 360)
 		angle -= 360;
@@ -661,7 +663,7 @@ void target()
 	tarang = targetang();
 	if ((headingc - tarang) < 0) 
 	{	//The target is left to the boat
-		//turn to the right
+		//turn to the left 
 		setrudder(MAXRUDDER); // cb! nader says: Not sure about MIN or MAX //sung: make this proportional
 		do 
 		{
