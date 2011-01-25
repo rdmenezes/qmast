@@ -541,11 +541,12 @@ int Compass()
         if ((array[j] == '\n' || array[j] == '\0') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
         //if you're not getting here and using serial monitor, make sure to select newline from the line ending dropdown near the baud rate
         Serial.print("read newline/null character, the end checksum is:  ");
-//endCheckSum is always o with .. over it, or O with .. over it (the wingding symbol); problem with j value?
-        endCheckSum = (convertASCIItoHex(array[j-2]) << 4) | convertASCIItoHex(array[j-1]); //calculate the checksum by converting from the ASCII to HEX 
-        Serial.print(endCheckSum);
+        //compass strings seem to end with *<checksum>\r\n (carriage return, linefeed = 0x0D, 0x0A) so there's an extra j index between the two checksum values (j-3, j-2) and the current j.
+        //just skip over it when checking the checksum
+        endCheckSum = (convertASCIItoHex(array[j-3]) << 4) | convertASCIItoHex(array[j-2]); //calculate the checksum by converting from the ASCII to HEX 
+        Serial.print(endCheckSum,HEX);
         Serial.print("  and the checksum calculated is  ");
-        Serial.println(checksum);
+        Serial.println(checksum,HEX);
         //check the XOR before bothering to parse; if its ok, reset the xor and parse, reset j
         if (checksum==endCheckSum){
         //since hex values only take 4 bits, shift the more significant half to the left by 4 bits, the bitwise or it with the least significant half
@@ -555,6 +556,7 @@ int Compass()
           //Before parsing the valid string, check to see if the string contains two consecutive commas as indicated by the twoCommasPresent flag
           if (!twoCommasPresent) {
               error = Parser(array); //checksum was successful, so parse
+              //delay(500);  //trying to add a delay to account for the fact that the code works when print out all the elements of the array, but not when you don't. Seems sketchy.
           } else {
         	  twoCommasPresent = false;
         	  //This will be where we handle the presence of twoCommas, since it means that the boat is doing something strange
@@ -597,7 +599,7 @@ int Compass()
 
       //removed this because it can be checked when a newline is encountered
       //else checksumFromNMEA=checksumFromNMEA*8+array[j];//something like this, keep shifting it up a character
-     // Serial.println(array[j]);
+      Serial.println(array[j]/*,HEX*/);
       j++;
       
       
