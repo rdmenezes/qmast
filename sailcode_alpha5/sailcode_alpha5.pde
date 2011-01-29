@@ -186,6 +186,8 @@ int Parser(char *val)
   char *roll_string;
   char *pitch_string;
   
+  Serial.print(val[0]); //test for $
+  
   if (DataValid(val) == 1){ //check if the data is valid - ideally we'd do this by checking the checksum
     Serial.print("Parses says: valid string, val (full string) is:\n");
   }
@@ -498,7 +500,7 @@ int Compass()
 
    // delay(5000);
 
-  if ((dataAvailable = Serial2.available()) > 126) { //the buffer has filled up; the data is likely corrupt;
+  if ((dataAvailable = Serial2.available()) > LONGEST_NMEA) { //the buffer has filled up; the data is likely corrupt;
     //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
     //when we get the data out
       Serial2.flush(); //clear the serial buffer
@@ -519,7 +521,7 @@ int Compass()
       array[i] = extraWindDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
       //probably actually don't need the second global array
     }
-
+    
     //now continue filling array from the serial port
     checksum = savedChecksum;//set the xor error checksum to the saved value (only xor if between $ and *)
     xorState = savedXorState;//set the XOR state (whether to use the next data in the xor checksum) from global
@@ -529,9 +531,13 @@ int Compass()
     savedChecksum = 0;//reset for the next time
     savedXorState = 0;//reset for next time
 
+    Serial.print(array[0]);
+    Serial.print(array[1]);
+    Serial.print(array[2]);
+    
     for (i = 0; i < dataAvailable; i++) {//this loop empties the whole serial buffer, and parses every time there is a newline
       array[j] = Serial2.read();
-            
+      Serial.print(j);      
     	if (j > 0) {
     		if (array[j] == ',' && array[j-1] == ',') {
     			twoCommasPresent = true;
@@ -555,6 +561,7 @@ int Compass()
 
           //Before parsing the valid string, check to see if the string contains two consecutive commas as indicated by the twoCommasPresent flag
           if (!twoCommasPresent) {
+              Serial.println(array[0]); //print first character (should be $)
               error = Parser(array); //checksum was successful, so parse
               //delay(500);  //trying to add a delay to account for the fact that the code works when print out all the elements of the array, but not when you don't. Seems sketchy.
           } else {
@@ -599,7 +606,7 @@ int Compass()
 
       //removed this because it can be checked when a newline is encountered
       //else checksumFromNMEA=checksumFromNMEA*8+array[j];//something like this, keep shifting it up a character
-      Serial.println(array[j]/*,HEX*/);
+     // Serial.println(array[j]/*,HEX*/);
       j++;
       
       
@@ -611,6 +618,9 @@ int Compass()
       extraWindData = j;
       savedChecksum=checksum;
       savedXorState=xorState;
+      Serial.print("Stored extra data - ");
+      Serial.println(extraWindData);
+      Serial.println(extraWindDataArray[0]);
     }
   }//end if theres data to parse
  
@@ -628,7 +638,7 @@ int Compass()
 
 int Wind() 
 {	//fill in code to get data from the serial port if availabile
-//wind connects to serial3
+//wind connects to serial1
   int dataAvailable; // how many bytes are available on the serial port
   char array[LONGEST_NMEA];//array to hold data from serial port before parsing; 2* longest might be too long and inefficient
 
@@ -644,10 +654,10 @@ int Wind()
 
   //  delay(5000);
 
-  if ((dataAvailable = Serial3.available()) > 126) { //the buffer has filled up; the data is likely corrupt;
+  if ((dataAvailable = Serial1.available()) > 126) { //the buffer has filled up; the data is likely corrupt;
     //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
     //when we get the data out
-      Serial3.flush(); //clear the serial buffer
+      Serial1.flush(); //clear the serial buffer
     extraWindData = 0; //'clear' the extra data buffer, because any data wrapping around will be destroyed by clearing the buffer
     savedChecksum=0;//clear the saved XOR value
     savedXorState=0;//clear the saved XORstate value
@@ -676,7 +686,7 @@ int Wind()
     savedXorState = 0;//reset for next time
 
     for (i = 0; i < dataAvailable; i++) {//this loop empties the whole serial buffer, and parses every time there is a newline
-      array[j] = Serial3.read();
+      array[j] = Serial1.read();
       
         if ((array[j] == '\n' || array[j] == '\0') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
         //if you're not getting here and using serial monitor, make sure to select newline from the line ending dropdown near the baud rate
@@ -708,7 +718,7 @@ int Wind()
       Serial.println("string too long, clearing some stuff");
         j = -1;//start at the first byte to fill the array
         //We should flush the buffer here
-        Serial.flush();
+        Serial1.flush();
         checksum=0;//set the xor checksum back to zero
         xorState = 0;//only start the Xoring for the checksum once a new $ character is found, not here
       } 
@@ -849,6 +859,9 @@ void loop()
   int i;
   
   error = Compass();
+  
+  Serial.println(extraWindDataArray[0],HEX);
+  
 // error = Wind();   
   
      //this doesnt seem to be reacting to the serial data as expected - I believe the problem is largely due to how we're parsing and the lack of error checking
