@@ -451,7 +451,7 @@ void setrudder(float ang)
 {
 //fill this in with the code to interface with pololu 
  
-  int servo_num =0;
+  int servo_num =1;
   int position;
  // Serial.println("Controlling motors");
   
@@ -533,31 +533,31 @@ int Compass()
 
     Serial.print(array[0]);
     Serial.print(array[1]);
-    Serial.print(array[2]);
+   // Serial.print(array[2]);
     
     for (i = 0; i < dataAvailable; i++) {//this loop empties the whole serial buffer, and parses every time there is a newline
       array[j] = Serial2.read();
-      Serial.print(j);      
+     // Serial.print(j);      
     	if (j > 0) {
     		if (array[j] == ',' && array[j-1] == ',') {
     			twoCommasPresent = true;
     		}
     	}
 
-        if ((array[j] == '\n' || array[j] == '\0') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
+        if ((array[j] == '\n') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
         //if you're not getting here and using serial monitor, make sure to select newline from the line ending dropdown near the baud rate
-        Serial.print("read newline/null character, the end checksum is:  ");
+        Serial.print("read slash n, checksum is:  ");
         //compass strings seem to end with *<checksum>\r\n (carriage return, linefeed = 0x0D, 0x0A) so there's an extra j index between the two checksum values (j-3, j-2) and the current j.
         //just skip over it when checking the checksum
         endCheckSum = (convertASCIItoHex(array[j-3]) << 4) | convertASCIItoHex(array[j-2]); //calculate the checksum by converting from the ASCII to HEX 
         Serial.print(endCheckSum,HEX);
-        Serial.print("  and the checksum calculated is  ");
+        Serial.print("  , checksum calculated is  ");
         Serial.println(checksum,HEX);
         //check the XOR before bothering to parse; if its ok, reset the xor and parse, reset j
         if (checksum==endCheckSum){
         //since hex values only take 4 bits, shift the more significant half to the left by 4 bits, the bitwise or it with the least significant half
         //then check if this value matches the calculated checksum (this part has been tested and should work)
-          Serial.println("checksum is good, I'm parsing.");
+          Serial.println("checksum good, parsing.");
 
           //Before parsing the valid string, check to see if the string contains two consecutive commas as indicated by the twoCommasPresent flag
           if (!twoCommasPresent) {
@@ -572,7 +572,7 @@ int Compass()
           }
 
         } else
-        Serial.println("checksum was not good...");// else statement and this line are only here for testing
+        Serial.println("checksum not good...");// else statement and this line are only here for testing
         
         //regardless of checksum, reset array to beginning and reset checksum
         j = -1;//this will start writing over the old data, need -1 because we add to j
@@ -612,16 +612,30 @@ int Compass()
       
     }//end loop from 0 to dataAvailable
 
-    if (j > 0 && j < LONGEST_NMEA) { //this means that there was leftover data; set a flag and save the state globally
+//Jan 28, Christine:
+//this is the part where the data is being messed up; extraWindDataArray isnt saving useful data, just 0's. Memory issue??? 
+//Patch/fix: add in delay, so that partial data never wraps around and data is disgarded instead!
+
+    Serial.print("end, 0 is:");
+    Serial.println(array[0]);
+
+    if ((j > 0) && (j < LONGEST_NMEA)) { //this means that there was leftover data; set a flag and save the state globally
+
       for (i = 0; i++; i < j)
         extraWindDataArray[i] = array[i]; //copy the leftover data into the temp global array
+
       extraWindData = j;
       savedChecksum=checksum;
       savedXorState=xorState;
       Serial.print("Stored extra data - ");
-      Serial.println(extraWindData);
-      Serial.println(extraWindDataArray[0]);
+      Serial.print(extraWindData);
+      Serial.print(",");
+      Serial.print(extraWindDataArray[0],HEX);
+      Serial.print(extraWindDataArray[1],HEX);
+      Serial.print(extraWindDataArray[2],HEX);
+      Serial.print(extraWindDataArray[3],HEX);      
     }
+    
   }//end if theres data to parse
  
 
@@ -860,15 +874,15 @@ void loop()
   
   error = Compass();
   
-  Serial.println(extraWindDataArray[0],HEX);
+//  Serial.println(extraWindDataArray[0],HEX);
   
 // error = Wind();   
   
      //this doesnt seem to be reacting to the serial data as expected - I believe the problem is largely due to how we're parsing and the lack of error checking
-//  Serial.print("\nNew heading");   
-//  setrudder(heading_newest);
-//  delay(2000);
-  
+  //Serial.print("\nNew heading");   
+  setrudder(heading_newest);
+  delay(50);
+  //seems more responsive with 50 delay than 10 (perhaps servo doesnt have tim eto move, or serial data is being garbled with 10?)
 
 //note: output is even MORE garbled over zigbee; interference? or buffers full?
 
