@@ -99,7 +99,7 @@ float bspeedk; //Boat's speed in knots
 float wind_angl;//wind angle, (relative to boat or north?)
 float wind_velocity;//wind velocity in knots
 //Compass data
-float headingc;//heading relative to true north
+float headingc;//sum of all past headings relative to true north
 float pitch;//pitch relative to ??
 float roll;//roll relative to ??
 
@@ -339,9 +339,13 @@ int Parser(char *val)
     //ref_knot is always N to indicate knots
     //ref_kmh is always K to indicate kilometers
 
-    bspeed += sov_kmh; //cb! dont we want a moving average?
-    bspeedk += sov_knot;
-    GPVTG++;
+	
+	bspeed = sov_kmh; //actual speed not the average
+    bspeedk = sov_knot;
+	
+   //bspeed += sov_kmh; //cb! dont we want a moving average?
+    //bspeedk += sov_knot;
+    //GPVTG++;
   }
  
  
@@ -881,6 +885,7 @@ void loop()
      //this doesnt seem to be reacting to the serial data as expected - I believe the problem is largely due to how we're parsing and the lack of error checking
   //Serial.print("\nNew heading");   
   setrudder(heading_newest);
+  relayData()
   delay(50);
   //seems more responsive with 50 delay than 10 (perhaps servo doesnt have tim eto move, or serial data is being garbled with 10?)
 
@@ -905,7 +910,25 @@ void loop()
   
  // for (i=0; i<10; i++) //read 10 times to ensure buffer doesnt get full
  //    error = Compass();
+ 
+
    
+}
+void relayData(){//sends data to shore
+
+ //send data to zigbee
+ Serial.println(latitude); //Curent latitude
+ Serial.print(",");
+ Serial.print(longitude); //current longitude
+ Serial.print(",");
+ Serial.print(bspeed); //boat speed 
+ Serial.print(",");
+ Serial.print(heading);  //boat direction
+ Serial.print(",");
+ Serial.print(wind_angl);  //wind angle, (relative to boat or north?)
+ Serial.print(",");
+ Serial.println(wind_velocity);//wind velocity in knots
+ 
 }
 
 
