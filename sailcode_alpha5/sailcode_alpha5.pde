@@ -868,6 +868,8 @@ void setup()
   GPVTG=0;
         
         heading_newest=0;//heading relative to true north, newest
+
+   delay(1000); //give everything some time to set up, especially the serial buffers
 }
 
 
@@ -883,12 +885,12 @@ int getWaypointDirection(){
 }
 
 int straightSail(){
-  int dirn=0; //direction we want to sail
+  int waypointDirn=0; //direction we want to sail
   int error=0; //error flag
   int timer=0; //loop timer placeholder; really we'll be timing?
   int directionError=0;
   
-  dirn = getWaypointDirection(); //get the next waypoint's direction
+  waypointDirn = getWaypointDirection(); //get the next waypoint's direction
   
   while (timer < 10){
     error = Compass(BUFF_MAX); //updates heading_newest
@@ -899,7 +901,7 @@ int straightSail(){
       return (error);
     //not used yet, but update whether closehauled or not from wind direction
     
-    directionError = heading_newest - dirn;
+    directionError = heading_newest - waypointDirn;
     if  (abs(directionError) > 10){
       setrudder(directionError); //adjust rudder proportional
       delay (10);
