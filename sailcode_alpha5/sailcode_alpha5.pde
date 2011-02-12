@@ -38,6 +38,7 @@
 
 
 //Constants
+#define BUFF_MAX 255 // serial buffer length, set in HardwareSerial.cpp in arduino0022/hardware/arduino/cores/arduino
 //#define PI 3.14159265358979323846
 #define d2r (PI / 180.0)
 #define EARTHRAD 6367515 // for long trips only
@@ -485,7 +486,7 @@ char convertASCIItoHex (const char ch)
 
 
 
-int Compass() 
+int Compass(int bufferLength) 
 { //compass connects to serial2
   int dataAvailable; // how many bytes are available on the serial port
   char array[LONGEST_NMEA];//array to hold data from serial port before parsing; 2* longest might be too long and inefficient
@@ -504,7 +505,7 @@ int Compass()
 
    // delay(5000);
 
-  if ((dataAvailable = Serial2.available()) > LONGEST_NMEA) { //the buffer has filled up; the data is likely corrupt;
+  if ((dataAvailable = Serial2.available()) > bufferLength) { //the buffer has filled up; the data is likely corrupt;
     //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
     //when we get the data out
       Serial2.flush(); //clear the serial buffer
@@ -535,13 +536,13 @@ int Compass()
     savedChecksum = 0;//reset for the next time
     savedXorState = 0;//reset for next time
 
-    Serial.print(array[0]);
-    Serial.print(array[1]);
+  //  Serial.print(array[0]);
+   // Serial.print(array[1]);
    // Serial.print(array[2]);
     
     for (i = 0; i < dataAvailable; i++) {//this loop empties the whole serial buffer, and parses every time there is a newline
       array[j] = Serial2.read();
-     // Serial.print(j);      
+      Serial.print(array[j]);      
     	if (j > 0) {
     		if (array[j] == ',' && array[j-1] == ',') {
     			twoCommasPresent = true;
@@ -550,13 +551,13 @@ int Compass()
 
         if ((array[j] == '\n') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
         //if you're not getting here and using serial monitor, make sure to select newline from the line ending dropdown near the baud rate
-        Serial.print("read slash n, checksum is:  ");
+      //  Serial.print("read slash n, checksum is:  ");
         //compass strings seem to end with *<checksum>\r\n (carriage return, linefeed = 0x0D, 0x0A) so there's an extra j index between the two checksum values (j-3, j-2) and the current j.
         //just skip over it when checking the checksum
         endCheckSum = (convertASCIItoHex(array[j-3]) << 4) | convertASCIItoHex(array[j-2]); //calculate the checksum by converting from the ASCII to HEX 
-        Serial.print(endCheckSum,HEX);
-        Serial.print("  , checksum calculated is  ");
-        Serial.println(checksum,HEX);
+     //   Serial.print(endCheckSum,HEX);
+    //    Serial.print("  , checksum calculated is  ");
+     //   Serial.println(checksum,HEX);
         //check the XOR before bothering to parse; if its ok, reset the xor and parse, reset j
         if (checksum==endCheckSum){
         //since hex values only take 4 bits, shift the more significant half to the left by 4 bits, the bitwise or it with the least significant half
@@ -620,8 +621,8 @@ int Compass()
 //this is the part where the data is being messed up; extraWindDataArray isnt saving useful data, just 0's. Memory issue??? 
 //Patch/fix: add in delay, so that partial data never wraps around and data is disgarded instead!
 
-    Serial.print("end, 0 is:");
-    Serial.println(array[0]);
+ //   Serial.print("end, 0 is:");
+ //   Serial.println(array[0]);
 
     if ((j > 0) && (j < LONGEST_NMEA)) { //this means that there was leftover data; set a flag and save the state globally
 
@@ -631,13 +632,13 @@ int Compass()
       extraWindData = j;
       savedChecksum=checksum;
       savedXorState=xorState;
-      Serial.print("Stored extra data - ");
-      Serial.print(extraWindData);
-      Serial.print(",");
-      Serial.print(extraWindDataArray[0],HEX);
-      Serial.print(extraWindDataArray[1],HEX);
-      Serial.print(extraWindDataArray[2],HEX);
-      Serial.print(extraWindDataArray[3],HEX);      
+      Serial.println("Stored extra data - ");
+  //    Serial.print(extraWindData);
+  //    Serial.print(",");
+ //     Serial.print(extraWindDataArray[0],HEX);
+ //     Serial.print(extraWindDataArray[1],HEX);
+ //     Serial.print(extraWindDataArray[2],HEX);
+  //    Serial.print(extraWindDataArray[3],HEX);      
     }
     
   }//end if theres data to parse
@@ -870,23 +871,70 @@ void setup()
 }
 
 
+int getWaypointDirection(){
+  int error=0;// = GPS(BUFF_MAX);
+
+  if (error)
+    return(error);
+    
+  // use present position and calculate angle
+
+  return 0;
+}
+
+int straightSail(){
+  int dirn=0; //direction we want to sail
+  int error=0; //error flag
+  int timer=0; //loop timer placeholder; really we'll be timing?
+  int directionError=0;
+  
+  dirn = getWaypointDirection(); //get the next waypoint's direction
+  
+  while (timer < 10){
+    error = Compass(BUFF_MAX); //updates heading_newest
+    if (error)
+      return (error);
+   // error  = Wind(BUFF_MAX); //update wind direction
+    if (error)
+      return (error);
+    //not used yet, but update whether closehauled or not from wind direction
+    
+    directionError = heading_newest - dirn;
+    if  (abs(directionError) > 10){
+      setrudder(directionError); //adjust rudder proportional
+      delay (10);
+      setrudder(0); //straight rudder
+    }
+    
+    delay(500);
+    
+    timer ++;
+  }
+  
+  return 0;
+}
 
 void loop()
 {
   int error;
   int i;
+  char input;
   
-  error = Compass();
+  error = straightSail();
+  
+//  error = Compass();
   
 //  Serial.println(extraWindDataArray[0],HEX);
   
 // error = Wind();   
-  
+
+
+//  Serial2.print("$PAMTC,");
      //this doesnt seem to be reacting to the serial data as expected - I believe the problem is largely due to how we're parsing and the lack of error checking
   //Serial.print("\nNew heading");   
-  setrudder(heading_newest);
-  relayData()
-  delay(50);
+ // setrudder(heading_newest);
+  //relayData();
+  //delay(5000);
   //seems more responsive with 50 delay than 10 (perhaps servo doesnt have tim eto move, or serial data is being garbled with 10?)
 
 //note: output is even MORE garbled over zigbee; interference? or buffers full?
@@ -910,9 +958,7 @@ void loop()
   
  // for (i=0; i<10; i++) //read 10 times to ensure buffer doesnt get full
  //    error = Compass();
- 
-
-   
+    
 }
 void relayData(){//sends data to shore
 
