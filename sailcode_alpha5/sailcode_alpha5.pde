@@ -109,7 +109,7 @@ float heading_newest;//heading relative to true north
 //Pololu
 SoftwareSerial servo_ser = SoftwareSerial(7, txPin); // for connecting via a nonbuffered serial port to pololu -output only
 
-
+boolean tackSide=0;//tacking to left or right
 int port1;//what is this?
 char total[10000];//cb buffer variable
 
@@ -876,12 +876,33 @@ void setup()
 int getWaypointDirection(){
   int error=0;// = GPS(BUFF_MAX);
 
+  
   if (error)
     return(error);
-    
-  // use present position and calculate angle
+   
+//----taken from alpha 2 was  function TargetAng----------
+  /* targetang function
+ * Duty: compute the angle between the boat and the target
+ * Inputs: none
+ * Output: none
+ * Returns: target's angle
+ */
+	float angle, x, y;
+	x = (longitude - GPSX);
+	y = (latitude - GPSY);
+	angle = tan(y / x); //sung: put in proper quadrant
+	if (y<0)
+                angle = angle +180;
+        
+        if (angle < 0)
+		angle += 360;
+	else if (angle > 360)
+		angle -= 360;
+	return angle;
+//---------------------------------------------------------
 
   return 0;
+  
 }
 
 int straightSail(){
@@ -914,6 +935,75 @@ int straightSail(){
   }
   
   return 0;
+}
+
+void sailUpWind(){
+  int closeHauledDirn=0;//desired direction
+  int directionError=0;//difference between actual direction and desired
+  int waypointDirn=0;//direction to waypoint
+  int tackDirection=0;
+  int timer=0;
+  
+  closeHauledDirn=getCloseHauledDirn(tackSide);
+  directionError = heading_newest - closeHauledDirn;
+  
+  while (timer < 10){
+    if  (abs(directionError) > 10){
+      setrudder(directionError); //adjust rudder proportional
+      delay (10);
+      setrudder(0); //straight rudder
+    }  
+    delay(500);
+    timer ++;
+  }
+  
+  //---check if we can close haul to target by tacking---
+  waypointDirn = getWaypointDirection();
+  tackDirection = getCloseHauledDirn(!tackSide);//other close hauled angle
+  float slopeDesiredLine=0;//final close hauled path to target(slope)
+  int yIntLine=0;//final close hauled path to target(y-intercept)
+  slopeDesiredLine=1/(tan(180-tackDirection));
+  yIntLine=latitude-slopeDesiredLine*longitude;//y=m*x+b ==>  b=y-m*x
+  boolean aboveLine;//is the boat further north then the line
+  
+  if (latitude < slopeDesiredLine*longitude+yIntLine){//is y_boat < y_line at current x pos
+    if (wind_angl>=90&&wind_angl<=270){//is wind coming from south
+     if (canTack()){
+       tackSide=!tackSide; 
+       //maybe have tack function wich controls sails too       
+     }else{
+       //should bear off then tack
+     }
+    }
+  }else{
+   if (wind_angl<=90||wind_angl>=270){//is wind coming from noth
+     if (canTack()){
+       tackSide=!tackSide; 
+       //maybe have tack function wich controls sails too
+     }else{
+       //should bear off then tack 
+     }
+    }
+  }  
+  
+  //should also tack if we are far off course 
+  
+}
+boolean canTack(){
+  return true;//placeholder should use wind speed vs boat speed
+}
+
+
+int getCloseHauledDirn(boolean tackSide){
+  int desiredDirection=0;
+  //******this assumes wind_angl is relative to north ***need test still***
+  if (tackSide){
+    desiredDirection=wind_angl+30; //placeholder should depend on wind and boat speed
+  }else{
+    desiredDirection=wind_angl-30;//placeholder should depend on wind and boat speed
+  }
+  
+  return desiredDirection;
 }
 
 void loop()
