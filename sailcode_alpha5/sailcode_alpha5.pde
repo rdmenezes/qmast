@@ -457,12 +457,12 @@ void setrudder(float ang)
 //fill this in with the code to interface with pololu 
  
   int servo_num =1;
-  int position;
+  int pos; //position ("position" was highlighted as a special name?)
  // Serial.println("Controlling motors");
   
-  position = ang * 254.0 / 360.0;//convert from angle to a 256 maximum position
+  pos = ang * 254.0 / 360.0;//convert from angle to a 256 maximum position
   
-  servo_command(servo_num,position);
+  servo_command(servo_num,pos);
   //delay(10);
 }
 
@@ -880,6 +880,7 @@ int getWaypointDirection(){
   if (error)
     return(error);
    
+// use present position and calculate angle
 //----taken from alpha 2 was  function TargetAng----------
   /* targetang function
  * Duty: compute the angle between the boat and the target
@@ -922,11 +923,11 @@ int straightSail(){
       return (error);
     //not used yet, but update whether closehauled or not from wind direction
     
-    directionError = heading_newest - waypointDirn;
+    directionError = waypointDirn - heading_newest;//the roller-skate-boat turns opposite to it's angle
     if  (abs(directionError) > 10){
       setrudder(directionError); //adjust rudder proportional
       delay (10);
-      setrudder(0); //straight rudder
+      //setrudder(0); //straight rudder
     }
     
     delay(500);
