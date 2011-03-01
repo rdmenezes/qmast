@@ -440,18 +440,22 @@ void arduinoServo(int pos){
       myservo.write(pos);              // tell servo to go to position in variable 'pos' 
 }
 
-void servo_command(int whichservo, int position)
-{
- servo_ser.print(0xFF, BYTE); //servo control board sync
- //Plolou documentation is wrong on servo numbers in MiniSSCII
- servo_ser.print(whichservo+8, BYTE); //servo number, 180 mode
- servo_ser.print(position, BYTE); //servo position
-}
-
 
 //Pololu servo board test in Mini SSC II mode
 //(mode jumper innplace on Pololu board)
 
+//Servo_command receieves a servo number (acceptable range: 00-FE) and a position (acceptable range: 00-FE)
+void servo_command(int whichservo, int position, byte longRange)
+{
+ servo_ser.print(0xFF, BYTE); //servo control board sync
+ //Plolou documentation is wrong on servo numbers in MiniSSCII
+ servo_ser.print(whichservo+(longRange*8), BYTE); //servo number, 180 mode
+ servo_ser.print(position, BYTE); //servo position
+}
+
+
+//Accept a angle range to turn the rudder to 
+//float ang acceptable values: 90 degree total range (emulation); -45 = left (??); +45 = right(??); 0 = centre
 void setrudder(float ang)
 {
 //fill this in with the code to interface with pololu 
@@ -460,9 +464,15 @@ void setrudder(float ang)
   int pos; //position ("position" was highlighted as a special name?)
  // Serial.println("Controlling motors");
   
-  pos = ang * 254.0 / 360.0;//convert from angle to a 256 maximum position
+//check input, and change is appropriate
+  if (ang > 45)
+    ang = 45;
+  else if (ang < -45)
+    ang = -45;
   
-  servo_command(servo_num,pos);
+  pos = (ang + 45) * 254.0 / 90.0;//convert from 180 degree range, -90 to +90 angle to a 0 to 256 maximum position range
+  
+  servo_command(servo_num,pos,0);
   //delay(10);
 }
 
@@ -874,63 +884,82 @@ void setup()
 
 
 int getWaypointDirection(){
+
   int error=0;// = GPS(BUFF_MAX);
 
   
   if (error)
     return(error);
+    
+  return (90); //for testing, waypoint is always 90 degrees
    
-// use present position and calculate angle
-//----taken from alpha 2 was  function TargetAng----------
-  /* targetang function
- * Duty: compute the angle between the boat and the target
- * Inputs: none
- * Output: none
- * Returns: target's angle
- */
-	float angle, x, y;
-	x = (longitude - GPSX);
-	y = (latitude - GPSY);
-	angle = tan(y / x); //sung: put in proper quadrant
-	if (y<0)
-                angle = angle +180;
-        
-        if (angle < 0)
-		angle += 360;
-	else if (angle > 360)
-		angle -= 360;
-	return angle;
-//---------------------------------------------------------
-
-  return 0;
-  
+// use present position and calculate angle - can incorporate this code into 
+////----taken from alpha 2 was  function TargetAng----------
+//  /* targetang function
+// * Duty: compute the angle between the boat and the target
+// * Inputs: none
+// * Output: none
+// * Returns: target's angle
+// */
+//	float angle, x, y; //moved up with other variables
+//	x = (longitude - GPSX);
+//	y = (latitude - GPSY);
+//	angle = radiansToDegrees(atan(y / x)); //sung: put in proper quadrant // change to atan2? atan returns radians; check what atan returns (0 to 180 in rad? or -90 to 90?)
+//	if (y<0)
+//                angle = angle +180;
+//        
+//        if (angle < 0)
+//		angle += 360;
+//	else if (angle > 360)
+//		angle -= 360;
+//	return angle;
+////---------------------------------------------------------
 }
 
+float degreesToRadians(int angle){
+  return PI*angle/180.0;
+}
+
+
+int radiansToDegrees(float angle){
+  return 180*angle/PI;
+}
+
+
 int straightSail(){
+ //this should be the generic straight sailing function; getWaypointDirn should return a desired compass direction, 
+ //taking into account wind direction (not necc just the wayoint dirn); (or make another function to do this)
+
   int waypointDirn=0; //direction we want to sail
   int error=0; //error flag
   int timer=0; //loop timer placeholder; really we'll be timing?
   int directionError=0;
+  int angle=0; 
   
-  waypointDirn = getWaypointDirection(); //get the next waypoint's direction
+  waypointDirn = getWaypointDirection(); //get the next waypoint's direction (right now this just returns 90); must be positive 0-360
   
   while (timer < 10){
     error = Compass(BUFF_MAX); //updates heading_newest
     if (error)
       return (error);
    // error  = Wind(BUFF_MAX); //update wind direction
-    if (error)
-      return (error);
+   // if (error)
+     // return (error);
     //not used yet, but update whether closehauled or not from wind direction
     
     directionError = waypointDirn - heading_newest;//the roller-skate-boat turns opposite to it's angle
-    if  (abs(directionError) > 10){
-      setrudder(directionError); //adjust rudder proportional
-      delay (10);
-      //setrudder(0); //straight rudder
-    }
+    if (directionError < 0)
+      directionError += 360;
+      
+    if  (abs(directionError) > 10 && abs(directionError) < 350) { //rudder deadzone to avoid constant adjustments and oscillating, only change the rudder if there's a big error
+        if (directionError > 180) //turn left, so send a negative to setrudder function
+          setrudder(directionError-360);  //adjust rudder proportional; setrudder accepts -45 to +45
+        else
+          setrudder(directionError); //adjust rudder proportional; setrudder accepts -45 to +45     
+        delay(10);
+    }   
     
-    delay(500);
+    delay(50);//reduced delay from 1/2s to 50ms to allow serial buffer to fill
     
     timer ++;
   }
@@ -963,7 +992,7 @@ void sailUpWind(){
   tackDirection = getCloseHauledDirn(!tackSide);//other close hauled angle
   float slopeDesiredLine=0;//final close hauled path to target(slope)
   int yIntLine=0;//final close hauled path to target(y-intercept)
-  slopeDesiredLine=1/(tan(180-tackDirection));
+  slopeDesiredLine=1/(tan(degreesToRadians(180-tackDirection)));//this will explode if tan returns 0, but it shouldnt if you think about the sail logic
   yIntLine=latitude-slopeDesiredLine*longitude;//y=m*x+b ==>  b=y-m*x
   boolean aboveLine;//is the boat further north then the line
   
