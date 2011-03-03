@@ -131,9 +131,9 @@ int DataValid(char *val)
 	if (val[0] != '$') 
 	{
 		Serial.println("wrong data\n");
-		return 0;
+		return 1;
 	}
-	return 1;
+	return 0;
 	//Check the end of the string
 }
 
@@ -577,6 +577,7 @@ int Compass(int bufferLength)
           //Before parsing the valid string, check to see if the string contains two consecutive commas as indicated by the twoCommasPresent flag
           if (!twoCommasPresent) {
               Serial.println(array[0]); //print first character (should be $)
+              array[j+1] = '\0';//append the end of string character
               error = Parser(array); //checksum was successful, so parse
               //delay(500);  //trying to add a delay to account for the fact that the code works when print out all the elements of the array, but not when you don't. Seems sketchy.
           } else {
@@ -606,7 +607,7 @@ int Compass(int bufferLength)
       else if (j > LONGEST_NMEA){//if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
       Serial.println("string too long, clearing some stuff");
         j = -1;//start at the first byte to fill the array
-        //We should flush the buffer here
+        //We should flush the buffer here... maybe??
         Serial2.flush();
         checksum=0;//set the xor checksum back to zero
         xorState = 0;//only start the Xoring for the checksum once a new $ character is found, not here
@@ -636,7 +637,7 @@ int Compass(int bufferLength)
 
     if ((j > 0) && (j < LONGEST_NMEA)) { //this means that there was leftover data; set a flag and save the state globally
 
-      for (i = 0; i++; i < j)
+      for (i = 0; i < j; i++)
         extraWindDataArray[i] = array[i]; //copy the leftover data into the temp global array
 
       extraWindData = j;
@@ -668,6 +669,7 @@ int Compass(int bufferLength)
 int Wind() 
 {	//fill in code to get data from the serial port if availabile
 //wind connects to serial1
+//replace this with finished compass code
   int dataAvailable; // how many bytes are available on the serial port
   char array[LONGEST_NMEA];//array to hold data from serial port before parsing; 2* longest might be too long and inefficient
 
@@ -940,8 +942,10 @@ int straightSail(){
   
   while (timer < 10){
     error = Compass(BUFF_MAX); //updates heading_newest
-    if (error)
+    if (error){
+      //digitalWrite(CompassErrorLED,1); //set the compass LED indicator high
       return (error);
+    }
    // error  = Wind(BUFF_MAX); //update wind direction
    // if (error)
      // return (error);
@@ -951,11 +955,11 @@ int straightSail(){
     if (directionError < 0)
       directionError += 360;
       
-    if  (abs(directionError) > 10 && abs(directionError) < 350) { //rudder deadzone to avoid constant adjustments and oscillating, only change the rudder if there's a big error
+    if  (directionError > 10 && directionError < 350) { //rudder deadzone to avoid constant adjustments and oscillating, only change the rudder if there's a big error
         if (directionError > 180) //turn left, so send a negative to setrudder function
-          setrudder(directionError-360);  //adjust rudder proportional; setrudder accepts -45 to +45
+          setrudder((directionError-360)/4);  //adjust rudder proportional; setrudder accepts -45 to +45
         else
-          setrudder(directionError); //adjust rudder proportional; setrudder accepts -45 to +45     
+          setrudder(directionError/4); //adjust rudder proportional; setrudder accepts -45 to +45     
         delay(10);
     }   
     
@@ -1042,13 +1046,25 @@ void loop()
   int i;
   char input;
   
-  error = straightSail();
+ // error = straightSail();
   
 //  error = Compass();
   
 //  Serial.println(extraWindDataArray[0],HEX);
   
 // error = Wind();   
+
+
+    
+//   error = Compass(BUFF_MAX); //updates heading_newest
+//    
+// 
+//    if (heading_newest < 180)//the roller-skate-boat turns opposite to it's angle
+//        setrudder(-180);  //adjust rudder proportional; setrudder accepts -45 to +45
+//    else
+//        setrudder(180); //adjust rudder proportional; setrudder accepts -45 to +45     
+//
+//    delay(1000);
 
 
 //  Serial2.print("$PAMTC,");
@@ -1067,16 +1083,12 @@ void loop()
 //resetting the arduino fixed the problem
 
 // Serial.print("\n 320 degrees");   
-// 
-// 
-// 
-//  //setrudder(320);
+setrudder(320);
 //  arduinoServo(30);
-//  delay(20);
-//  
+delay(2000); 
 //  Serial.print("\n10 degrees");   
-//  setrudder(10);
-//  delay(2000);
+setrudder(10);
+delay(2000);
   
  // for (i=0; i<10; i++) //read 10 times to ensure buffer doesnt get full
  //    error = Compass();
