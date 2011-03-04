@@ -58,6 +58,13 @@
 #define SHORTEST_NMEA 5
 #define LONGEST_NMEA 120
 
+#define oldDataLED 49 //there is data, but buffer is full, error indicator light
+#define noDataLED  48 // no data, error indicator LED
+#define twoCommasLED 51 // indicates that there were two commas in the data, and it has been discarded and not parsed
+#define checksumBadLED 50 // indicates checksum fail on data
+#define goodCompassDataLED 53 // indicates that strtok returned PTNTHTM, so we probably got good data
+#define rolloverDataLED 52 //indicates data rolled over, not fast enough
+
 //!!!!when testing by sending strings through the serial monitor, you need to select "newline" ending from the dropdown beside the baud rate
 
 // what's the shortest possible data string?
@@ -361,7 +368,8 @@ int Parser(char *val)
      */
 
      //need a way to parse commands with blanks in their data ie $PTNTHTM,,N,-2.4,N,10.7,N,59.1,3844*27 , which is what the compass returns when its tipped over too much; right now that breaks this parsing
-     
+    digitalWrite(goodCompassDataLED, HIGH);
+    
     head2_string = strtok(NULL, ","); // should return 285.2; this will use the cp copied string, since strtok magically remembers which string it was initially referenced to if NULL if used instead of a string
     head_st = (char) * strtok(NULL, ","); //head_st is only a (char) not a array of chars. It's value is only N or S. Hence, head_st = typecast(char) dereferenced strtok. 
           // strtok returns a point to a character array; we only want the value at the pointer's address (first value)
@@ -515,22 +523,34 @@ int Compass(int bufferLength)
 
    // delay(5000);
 
-  if ((dataAvailable = Serial2.available()) > bufferLength) { //the buffer has filled up; the data is likely corrupt;
-    //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
-    //when we get the data out
-      Serial2.flush(); //clear the serial buffer
-    extraWindData = 0; //'clear' the extra data buffer, because any data wrapping around will be destroyed by clearing the buffer
-    savedChecksum=0;//clear the saved XOR value
-    savedXorState=0;//clear the saved XORstate value
-    lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
-    Serial.println("You filled the buffer. ");
-  }
-  else if(!dataAvailable){
+ if(!dataAvailable){
     noData = 1;//set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
     Serial.println("No data available. ");
+    digitalWrite(noDataLED,HIGH);//turn on error indicator LED to warn about no data present
+    digitalWrite(goodCompassDataLED, LOW); //data isnt good if it isnt there
   } 
   else {
     Serial.println("There is data! ");
+    digitalWrite(oldDataLED,LOW); //there is data, buffer isnt full, so turn off error indicator light
+    digitalWrite(noDataLED,LOW);//turn off error indicator LED to warn about no data
+    
+    if ((dataAvailable = Serial2.available()) > bufferLength) { //the buffer has filled up; the data is likely corrupt;
+    //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
+    //when we get the data out
+    
+    //flushing data is probably not the best; the data will not be corrupt since the port blocks, it will justbe old, so accept it.
+//      Serial2.flush(); //clear the serial buffer
+//    extraWindData = 0; //'clear' the extra data buffer, because any data wrapping around will be destroyed by clearing the buffer
+//    savedChecksum=0;//clear the saved XOR value
+//    savedXorState=0;//clear the saved XORstate value
+//    lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
+
+        Serial.println("You filled the buffer, data old. ");
+        digitalWrite(oldDataLED,HIGH);//turn on error indicator LED to warn about old data
+        digitalWrite(goodCompassDataLED, LOW); //data is old, so not so goood
+       }
+
+    
     //first copy all the leftover data into array from the buffer
     for (i = 0; i < extraWindData; i++){
       array[i] = extraWindDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
@@ -556,6 +576,8 @@ int Compass(int bufferLength)
     	if (j > 0) {
     		if (array[j] == ',' && array[j-1] == ',') {
     			twoCommasPresent = true;
+                        digitalWrite(goodCompassDataLED, LOW); //data is bad
+                        digitalWrite(twoCommasLED,HIGH);//turn on error indicator LED to warn about old data                         
     		}
     	}
 
@@ -579,6 +601,7 @@ int Compass(int bufferLength)
               Serial.println(array[0]); //print first character (should be $)
               array[j+1] = '\0';//append the end of string character
               error = Parser(array); //checksum was successful, so parse
+              digitalWrite(twoCommasLED,LOW);//turn off error indicator LED to warn about old data
               //delay(500);  //trying to add a delay to account for the fact that the code works when print out all the elements of the array, but not when you don't. Seems sketchy.
           } else {
         	  twoCommasPresent = false;
@@ -586,16 +609,21 @@ int Compass(int bufferLength)
         	  //AKA tilted two far, bad compass data
         	  //GPS can't locate satellites, lots of commas, no values.
           }
-
-        } else
-        Serial.println("checksum not good...");// else statement and this line are only here for testing
-        
+          
+          digitalWrite(checksumBadLED,LOW);//checksum was bad if on, its not bad anymore
+          
+        } else {
+            Serial.println("checksum not good...");// else statement and this line are only here for testing
+            digitalWrite(checksumBadLED,HIGH);//checksum was bad, turn on indicator
+            digitalWrite(goodCompassDataLED, LOW); //data is bad
+        }
         //regardless of checksum, reset array to beginning and reset checksum
         j = -1;//this will start writing over the old data, need -1 because we add to j
         //should be fine how we parse presently to have old data tagged on the end,
         //but watch out if we change how we parse
         checksum=0;//set the xor checksum back to zero
-      } 
+      } //end if we're at the end of the data
+      
       else if (array[j] == '$') {//if we encounter $ its the start of new data, so restart the data
       Serial.println("found a $, restarting...");
         //if its not in the 0 position there's been an error so get rid of the data and start a new line anyways
@@ -607,10 +635,11 @@ int Compass(int bufferLength)
       else if (j > LONGEST_NMEA){//if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
       Serial.println("string too long, clearing some stuff");
         j = -1;//start at the first byte to fill the array
-        //We should flush the buffer here... maybe??
-        Serial2.flush();
+        // Serial2.flush(); //dont flush because there might be good data at the end
         checksum=0;//set the xor checksum back to zero
         xorState = 0;//only start the Xoring for the checksum once a new $ character is found, not here
+       
+        digitalWrite(goodCompassDataLED,LOW);//turn on error indicator LED to warn about old data
       } 
       else if (array[j] == '*'){//if find a * within a reasonable length, stop XORing and wait for \n
         //could set a flag to stop XORing
@@ -644,6 +673,8 @@ int Compass(int bufferLength)
       savedChecksum=checksum;
       savedXorState=xorState;
       Serial.println("Stored extra data - ");
+      digitalWrite(rolloverDataLED, HIGH); //indicates data rolled over, not fast enough
+      
   //    Serial.print(extraWindData);
   //    Serial.print(",");
  //     Serial.print(extraWindDataArray[0],HEX);
@@ -651,6 +682,8 @@ int Compass(int bufferLength)
  //     Serial.print(extraWindDataArray[2],HEX);
   //    Serial.print(extraWindDataArray[3],HEX);      
     }
+    else
+      digitalWrite(rolloverDataLED, LOW); //indicates data didnt roll over
     
   }//end if theres data to parse
  
@@ -730,7 +763,7 @@ int Wind()
           error = Parser(array); //checksum was successful, so parse
         } else
         Serial.println("checksum was not good...");// else statement and this line are only here for testing
-        
+       
         //regardless of checksum, reset array to beginning and reset checksum
         j = -1;//this will start writing over the old data, need -1 because we add to j
         //should be fine how we parse presently to have old data tagged on the end,
@@ -770,7 +803,7 @@ int Wind()
     }//end loop from 0 to dataAvailable
 
     if (j > 0 && j < LONGEST_NMEA) { //this means that there was leftover data; set a flag and save the state globally
-      for (i = 0; i++; i < j)
+      for (i = 0; i < j; i++)
         extraWindDataArray[i] = array[i]; //copy the leftover data into the temp global array
       extraWindData = j;
       savedChecksum=checksum;
@@ -848,6 +881,15 @@ void setup()
         
 //for arduino Servo library
  myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object 
+
+ //setup indicator LEDs       
+ pinMode(oldDataLED, OUTPUT); //there is data, but buffer is full, error indicator light
+ pinMode(noDataLED, OUTPUT);  // no data, error indicator LED
+ pinMode(twoCommasLED, OUTPUT); // indicates that there were two commas in the data, and it has been discarded and not parsed
+ pinMode(checksumBadLED, OUTPUT);// indicates checksum fail on data
+ pinMode(goodCompassDataLED, OUTPUT); // indicates that strtok returned PTNTHTM, so we probably got good data
+ pinMode(rolloverDataLED, OUTPUT); //indicates data rolled over, not fast enough
+        
         
         //initialize all counters/variables
   
@@ -963,6 +1005,7 @@ int straightSail(){
         delay(10);
     }   
     
+    
     delay(50);//reduced delay from 1/2s to 50ms to allow serial buffer to fill
     
     timer ++;
@@ -1046,7 +1089,7 @@ void loop()
   int i;
   char input;
   
- // error = straightSail();
+// error = straightSail();
   
 //  error = Compass();
   
@@ -1056,15 +1099,15 @@ void loop()
 
 
     
-//   error = Compass(BUFF_MAX); //updates heading_newest
-//    
-// 
-//    if (heading_newest < 180)//the roller-skate-boat turns opposite to it's angle
-//        setrudder(-180);  //adjust rudder proportional; setrudder accepts -45 to +45
-//    else
-//        setrudder(180); //adjust rudder proportional; setrudder accepts -45 to +45     
-//
-//    delay(1000);
+   error = Compass(BUFF_MAX); //updates heading_newest
+    
+ 
+    if (heading_newest < 180)//the roller-skate-boat turns opposite to it's angle
+        setrudder(-180);  //adjust rudder proportional; setrudder accepts -45 to +45
+    else
+        setrudder(180); //adjust rudder proportional; setrudder accepts -45 to +45     
+
+    delay(1000);
 
 
 //  Serial2.print("$PAMTC,");
@@ -1082,13 +1125,14 @@ void loop()
 //we need to monitor pololu's feedback to detect these error codes
 //resetting the arduino fixed the problem
 
-// Serial.print("\n 320 degrees");   
-setrudder(320);
-//  arduinoServo(30);
-delay(2000); 
+//Polulu Test Code
+//Serial.print("\n 320 degrees");   
+//setrudder(320);
+////  arduinoServo(30);
+//delay(2000); 
 //  Serial.print("\n10 degrees");   
-setrudder(10);
-delay(2000);
+//setrudder(10);
+//delay(2000);
   
  // for (i=0; i<10; i++) //read 10 times to ensure buffer doesnt get full
  //    error = Compass();
