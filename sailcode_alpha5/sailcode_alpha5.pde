@@ -194,12 +194,12 @@ int Parser(char *val)
   char *roll_string;
   char *pitch_string;
   
-  Serial.print(val[0]); //test for $
+ // Serial.print(val[0]); //test for $
   
-  if (DataValid(val) == 1){ //check if the data is valid - ideally we'd do this by checking the checksum
+  if (DataValid(val) == 0){ //check if the data is valid - ideally we'd do this by checking the checksum
     Serial.print("Parses says: valid string, val (full string) is:\n");
   }
-  else return 1; // if data isnt valid, dont try to parse it and throw error code
+  else { Serial.println("Datavalid fail"); digitalWrite(twoCommasLED, HIGH); return 1; } // if data isnt valid, dont try to parse it and throw error code
 
   Serial.println(val);//echo what we're about to parse
 
@@ -609,13 +609,17 @@ int Compass(int bufferLength)
 
           //Before parsing the valid string, check to see if the string contains two consecutive commas as indicated by the twoCommasPresent flag
           if (!twoCommasPresent) {
-              Serial.println(array[0]); //print first character (should be $)
+             // Serial.println(array[0]); //print first character (should be $)
               array[j+1] = '\0';//append the end of string character
-              error = Parser(array); //checksum was successful, so parse
               digitalWrite(twoCommasLED,LOW);//turn off error indicator LED to warn about old data
+              Serial.print("First character is: ");
+              Serial.println(array[0]);
+              error = Parser(array); //checksum was successful, so parse              
               //delay(500);  //trying to add a delay to account for the fact that the code works when print out all the elements of the array, but not when you don't. Seems sketchy.
           } else {
         	  twoCommasPresent = false;
+                  Serial.println("Two commas present, didnt parse");
+                  
         	  //This will be where we handle the presence of twoCommas, since it means that the boat is doing something strange
         	  //AKA tilted two far, bad compass data
         	  //GPS can't locate satellites, lots of commas, no values.
@@ -654,7 +658,7 @@ int Compass(int bufferLength)
       } 
       else if (array[j] == '*'){//if find a * within a reasonable length, stop XORing and wait for \n
         //could set a flag to stop XORing
-        Serial.println("found a *");
+      //  Serial.println("found a *");
         xorState = 0;
       } 
       else if (xorState) //for all other cases, xor unless it's after *
@@ -693,9 +697,11 @@ int Compass(int bufferLength)
  //     Serial.print(extraWindDataArray[2],HEX);
   //    Serial.print(extraWindDataArray[3],HEX);      
     }
-    else
+    else if (j > LONGEST_NMEA)
+       digitalWrite(twoCommasLED, HIGH);//error light
+    else 
       digitalWrite(rolloverDataLED, LOW); //indicates data didnt roll over
-    
+      
   }//end if theres data to parse
  
 
@@ -704,7 +710,9 @@ int Compass(int bufferLength)
    Serial.println(pitch);
    Serial.println(roll);
    Serial.println(PTNTHTM); */ 
-
+  
+   Serial2.println("$PTNT,HTM*63"); //compass is in sample mode now; so request the next sample! :)
+   
    return error;
 }
 
@@ -807,8 +815,12 @@ int straightSail(){
     error = Compass(BUFF_MAX); //updates heading_newest
     if (error){
       //digitalWrite(CompassErrorLED,1); //set the compass LED indicator high
+      digitalWrite(oldDataLED,HIGH);//error indicator
       return (error);
     }
+    
+    digitalWrite(oldDataLED,LOW); //error indicator
+    
    // error  = Wind(BUFF_MAX); //update wind direction
    // if (error)
      // return (error);
@@ -827,7 +839,7 @@ int straightSail(){
     }   
     
     
-    delay(50);//reduced delay from 1/2s to 50ms to allow serial buffer to fill
+    delay(5000);//reduced delay from 1/2s to 50ms to allow serial buffer to fill
     
     timer ++;
   }
@@ -956,6 +968,14 @@ void setup()
  pinMode(rolloverDataLED, OUTPUT); //indicates data rolled over, not fast enough
         
         
+ digitalWrite(oldDataLED, LOW); //there is data, but buffer is full, error indicator light
+ digitalWrite(noDataLED, LOW);  // no data, error indicator LED
+ digitalWrite(twoCommasLED, LOW); // indicates that there were two commas in the data, and it has been discarded and not parsed
+ digitalWrite(checksumBadLED, LOW);// indicates checksum fail on data
+ digitalWrite(goodCompassDataLED, LOW); // indicates that strtok returned PTNTHTM, so we probably got good data
+ digitalWrite(rolloverDataLED, LOW); //indicates data rolled over, not fast enough
+        
+ delay(10);          
         //initialize all counters/variables
   
   latitude=0;//curent latitude
@@ -988,7 +1008,11 @@ void setup()
         
         heading_newest=0;//heading relative to true north, newest
 
-   delay(1000); //give everything some time to set up, especially the serial buffers
+//  delay(1000); //put this back in if you want to change the compass to sample mode
+// Serial2.println("@F0.3=0*66"); 
+  delay(1000); //give everything some time to set up, especially the serial buffers
+  Serial2.println("$PTNT,HTM*63"); //request a data sample, to give it time to get it
+  delay(200);
 }
 
 void loop()
@@ -997,25 +1021,30 @@ void loop()
   int i;
   char input;
   
-// error = straightSail();
+ error = straightSail();
   
-//  error = Compass();
-  
-//  Serial.println(extraWindDataArray[0],HEX);
-  
-// error = Wind();   
 
-
-    
-   error = Compass(BUFF_MAX); //updates heading_newest
-    
+//  delay(1000);
+//  error = Compass(BUFF_MAX);
+//  
+//  while (Serial2.available()>0)
+//   {
+//     input = Serial2.read();
+//     Serial.print(input);
+//   }
+   
+ // delay(5000); 
  
-    if (heading_newest < 180)//the roller-skate-boat turns opposite to it's angle
-        setrudder(-180);  //adjust rudder proportional; setrudder accepts -45 to +45
-    else
-        setrudder(180); //adjust rudder proportional; setrudder accepts -45 to +45     
-
-    delay(1000);
+   
+//   error = Compass(BUFF_MAX); //updates heading_newest
+//    
+// 
+//    if (heading_newest < 180)//the roller-skate-boat turns opposite to it's angle
+//        setrudder(-180);  //adjust rudder proportional; setrudder accepts -45 to +45
+//    else
+//        setrudder(180); //adjust rudder proportional; setrudder accepts -45 to +45     
+//
+//    delay(100);
 
 
 //  Serial2.print("$PAMTC,");
@@ -1023,7 +1052,7 @@ void loop()
   //Serial.print("\nNew heading");   
  // setrudder(heading_newest);
   //relayData();
-  //delay(5000);
+ // delay(5000);
   //seems more responsive with 50 delay than 10 (perhaps servo doesnt have tim eto move, or serial data is being garbled with 10?)
 
 //note: output is even MORE garbled over zigbee; interference? or buffers full?
