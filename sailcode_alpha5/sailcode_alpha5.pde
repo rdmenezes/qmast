@@ -799,53 +799,7 @@ int getWaypointDirection(){
 ////---------------------------------------------------------
 }
 
-int straightSail(){
- //this should be the generic straight sailing function; getWaypointDirn should return a desired compass direction, 
- //taking into account wind direction (not necc just the wayoint dirn); (or make another function to do this)
 
-  int waypointDirn=0; //direction we want to sail
-  int error=0; //error flag
-  int timer=0; //loop timer placeholder; really we'll be timing?
-  int directionError=0;
-  int angle=0; 
-  
-  waypointDirn = getWaypointDirection(); //get the next waypoint's direction (right now this just returns 90); must be positive 0-360
-  
-  while (timer < 10){
-    error = Compass(BUFF_MAX); //updates heading_newest
-    if (error){
-      //digitalWrite(CompassErrorLED,1); //set the compass LED indicator high
-      digitalWrite(oldDataLED,HIGH);//error indicator
-      return (error);
-    }
-    
-    digitalWrite(oldDataLED,LOW); //error indicator
-    
-   // error  = Wind(BUFF_MAX); //update wind direction
-   // if (error)
-     // return (error);
-    //not used yet, but update whether closehauled or not from wind direction
-    
-    directionError = waypointDirn - heading_newest;//the roller-skate-boat turns opposite to it's angle
-    if (directionError < 0)
-      directionError += 360;
-      
-    if  (directionError > 10 && directionError < 350) { //rudder deadzone to avoid constant adjustments and oscillating, only change the rudder if there's a big error
-        if (directionError > 180) //turn left, so send a negative to setrudder function
-          setrudder((directionError-360)/4);  //adjust rudder proportional; setrudder accepts -45 to +45
-        else
-          setrudder(directionError/4); //adjust rudder proportional; setrudder accepts -45 to +45     
-        delay(10);
-    }   
-    
-    
-    delay(5000);//reduced delay from 1/2s to 50ms to allow serial buffer to fill
-    
-    timer ++;
-  }
-  
-  return 0;
-}
 
 void sailUpWind(){
   int closeHauledDirn=0;//desired direction
@@ -932,6 +886,54 @@ void relayData(){//sends data to shore
  Serial.print(",");
  Serial.println(wind_velocity);//wind velocity in knots
  
+}
+
+int straightSail(){
+ //this should be the generic straight sailing function; getWaypointDirn should return a desired compass direction, 
+ //taking into account wind direction (not necc just the wayoint dirn); (or make another function to do this)
+
+  int waypointDirn=0; //direction we want to sail
+  int error=0; //error flag
+  int timer=0; //loop timer placeholder; really we'll be timing?
+  int directionError=0;
+  int angle=0; 
+  
+  waypointDirn = getWaypointDirection(); //get the next waypoint's direction (right now this just returns 90); must be positive 0-360
+  
+  while (timer < 10){
+    error = Compass(BUFF_MAX); //updates heading_newest
+    if (error){
+      //digitalWrite(CompassErrorLED,1); //set the compass LED indicator high
+      digitalWrite(oldDataLED,HIGH);//error indicator
+      return (error);
+    }
+    
+    digitalWrite(oldDataLED,LOW); //error indicator
+    
+   // error  = Wind(BUFF_MAX); //update wind direction
+   // if (error)
+     // return (error);
+    //not used yet, but update whether closehauled or not from wind direction
+    
+    directionError = waypointDirn - heading_newest;//the roller-skate-boat turns opposite to it's angle
+    if (directionError < 0)
+      directionError += 360;
+      
+    if  (directionError > 10 && directionError < 350) { //rudder deadzone to avoid constant adjustments and oscillating, only change the rudder if there's a big error
+        if (directionError > 180) //turn left, so send a negative to setrudder function
+          setrudder((directionError-360)/4);  //adjust rudder proportional; setrudder accepts -45 to +45
+        else
+          setrudder(directionError/4); //adjust rudder proportional; setrudder accepts -45 to +45     
+        delay(10);
+    }   
+    
+    
+    delay(5000);//reduced delay from 1/2s to 50ms to allow serial buffer to fill
+    
+    timer ++;
+  }
+  
+  return 0;
 }
 
 void setup()
