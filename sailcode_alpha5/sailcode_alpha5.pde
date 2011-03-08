@@ -448,6 +448,22 @@ int radiansToDegrees(float angle){
   return 180*angle/PI;
 }
 
+//from reliable serial data merge
+//adapted from http://forum.sparkfun.com/viewtopic.php?f=17&t=9570
+//(all of our checksums have numbers or capital letters so no worries about the UTIL_TOUPPER)
+char convertASCIItoHex (const char ch)
+{
+       if(ch >= '0' && ch <= '9')
+       // if it's an ASCII number 
+       {
+         return (ch - '0'); //subtract ASCII 0 value to get the hex value
+       }
+       else
+       // if its a letter (assumed upper case)
+       {
+         return ((ch - 'A') + 10);//subtract ASCII A value then add 10 to get the hex value
+       }
+}
 
 /////////////////////////////////////////////////////
 //LEVEL 3 Functions
@@ -473,7 +489,9 @@ void servo_command(int whichservo, int position, byte longRange)
 
 
 //Accept a angle range to turn the rudder to 
-//float ang acceptable values: 90 degree total range (emulation); -45 = left (??); +45 = right(??); 0 = centre
+//float ang acceptable values: 90 degree total range (emulation); -45 = left; +45 = right; 0 = centre 
+// this direction (-'ve angles are LEFT turns) has been verified on the roller skate boat, with the wheel at the back emulating the rudder properly
+// except the servo is upside down; so on the real boat, -'ve angles are RIGHT turns
 void setrudder(float ang)
 {
 //fill this in with the code to interface with pololu 
@@ -493,26 +511,6 @@ void setrudder(float ang)
   servo_command(servo_num,pos,0);
   //delay(10);
 }
-
-//from reliable serial data merge
-//adapted from http://forum.sparkfun.com/viewtopic.php?f=17&t=9570
-//(all of our checksums have numbers or capital letters so no worries about the UTIL_TOUPPER)
-char convertASCIItoHex (const char ch)
-{
-       if(ch >= '0' && ch <= '9')
-       // if it's an ASCII number 
-       {
-         return (ch - '0'); //subtract ASCII 0 value to get the hex value
-       }
-       else
-       // if its a letter (assumed upper case)
-       {
-         return ((ch - 'A') + 10);//subtract ASCII A value then add 10 to get the hex value
-       }
-}
-
-
-
 
 int Compass(int bufferLength) 
 { //compass connects to serial2
@@ -923,12 +921,14 @@ int straightSail(){
         if (directionError > 180) //turn left, so send a negative to setrudder function
           setrudder((directionError-360)/4);  //adjust rudder proportional; setrudder accepts -45 to +45
         else
-          setrudder(directionError/4); //adjust rudder proportional; setrudder accepts -45 to +45     
+          setrudder(directionError/4); //turn rudder right; adjust rudder proportional; setrudder accepts -45 to +45     
         delay(10);
     }   
+    else
+       setrudder(0);//set to neutral position
     
     
-    delay(5000);//reduced delay from 1/2s to 50ms to allow serial buffer to fill
+    delay(250);//reduced delay from 1/2s to 50ms to allow serial buffer to fill
     
     timer ++;
   }
@@ -1015,6 +1015,8 @@ void setup()
   delay(1000); //give everything some time to set up, especially the serial buffers
   Serial2.println("$PTNT,HTM*63"); //request a data sample, to give it time to get it
   delay(200);
+  setrudder(0);
+  delay(5000);
 }
 
 void loop()
@@ -1023,24 +1025,44 @@ void loop()
   int i;
   char input;
   
- error = straightSail();
+////sail testing code
+//error = straightSail();
   
+  
+//// rudder testing code
+//// Accept a angle range to turn the rudder to
+//// float ang acceptable values: 90 degree total range (emulation); -45 = left (??); +45 = right(??); 0 = centre
+// setrudder(-45);
+// delay(1000);
+// setrudder(45);
+// delay(1000);
+// setrudder(0);
+// delay(1000);
 
-//  delay(1000);
-//  error = Compass(BUFF_MAX);
-//  
+////compass run mode testing code, unparsed
 //  while (Serial2.available()>0)
 //   {
 //     input = Serial2.read();
 //     Serial.print(input);
 //   }
-   
- // delay(5000); 
- 
-   
-//   error = Compass(BUFF_MAX); //updates heading_newest
-//    
-// 
+     
+//compass sample mode testing code, parsed
+//      error = Compass(BUFF_MAX); //updates heading_newest
+//      Serial.println(heading_newest);
+//      delay(5000);
+
+
+//compass sample mode testing code, unparsed        
+  while (Serial2.available()>0)
+   {
+     input = Serial2.read();
+     Serial.print(input);
+   }
+   //Serial2.println("$PTNT,HTM*63");
+   delay(1000);
+  
+  
+// simple compass, rudder control testing code
 //    if (heading_newest < 180)//the roller-skate-boat turns opposite to it's angle
 //        setrudder(-180);  //adjust rudder proportional; setrudder accepts -45 to +45
 //    else
@@ -1051,6 +1073,7 @@ void loop()
 
 //  Serial2.print("$PAMTC,");
      //this doesnt seem to be reacting to the serial data as expected - I believe the problem is largely due to how we're parsing and the lack of error checking
+     //problem seemed to be the compass data; compass seems to be broken, see the chart taped to the whiteboard
   //Serial.print("\nNew heading");   
  // setrudder(heading_newest);
   //relayData();
@@ -1072,9 +1095,6 @@ void loop()
 //  Serial.print("\n10 degrees");   
 //setrudder(10);
 //delay(2000);
-  
- // for (i=0; i<10; i++) //read 10 times to ensure buffer doesnt get full
- //    error = Compass();
     
 }
 
