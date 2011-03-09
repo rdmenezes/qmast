@@ -46,10 +46,22 @@
 #define MINRUDDER 210   //Minimum rudder angle
 #define NRUDDER 210  //Neutral position
 #define MAXSAIL 180 //Neutral position
+
+//Pins
 #define resetPin 8 //Pololu reset (digital pin on arduino)
 #define txPin 9 //Pololu serial pin (with SoftwareSerial library)
 
 #define servoPin 10 //arduino Servo library setup
+
+#define noDataLED  48 // no data, error indicator LED
+#define oldDataLED 49 //there is data, but buffer is full, error indicator light
+#define checksumBadLED 50 // indicates checksum fail on data
+#define twoCommasLED 51 // indicates that there were two commas in the data, and it has been discarded and not parsed
+#define rolloverDataLED 52 //indicates data rolled over, not fast enough
+#define goodCompassDataLED 53 // indicates that strtok returned PTNTHTM, so we probably got good data
+
+#define RCsteeringSelect 12 //control pin for RC vs autonomous steering
+#define RCsailsSelect 11 //control pin for RC vs autonomous sails
 
 //reliableserial data merging
 //--------------------------
@@ -57,13 +69,6 @@
 //This code hasn't been tested on the arduino yet; it should be compared to sailcode_alpha2 and 3, and to scanln
 #define SHORTEST_NMEA 5
 #define LONGEST_NMEA 120
-
-#define oldDataLED 49 //there is data, but buffer is full, error indicator light
-#define noDataLED  48 // no data, error indicator LED
-#define twoCommasLED 51 // indicates that there were two commas in the data, and it has been discarded and not parsed
-#define checksumBadLED 50 // indicates checksum fail on data
-#define goodCompassDataLED 53 // indicates that strtok returned PTNTHTM, so we probably got good data
-#define rolloverDataLED 52 //indicates data rolled over, not fast enough
 
 //!!!!when testing by sending strings through the serial monitor, you need to select "newline" ending from the dropdown beside the baud rate
 
@@ -512,6 +517,23 @@ void setrudder(float ang)
   //delay(10);
 }
 
+void setSails(float ang)
+{
+  int servo_num =2;
+  int pos; //position ("position" was highlighted as a special name?)
+ // Serial.println("Controlling motors");
+  
+//check input, and change is appropriate
+  if (ang > 45)
+    ang = 45;
+  else if (ang < -45)
+    ang = -45;
+  
+  pos = (ang + 45) * 254.0 / 90.0;//convert from 180 degree range, -90 to +90 angle to a 0 to 256 maximum position range
+  
+  servo_command(servo_num,pos,0); //0 tells it to only turn short range
+
+}
 int Compass(int bufferLength) 
 { //compass connects to serial2
   int dataAvailable; // how many bytes are available on the serial port
@@ -936,6 +958,21 @@ int straightSail(){
   return 0;
 }
 
+void RC(int steering, int sails)
+//change the RC vs autonomous selection mode
+{
+  if (steering)
+    digitalWrite(RCsteeringSelect, HIGH);
+  else
+    digitalWrite(RCsteeringSelect, LOW);
+    
+  if (sails)
+    digitalWrite(RCsailsSelect, HIGH);
+  else  
+    digitalWrite(RCsailsSelect, LOW);
+}
+
+
 void setup()
 {
 	Serial.begin(9600);
@@ -976,6 +1013,17 @@ void setup()
  digitalWrite(checksumBadLED, LOW);// indicates checksum fail on data
  digitalWrite(goodCompassDataLED, LOW); // indicates that strtok returned PTNTHTM, so we probably got good data
  digitalWrite(rolloverDataLED, LOW); //indicates data rolled over, not fast enough
+        
+ //setup MUX controls   
+ pinMode(RCsteeringSelect, OUTPUT);
+ pinMode(RCsailsSelect, OUTPUT);
+ 
+ digitalWrite(RCsteeringSelect, HIGH);
+ digitalWrite(RCsailsSelect, HIGH);        
+      
+ //test pin
+ pinMode(13, OUTPUT);
+ digitalWrite(13, HIGH);
         
  delay(10);          
         //initialize all counters/variables
@@ -1045,7 +1093,81 @@ void loop()
 //     input = Serial2.read();
 //     Serial.print(input);
 //   }
-     
+//     
+////wind run mode testing code, unparsed (note* this doesnt need the arduino to be switched to xbee and the onboard power, works with arduino USB powered)
+//  while (Serial3.available()>0)
+//   {
+//     input = Serial3.read();
+//     Serial.print(input);
+//   }     
+  
+//MUX with motor testing  ; with present hardware setup, this makes rudder turn from Pololu and then jitter (no RC controller turned on)
+// the sails just trill and occasionally seems to mirror rudder with rudder plugged in; with rudder unplugged they jitter and low-pitched jittery-beep
+// this is likely due to the fact that the sail pin (11) seems to be broken (or that MUX channel is broken on the other side), it ranges .8to3.2V)
+ RC(0,0);//total autonomous
+ digitalWrite(noDataLED,LOW);
+ setrudder(-15);
+ setSails(-15);
+ delay(1000);
+ setSails(15);
+ setrudder(15);
+ delay(1000);
+  digitalWrite(13, HIGH);
+ setrudder(0);
+ setSails(0);
+ delay(1000);
+ setrudder(-15);
+ setSails(-15);
+ delay(1000);
+ setSails(15);
+ setrudder(15);
+ delay(1000);
+  digitalWrite(13, LOW);
+ setrudder(0);
+ setSails(0);
+ delay(1000);
+  setrudder(-15);
+ setSails(-15);
+ delay(1000);
+ setSails(15);
+ setrudder(15);
+ delay(1000);
+ setrudder(0);
+ setSails(0);
+ delay(1000);
+  
+ RC(1,1);//RC steering 
+ digitalWrite(noDataLED,HIGH);
+ setrudder(-15);
+ setSails(-15);
+ delay(1000);
+ setSails(15);
+ setrudder(15);
+ delay(1000);
+ digitalWrite(13, HIGH);
+ setrudder(0);
+ setSails(0);
+ delay(1000);
+ setrudder(-15);
+ setSails(-15);
+ delay(1000);
+ setSails(15);
+ setrudder(15);
+ delay(1000);
+  digitalWrite(13, LOW);
+ setrudder(0);
+ setSails(0);
+ delay(1000);
+  setrudder(-15);
+ setSails(-15);
+ delay(1000);
+ setSails(15);
+ setrudder(15);
+ delay(1000);
+ setrudder(0);
+ setSails(0);
+ delay(1000);
+  
 //compass sample mode testing code, parsed
 //      error = Compass(BUFF_MAX); //updates heading_newest
 //      Serial.println(heading_newest);
@@ -1053,13 +1175,13 @@ void loop()
 
 
 //compass sample mode testing code, unparsed        
-  while (Serial2.available()>0)
-   {
-     input = Serial2.read();
-     Serial.print(input);
-   }
-   //Serial2.println("$PTNT,HTM*63");
-   delay(1000);
+//  while (Serial2.available()>0)
+//   {
+//     input = Serial2.read();
+//     Serial.print(input);
+//   }
+//   //Serial2.println("$PTNT,HTM*63");
+//   delay(1000);
   
   
 // simple compass, rudder control testing code
