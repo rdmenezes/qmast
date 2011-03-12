@@ -978,8 +978,8 @@ void setup()
 	Serial.begin(9600);
 	//Serial1.begin(9600);
 
- Serial.begin(9600);
  Serial2.begin(19200);
+ //Serial2.begin(9600);
  Serial3.begin(4800);
 
 //for pololu
@@ -1087,19 +1087,37 @@ void loop()
 // setrudder(0);
 // delay(1000);
 
-////compass run mode testing code, unparsed
+//compass sample mode testing code, parsed
+//      error = Compass(BUFF_MAX); //updates heading_newest
+//      Serial.println(heading_newest);
+//      delay(5000);
+
+
+//compass sample mode testing code, unparsed        
+  while (Serial2.available()>0)
+   {
+     input = Serial2.read();
+     Serial.print(input);
+   }
+   Serial2.println("$PTNT,HTM*63");
+   delay(1000);
+  
+
+//compass run mode testing code, unparsed
 //  while (Serial2.available()>0)
 //   {
 //     input = Serial2.read();
 //     Serial.print(input);
 //   }
-//     
-////wind run mode testing code, unparsed (note* this doesnt need the arduino to be switched to xbee and the onboard power, works with arduino USB powered)
+     
+//////wind run mode testing code, unparsed (note* this doesnt need the arduino to be switched to xbee and the onboard power, works with arduino USB powered)
 //  while (Serial3.available()>0)
 //   {
 //     input = Serial3.read();
 //     Serial.print(input);
 //   }     
+//   
+//   delay(250);
   
 //MUX with motor testing  ; with present hardware setup, this makes rudder turn from Pololu and then jitter (no RC controller turned on)
 // the sails just trill and occasionally seems to mirror rudder with rudder plugged in; with rudder unplugged they jitter and low-pitched jittery-beep
@@ -1108,96 +1126,81 @@ void loop()
 // if motor range is small, battery is probably dead (7.2V non-regulated)
 // this MUX switching code is working - > mux working now to switch RC to autonomous; RC mode very noisy, perhaps need to replace antenna/transmitter
 
- RC(0,0);//total autonomous
- digitalWrite(noDataLED,LOW);
- Serial.println("0 degrees");
- setrudder(-15);
- setSails(-15);
-  Serial.println("-15 degrees");
- delay(1000);
-  Serial.println("-15 degrees");
- setSails(15);
- setrudder(15);
-  Serial.println("15 degrees");
- delay(1000);
- Serial.println("0 degrees");
- setrudder(0);
- setSails(0);
- delay(1000);
- Serial.println("0 degrees");
- setrudder(0);
- setSails(0);
-  Serial.println("0 degrees");
- delay(1000);
-  Serial.println("-45 degrees");
-  setrudder(-45);
- setSails(-45);
-  Serial.println("-45 degrees");
- delay(1000);
-  Serial.println("45 degrees");
- setSails(45);
- setrudder(45);
- Serial.println("45 degrees");
- delay(1000);
-  Serial.println("0 degrees");
- setrudder(0);
- setSails(0);
-  Serial.println("0 degrees");
- delay(1000);
- Serial.println("0 degrees");
-  
- RC(1,1);//RC steering 
- digitalWrite(noDataLED,HIGH);
-  Serial.println("0 degrees");
- setrudder(-15);
- setSails(-15);
-  Serial.println("-15 degrees");
- delay(1000);
-  Serial.println("-15 degrees");
- setSails(15);
- setrudder(15);
-  Serial.println("15 degrees");
- delay(1000);
- Serial.println("0 degrees");
- setrudder(0);
- setSails(0);
- delay(1000);
- Serial.println("0 degrees");
- setrudder(0);
- setSails(0);
-  Serial.println("0 degrees");
- delay(1000);
-  Serial.println("-45 degrees");
-  setrudder(-45);
- setSails(-45);
-  Serial.println("-45 degrees");
- delay(1000);
-  Serial.println("45 degrees");
- setSails(45);
- setrudder(45);
- Serial.println("45 degrees");
- delay(1000);
-  Serial.println("0 degrees");
- setrudder(0);
- setSails(0);
-  Serial.println("0 degrees");
- delay(1000);
- Serial.println("0 degrees");
-  
-//compass sample mode testing code, parsed
-//      error = Compass(BUFF_MAX); //updates heading_newest
-//      Serial.println(heading_newest);
-//      delay(5000);
-
-
-//compass sample mode testing code, unparsed        
-//  while (Serial2.available()>0)
-//   {
-//     input = Serial2.read();
-//     Serial.print(input);
-//   }
-//   //Serial2.println("$PTNT,HTM*63");
-//   delay(1000);
+// RC(0,0);//total autonomous
+// digitalWrite(noDataLED,LOW);
+// Serial.println("0 degrees");
+// setrudder(-15);
+// setSails(-15);
+//  Serial.println("-15 degrees");
+// delay(1000);
+//  Serial.println("-15 degrees");
+// setSails(15);
+// setrudder(15);
+//  Serial.println("15 degrees");
+// delay(1000);
+// Serial.println("0 degrees");
+// setrudder(0);
+// setSails(0);
+// delay(1000);
+// Serial.println("0 degrees");
+// setrudder(0);
+// setSails(0);
+//  Serial.println("0 degrees");
+// delay(1000);
+//  Serial.println("-45 degrees");
+//  setrudder(-45);
+// setSails(-45);
+//  Serial.println("-45 degrees");
+// delay(1000);
+//  Serial.println("45 degrees");
+// setSails(45);
+// setrudder(45);
+// Serial.println("45 degrees");
+// delay(1000);
+//  Serial.println("0 degrees");
+// setrudder(0);
+// setSails(0);
+//  Serial.println("0 degrees");
+// delay(1000);
+// Serial.println("0 degrees");
+//  
+// RC(1,1);//RC steering 
+// digitalWrite(noDataLED,HIGH);
+//  Serial.println("0 degrees");
+// setrudder(-15);
+// setSails(-15);
+//  Serial.println("-15 degrees");
+// delay(1000);
+//  Serial.println("-15 degrees");
+// setSails(15);
+// setrudder(15);
+//  Serial.println("15 degrees");
+// delay(1000);
+// Serial.println("0 degrees");
+// setrudder(0);
+// setSails(0);
+// delay(1000);
+// Serial.println("0 degrees");
+// setrudder(0);
+// setSails(0);
+//  Serial.println("0 degrees");
+// delay(1000);
+//  Serial.println("-45 degrees");
+//  setrudder(-45);
+// setSails(-45);
+//  Serial.println("-45 degrees");
+// delay(1000);
+//  Serial.println("45 degrees");
+// setSails(45);
+// setrudder(45);
+// Serial.println("45 degrees");
+// delay(1000);
+//  Serial.println("0 degrees");
+// setrudder(0);
+// setSails(0);
+//  Serial.println("0 degrees");
+// delay(1000);
+// Serial.println("0 degrees");
   
   
 // simple compass, rudder control testing code
