@@ -534,7 +534,9 @@ void setSails(float ang)
   servo_command(servo_num,pos,0); //0 tells it to only turn short range
 
 }
-int Compass(int bufferLength) 
+// 'c' = compass
+// 'w' = wind sensor
+int sensorData(int bufferLength, char device) 
 { //compass connects to serial2
   int dataAvailable; // how many bytes are available on the serial port
   char array[LONGEST_NMEA];//array to hold data from serial port before parsing; 2* longest might be too long and inefficient
@@ -552,7 +554,10 @@ int Compass(int bufferLength)
 
 
    // delay(5000);
- dataAvailable = Serial2.available(); //check how many bytes are in the buffer
+   if(device == 'c')
+   dataAvailable = Serial2.available(); //check how many bytes are in the buffer
+   else if (device == 'w')
+   dataAvailable = Serial3.available(); //check how many bytes are in the buffer
  
  if(!dataAvailable){
     noData = 1;//set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
@@ -602,7 +607,12 @@ int Compass(int bufferLength)
    // Serial.print(array[2]);
     
     for (i = 0; i < dataAvailable; i++) {//this loop empties the whole serial buffer, and parses every time there is a newline
+    
+     if(device == 'c')
       array[j] = Serial2.read();
+      else  if(device == 'w')
+      array[j] = Serial3.read();
+      
       Serial.print(array[j]);      
     	if (j > 0) {
     		if (array[j] == ',' && array[j-1] == ',') {
@@ -730,7 +740,9 @@ int Compass(int bufferLength)
    Serial.println(pitch);
    Serial.println(roll);
    Serial.println(PTNTHTM); */ 
-  
+
+//wind doesn't have a sample mode...
+  if(device == 'c')
    Serial2.println("$PTNT,HTM*63"); //compass is in sample mode now; so request the next sample! :)
    
    return error;
@@ -921,7 +933,7 @@ int straightSail(){
   waypointDirn = getWaypointDirection(); //get the next waypoint's direction (right now this just returns 90); must be positive 0-360
   
   while (timer < 10){
-    error = Compass(BUFF_MAX); //updates heading_newest
+    error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
     if (error){
       //digitalWrite(CompassErrorLED,1); //set the compass LED indicator high
       digitalWrite(oldDataLED,HIGH);//error indicator
@@ -930,7 +942,7 @@ int straightSail(){
     
     digitalWrite(oldDataLED,LOW); //error indicator
     
-   // error  = Wind(BUFF_MAX); //update wind direction
+   // error  = sensorData(BUFF_MAX, 'w'); //update wind direction
    // if (error)
      // return (error);
     //not used yet, but update whether closehauled or not from wind direction
@@ -1058,13 +1070,28 @@ void setup()
         
         heading_newest=0;//heading relative to true north, newest
 
+//compass setup code
 //  delay(1000); //put this back in if you want to change the compass to sample mode
-// Serial2.println("@F0.3=0*66"); 
+// Serial2.println("@F0.3=0*66"); //this puts the compass into sample mode (return data only when requested)
   delay(1000); //give everything some time to set up, especially the serial buffers
-  Serial2.println("$PTNT,HTM*63"); //request a data sample, to give it time to get it
+  Serial2.println("$PTNT,HTM*63"); //request a data sample from the compass for heading/tilt/etc, and give it time to get it
   delay(200);
+  
+//wind sensor setup code
+//*hh<CR><LF>
+//$PAMTC,EN*hh<CR><LF>
+//$PAMTC,OPTION*hh<CR><LF>
+//$PAMTX*hh<CR><LF>
+//$PAMTC,ATTOFF*hh<CR><LF> // set which way is forward; have to input degrees; theres a nice description of the procedure for doing this in the manual
+//$PAMTC,ALT,Q*hh<CR><LF> will return $PAMTR,ALT,a,b,c with a,b,c = altitude,fixed or not, pressure setting
+  
+  Serial3.println("$PAMTC,EN,Q*11"); // query the windsensor for its current settings based on the working copy in RAM (RAM as opposed to EPROM)
+  delay(200);
+  
   setrudder(0);
   delay(5000);
+  
+  
 }
 
 void loop()
@@ -1087,20 +1114,21 @@ void loop()
 // setrudder(0);
 // delay(1000);
 
+
 //compass sample mode testing code, parsed
-//      error = Compass(BUFF_MAX); //updates heading_newest
+//      error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
 //      Serial.println(heading_newest);
 //      delay(5000);
 
 
-//compass sample mode testing code, unparsed        
-  while (Serial2.available()>0)
-   {
-     input = Serial2.read();
-     Serial.print(input);
-   }
-   Serial2.println("$PTNT,HTM*63");
-   delay(1000);
+////compass sample mode testing code, unparsed        
+//  while (Serial2.available()>0)
+//   {
+//     input = Serial2.read();
+//     Serial.print(input);
+//   }
+//   Serial2.println("$PTNT,HTM*63");
+//   delay(1000);
   
 
 //compass run mode testing code, unparsed
@@ -1110,14 +1138,14 @@ void loop()
 //     Serial.print(input);
 //   }
      
-//////wind run mode testing code, unparsed (note* this doesnt need the arduino to be switched to xbee and the onboard power, works with arduino USB powered)
-//  while (Serial3.available()>0)
-//   {
-//     input = Serial3.read();
-//     Serial.print(input);
-//   }     
-//   
-//   delay(250);
+////wind run mode testing code, unparsed (note* this doesnt need the arduino to be switched to xbee and the onboard power, works with arduino USB powered)
+  while (Serial3.available()>0)
+   {
+     input = Serial3.read();
+     Serial.print(input);
+   }        
+   delay(250);
+     
   
 //MUX with motor testing  ; with present hardware setup, this makes rudder turn from Pololu and then jitter (no RC controller turned on)
 // the sails just trill and occasionally seems to mirror rudder with rudder plugged in; with rudder unplugged they jitter and low-pitched jittery-beep
