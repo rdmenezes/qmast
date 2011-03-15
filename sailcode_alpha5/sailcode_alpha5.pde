@@ -992,6 +992,22 @@ void RC(int steering, int sails)
     digitalWrite(RCsailsSelect, LOW);
 }
 
+//this functin controls the sails, proportional to the wind direction with no consideration for wind strength (yet)
+int setSails(){
+  int error =0;
+  
+  error = sensorData(BUFF_MAX, 'w'); //updates heading_newest
+  
+  if (wind_angl_newest > 180) //wind is from port side
+    wind_angl_newest = 360 - wind_angl_newest; //set to 180 scale, dont care if it's on port or starboard right now, though we will for steering and will in future set a flag here
+  
+  if (wind_angl_newest > 30) //not in irons
+    setSails(wind_angl_newest * 2/5 - 30 - 12);//scale the range of winds from 30-180 onto -30 to +30 controls; -30 means all the way in
+  else
+    setSails(-30);// set sails all the way in, in irons
+           
+  return error;
+}
 
 void setup()
 {
@@ -1168,13 +1184,20 @@ void loop()
 //   delay(250);
      
   
-//wind sample mode testing code, parsed; this is working for the wing angle and speed (tested by blowing on it)
-      error = sensorData(BUFF_MAX, 'w'); //updates heading_newest
-      Serial.println("Wind angle is: ");
-      Serial.println(wind_angl_newest);
-      Serial3.println("$PAMTC,EN,ALL,0*1D"); //disable all commands; this doesnt seem to have worked
-      Serial3.println("$PAMTX*50");//temporarily disable commands until power cycles; not working
-      delay(100);  
+////wind sample mode testing code, parsed; this is working for the wing angle and speed (tested by blowing on it)
+//      error = sensorData(BUFF_MAX, 'w'); //updates heading_newest
+//      Serial.println("Wind angle is: ");
+//      Serial.println(wind_angl_newest);
+//      Serial3.println("$PAMTC,EN,ALL,0*1D"); //disable all commands; this doesnt seem to have worked
+//      Serial3.println("$PAMTX*50");//temporarily disable commands until power cycles; not working
+//      delay(100);  
+
+//wind based sail control testing code
+  RC(1,0);// autonomous sail control
+  error = setSails();
+  Serial.println("Wind angle is: ");
+  Serial.println(wind_angl_newest);
+  delay(100);  
   
 //MUX with motor testing  ; with present hardware setup, this makes rudder turn from Pololu and then jitter (no RC controller turned on)
 // the sails just trill and occasionally seems to mirror rudder with rudder plugged in; with rudder unplugged they jitter and low-pitched jittery-beep
