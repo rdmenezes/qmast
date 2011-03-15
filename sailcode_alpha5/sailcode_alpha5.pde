@@ -109,14 +109,16 @@ float variance;//variance relative to true north; do we use this in our calculat
 float bspeed; //Boat's speed in km/h
 float bspeedk; //Boat's speed in knots
 //Wind data
-float wind_angl;//wind angle, (relative to boat or north?)
+float wind_angl;//wind angle, (relative to boat I believe, could be north, check this)
 float wind_velocity;//wind velocity in knots
 //Compass data
 float headingc;//sum of all past headings relative to true north
 float pitch;//pitch relative to ??
 float roll;//roll relative to ??
 
+//Testing data (one-shots, no averaging, present conditions)
 float heading_newest;//heading relative to true north
+float wind_angl_newest;//wind angle, (relative to boat)
 
 //Pololu
 SoftwareSerial servo_ser = SoftwareSerial(7, txPin); // for connecting via a nonbuffered serial port to pololu -output only
@@ -202,11 +204,11 @@ int Parser(char *val)
  // Serial.print(val[0]); //test for $
   
   if (DataValid(val) == 0){ //check if the data is valid - ideally we'd do this by checking the checksum
-    Serial.print("Parses says: valid string, val (full string) is:\n");
+    //Serial.print("Parses says: valid string, val (full string) is:\n");
   }
   else { Serial.println("Datavalid fail"); digitalWrite(twoCommasLED, HIGH); return 1; } // if data isnt valid, dont try to parse it and throw error code
 
-  Serial.println(val);//echo what we're about to parse
+ // Serial.println(val);//echo what we're about to parse
 
   strcpy(cp, val); //make a backup copy of the data to parse; if not copied val gets corrupted when tokenized
   str = strtok(cp, ","); //find location of first ',', and copy everything before it into str1; returns a pointer to a character array. this will be the type of command, should return $xxxxx identifier
@@ -315,7 +317,10 @@ int Parser(char *val)
     //speed unit for the PB100 is always N? (knots)
     wind_angl = wind_angl + wind_ang; //cb! dont we want a moving average?
     wind_velocity = wind_velocity + wind_vel;
+
     WIMWV++;
+    
+    wind_angl_newest = wind_ang; //for testing purposes, save the newest wind angle
   }
 
   //Boat's speed
@@ -536,6 +541,7 @@ void setSails(float ang)
 }
 // 'c' = compass
 // 'w' = wind sensor
+// sensorData replaces Compass() and Wind() with one function. This is not complete; the rollover array (at least) needs to be split into two separate arrays.
 int sensorData(int bufferLength, char device) 
 { //compass connects to serial2
   int dataAvailable; // how many bytes are available on the serial port
@@ -587,7 +593,7 @@ int sensorData(int bufferLength, char device)
        }
 
     
-    //first copy all the leftover data into array from the buffer
+    //first copy all the leftover data into array from the buffer; !!! this has to depend on if it's wind or compass, and different arrays for them!
     for (i = 0; i < extraWindData; i++){
       array[i] = extraWindDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
       //probably actually don't need the second global array
@@ -642,8 +648,6 @@ int sensorData(int bufferLength, char device)
              // Serial.println(array[0]); //print first character (should be $)
               array[j+1] = '\0';//append the end of string character
               digitalWrite(twoCommasLED,LOW);//turn off error indicator LED to warn about old data
-              Serial.print("First character is: ");
-              Serial.println(array[0]);
               error = Parser(array); //checksum was successful, so parse              
               //delay(500);  //trying to add a delay to account for the fact that the code works when print out all the elements of the array, but not when you don't. Seems sketchy.
           } else {
@@ -667,15 +671,17 @@ int sensorData(int bufferLength, char device)
         //should be fine how we parse presently to have old data tagged on the end,
         //but watch out if we change how we parse
         checksum=0;//set the xor checksum back to zero
+        twoCommasPresent = false; // there isnt any data, so reset the twoCommasPresent
       } //end if we're at the end of the data
       
       else if (array[j] == '$') {//if we encounter $ its the start of new data, so restart the data
-      Serial.println("found a $, restarting...");
+    //  Serial.println("found a $, restarting...");
         //if its not in the 0 position there's been an error so get rid of the data and start a new line anyways
         array[0] = '$'; //move the $ to the first character
         j = 0;//start at the first byte to fill the array
         checksum=0;//set the xor checksum back to zero
         xorState = 1;//start the Xoring for the checksum once a new $ character is found
+        twoCommasPresent = false; // there isnt any data, so reset the twoCommasPresent
       } 
       else if (j > LONGEST_NMEA){//if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
       Serial.println("string too long, clearing some stuff");
@@ -683,6 +689,7 @@ int sensorData(int bufferLength, char device)
         // Serial2.flush(); //dont flush because there might be good data at the end
         checksum=0;//set the xor checksum back to zero
         xorState = 0;//only start the Xoring for the checksum once a new $ character is found, not here
+        twoCommasPresent = false; // there isnt any data, so reset the twoCommasPresent
        
         digitalWrite(goodCompassDataLED,LOW);//turn on error indicator LED to warn about old data
       } 
@@ -709,7 +716,7 @@ int sensorData(int bufferLength, char device)
  //   Serial.print("end, 0 is:");
  //   Serial.println(array[0]);
 
-    if ((j > 0) && (j < LONGEST_NMEA)) { //this means that there was leftover data; set a flag and save the state globally
+    if ((j > 0) && (j < LONGEST_NMEA) && (twoCommasPresent==false)) { //this means that there was leftover data; set a flag and save the state globally
 
       for (i = 0; i < j; i++)
         extraWindDataArray[i] = array[i]; //copy the leftover data into the temp global array
@@ -717,6 +724,7 @@ int sensorData(int bufferLength, char device)
       extraWindData = j;
       savedChecksum=checksum;
       savedXorState=xorState;
+      // twoCommasPresent status isnt saved, since data isnt saved if it has two commas
       Serial.println("Stored extra data - ");
       digitalWrite(rolloverDataLED, HIGH); //indicates data rolled over, not fast enough
       
@@ -728,7 +736,7 @@ int sensorData(int bufferLength, char device)
   //    Serial.print(extraWindDataArray[3],HEX);      
     }
     else if (j > LONGEST_NMEA)
-       digitalWrite(twoCommasLED, HIGH);//error light
+       digitalWrite(twoCommasLED, HIGH); //error light
     else 
       digitalWrite(rolloverDataLED, LOW); //indicates data didnt roll over
       
@@ -1067,8 +1075,10 @@ void setup()
   HCHDG=0;
   WIMWV=0;
   GPVTG=0;
-        
-        heading_newest=0;//heading relative to true north, newest
+  
+  //Testing variables; present conditions, used for testing
+  heading_newest=0;//heading relative to true north, newest
+  wind_angl_newest=0;//wind angle relative to boat
 
 //compass setup code
 //  delay(1000); //put this back in if you want to change the compass to sample mode
@@ -1085,8 +1095,19 @@ void setup()
 //$PAMTC,ATTOFF*hh<CR><LF> // set which way is forward; have to input degrees; theres a nice description of the procedure for doing this in the manual
 //$PAMTC,ALT,Q*hh<CR><LF> will return $PAMTR,ALT,a,b,c with a,b,c = altitude,fixed or not, pressure setting
   
-  Serial3.println("$PAMTC,EN,Q*11"); // query the windsensor for its current settings based on the working copy in RAM (RAM as opposed to EPROM)
-  delay(200);
+//Commands to talk to wind sensor: none of this is working
+//I switched the NMEA Combiner box's connections to the PC-OPTO-1-A cable to all be connected to the display terminals 
+//(the input to the wind sensor was previously connected to the AUX IN connections on the end of the combiner board);
+//no difference, still not working, data being sent from wind sensor
+//Perhaps the PC-OPTO cable is broken? Or it's not properly getting power from the way it's setup with only 3 wires connected?
+//  Serial3.println("$PAMTC,EN,Q*11"); // query the windsensor for its current settings based on the working copy in RAM (RAM as opposed to EPROM); this doesnt seem to be responding with anything, or it's being overwritten
+//  Serial3.println("$PAMTC,EN,ALL,0*1D"); //disable all commands; this doesnt seem to have worked
+//  Serial3.println("$PAMTX*50");//temporarily disable commands until power cycles; not working
+  
+//$PAMTC,EN,S // save to EEPROM (changing wind sensor settings only affects RAM; unless this command is used, settings will return to previous state when power is cycled)
+
+
+delay(200);
   
   setrudder(0);
   delay(5000);
@@ -1138,14 +1159,22 @@ void loop()
 //     Serial.print(input);
 //   }
      
-////wind run mode testing code, unparsed (note* this doesnt need the arduino to be switched to xbee and the onboard power, works with arduino USB powered)
-  while (Serial3.available()>0)
-   {
-     input = Serial3.read();
-     Serial.print(input);
-   }        
-   delay(250);
+//////wind run mode testing code, unparsed (note* this doesnt need the arduino to be switched to xbee and the onboard power, works with arduino USB powered)
+//  while (Serial3.available()>0)
+//   {
+//     input = Serial3.read();
+//     Serial.print(input);
+//   }        
+//   delay(250);
      
+  
+//wind sample mode testing code, parsed; this is working for the wing angle and speed (tested by blowing on it)
+      error = sensorData(BUFF_MAX, 'w'); //updates heading_newest
+      Serial.println("Wind angle is: ");
+      Serial.println(wind_angl_newest);
+      Serial3.println("$PAMTC,EN,ALL,0*1D"); //disable all commands; this doesnt seem to have worked
+      Serial3.println("$PAMTX*50");//temporarily disable commands until power cycles; not working
+      delay(100);  
   
 //MUX with motor testing  ; with present hardware setup, this makes rudder turn from Pololu and then jitter (no RC controller turned on)
 // the sails just trill and occasionally seems to mirror rudder with rudder plugged in; with rudder unplugged they jitter and low-pitched jittery-beep
