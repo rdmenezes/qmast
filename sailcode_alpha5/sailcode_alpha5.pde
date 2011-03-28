@@ -1,3 +1,185 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
  * Test.c: Sailing algorithm diagnostics program
  *
@@ -534,7 +716,7 @@ void setSails(float ang)
   else if (ang < -45)
     ang = -45;
   
-  pos = (ang + 45) * 254.0 / 90.0;//convert from 180 degree range, -90 to +90 angle to a 0 to 256 maximum position range
+  pos = (ang + 45) * 254.0 / 90.0;//convert from 180 (90?) degree range, -90 to +90 (-45 to +45?) angle to a 0 to 256 maximum position range
   
   servo_command(servo_num,pos,0); //0 tells it to only turn short range
 
@@ -840,7 +1022,7 @@ int getWaypointDirection(){
 }
 
 
-
+//this function assumes wind_angl_newest is relative to north. This still needs to be fixed -Val and Tom
 void sailUpWind(){
   int closeHauledDirn=0;//desired direction
   int directionError=0;//difference between actual direction and desired
@@ -871,7 +1053,7 @@ void sailUpWind(){
   boolean aboveLine;//is the boat further north then the line
   
   if (latitude < slopeDesiredLine*longitude+yIntLine){//is y_boat < y_line at current x pos
-    if (wind_angl>=90&&wind_angl<=270){//is wind coming from south
+    if (wind_angl_newest>=90&&wind_angl_newest<=270){//is wind coming from south
      if (canTack()){
        tackSide=!tackSide; 
        //maybe have tack function wich controls sails too       
@@ -880,7 +1062,7 @@ void sailUpWind(){
      }
     }
   }else{
-   if (wind_angl<=90||wind_angl>=270){//is wind coming from noth
+   if (wind_angl_newest<=90||wind_angl_newest>=270){//is wind coming from noth
      if (canTack()){
        tackSide=!tackSide; 
        //maybe have tack function wich controls sails too
@@ -897,14 +1079,14 @@ boolean canTack(){
   return true;//placeholder should use wind speed vs boat speed
 }
 
-
+//needs fixing, logic is wrong
 int getCloseHauledDirn(boolean tackSide){
   int desiredDirection=0;
-  //******this assumes wind_angl is relative to north ***need test still***
+  //******this assumes wind_angl_newest is relative to north ***this is wrong. it is relative to the the bow/centerline of the  boat***
   if (tackSide){
-    desiredDirection=wind_angl+30; //placeholder should depend on wind and boat speed
+    desiredDirection=wind_angl_newest+30; //placeholder should depend on wind and boat speed
   }else{
-    desiredDirection=wind_angl-30;//placeholder should depend on wind and boat speed
+    desiredDirection=wind_angl_newest-30;//placeholder should depend on wind and boat speed
   }
   
   return desiredDirection;
@@ -940,7 +1122,7 @@ int straightSail(){
   
   waypointDirn = getWaypointDirection(); //get the next waypoint's direction (right now this just returns 90); must be positive 0-360
   
-  while (timer < 10){
+  while (timer < 1){
     error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
     if (error){
       //digitalWrite(CompassErrorLED,1); //set the compass LED indicator high
@@ -972,7 +1154,7 @@ int straightSail(){
     
     delay(250);//reduced delay from 1/2s to 50ms to allow serial buffer to fill
     
-    timer ++;
+    timer++;
   }
   
   return 0;
@@ -1123,9 +1305,12 @@ void setup()
 //$PAMTC,EN,S // save to EEPROM (changing wind sensor settings only affects RAM; unless this command is used, settings will return to previous state when power is cycled)
 
 
-delay(200);
+  delay(200);
   
   setrudder(0);
+  
+  RC(0,0);// autonomous sail and rudder control
+  
   delay(5000);
   
   
@@ -1137,8 +1322,8 @@ void loop()
   int i;
   char input;
   
-////sail testing code
-//error = straightSail();
+//sail testing code
+  error = straightSail();
   
   
 //// rudder testing code
@@ -1193,11 +1378,18 @@ void loop()
 //      delay(100);  
 
 //wind based sail control testing code
-  RC(1,0);// autonomous sail control
-  error = setSails();
-  Serial.println("Wind angle is: ");
-  Serial.println(wind_angl_newest);
-  delay(100);  
+  RC(0,0);// autonomous sail control
+  
+  for(i = 0; i < 10; i++)
+  {
+      Serial.println("Wind angle is: ");
+      Serial.println(wind_angl_newest);
+      error = setSails();
+      delay(100);  
+  }
+
+  
+
   
 //MUX with motor testing  ; with present hardware setup, this makes rudder turn from Pololu and then jitter (no RC controller turned on)
 // the sails just trill and occasionally seems to mirror rudder with rudder plugged in; with rudder unplugged they jitter and low-pitched jittery-beep
@@ -1205,7 +1397,7 @@ void loop()
 // full back, middle, front with this code -> front=sails in = negative, back=sails out = positive;
 // if motor range is small, battery is probably dead (7.2V non-regulated)
 // this MUX switching code is working - > mux working now to switch RC to autonomous; RC mode very noisy, perhaps need to replace antenna/transmitter
-
+//
 // RC(0,0);//total autonomous
 // digitalWrite(noDataLED,LOW);
 // Serial.println("0 degrees");
