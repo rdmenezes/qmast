@@ -1,185 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*
  * Test.c: Sailing algorithm diagnostics program
  *
@@ -335,6 +153,8 @@ int DataValid(char *val)
 
 int Parser(char *val) 
 {
+  //I changed parser to no longer sum up the data
+  
 //parses a string of NMEA wind sensor data
 // this also changes the global variables depending on the data; this would be much better split into separate functions
 // presently, the changes to global variables are not conducive to a moving average; they CAN be used for an average, which could perhaps go into a moving average
@@ -438,9 +258,8 @@ int Parser(char *val)
      printf("Lat: %f\n", lon1);
      printf("Lat_dir: %c\n", lon_dir);*/
 
-    latitude = latitude + lat; //cb! dont we want a moving average? 
-    longitude = longitude + lon;        
-    GPGLL++;
+    latitude = lat; //cb! dont we want a moving average? 
+    longitude = lon;        
   }
 
   //Wind sensor compass
@@ -469,10 +288,9 @@ int Parser(char *val)
     var_deg = atof(var_deg_string); 
 
     //process
-    heading = heading + head_deg; //cb! dont we want a moving average?
-    deviation = deviation + dev_deg; //what is this in compass terminology? I think we should be taking dev_dir into account
-    variance = variance + var_deg; //what is this in compass terminology? I think we should be taking var_dir into account
-    HCHDG++;
+    heading = head_deg; //cb! dont we want a moving average?
+    deviation = dev_deg; //what is this in compass terminology? I think we should be taking dev_dir into account
+    variance = var_deg; //what is this in compass terminology? I think we should be taking var_dir into account
   }
 
   //Wind speed and wind direction
@@ -497,10 +315,8 @@ int Parser(char *val)
 
     //wind_ref for the PB100 is always R? (relative to boat)
     //speed unit for the PB100 is always N? (knots)
-    wind_angl = wind_angl + wind_ang; //cb! dont we want a moving average?
-    wind_velocity = wind_velocity + wind_vel;
-
-    WIMWV++;
+    wind_angl = wind_ang; //cb! dont we want a moving average?
+    wind_velocity = wind_vel;
     
     wind_angl_newest = wind_ang; //for testing purposes, save the newest wind angle
   }
@@ -539,8 +355,7 @@ int Parser(char *val)
     //ref_knot is always N to indicate knots
     //ref_kmh is always K to indicate kilometers
 
-	
-	bspeed = sov_kmh; //actual speed not the average
+    bspeed = sov_kmh; //actual speed not the average
     bspeedk = sov_knot;
 	
    //bspeed += sov_kmh; //cb! dont we want a moving average?
@@ -618,10 +433,9 @@ int Parser(char *val)
       pitch_deg = 0;
       roll_deg = 0;
     }
-    headingc = headingc + head2_deg; //cb! dont we want a moving average?
-    pitch = pitch + pitch_deg;
-    roll = roll + roll_deg;
-    PTNTHTM++;//how many times summed
+    headingc = head2_deg; //cb! dont we want a moving average?
+    pitch = pitch_deg;
+    roll = roll_deg;
     
     heading_newest = head2_deg;//also track the newest heading
   }
@@ -1031,7 +845,10 @@ void sailUpWind(){
   int timer=0;
   
   closeHauledDirn=getCloseHauledDirn(tackSide);
-  directionError = heading_newest - closeHauledDirn;
+
+//sail in a straight line to close hauled direction
+  straightSail(closeHauledDirn); //I believe this replaces the below block comment?
+/*  directionError = heading_newest - closeHauledDirn;
   
   while (timer < 10){
     if  (abs(directionError) > 10){
@@ -1041,7 +858,7 @@ void sailUpWind(){
     }  
     delay(500);
     timer ++;
-  }
+  }*/
   
   //---check if we can close haul to target by tacking---
   waypointDirn = getWaypointDirection();
@@ -1072,7 +889,7 @@ void sailUpWind(){
     }
   }  
   
-  //should also tack if we are far off course 
+  //should also tack if we are far off course ; use a corridor to decide this
   
 }
 boolean canTack(){
@@ -1110,20 +927,17 @@ void relayData(){//sends data to shore
  
 }
 
-int straightSail(){
+int straightSail(int waypointDirn){
  //this should be the generic straight sailing function; getWaypointDirn should return a desired compass direction, 
  //taking into account wind direction (not necc just the wayoint dirn); (or make another function to do this)
 
-  int waypointDirn=0; //direction we want to sail
+  //int waypointDirn=0; //direction we want to sail //moved outside straightSail
   int error=0; //error flag
   int timer=0; //loop timer placeholder; really we'll be timing?
   int directionError=0;
   int angle=0; 
-  
-  waypointDirn = getWaypointDirection(); //get the next waypoint's direction (right now this just returns 90); must be positive 0-360
-  
-  while (timer < 1){
-    error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
+   
+  error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
     if (error){
       //digitalWrite(CompassErrorLED,1); //set the compass LED indicator high
       digitalWrite(oldDataLED,HIGH);//error indicator
@@ -1146,22 +960,17 @@ int straightSail(){
           setrudder((directionError-360)/4);  //adjust rudder proportional; setrudder accepts -45 to +45
         else
           setrudder(directionError/4); //turn rudder right; adjust rudder proportional; setrudder accepts -45 to +45     
-        delay(10);
     }   
     else
-       setrudder(0);//set to neutral position
-    
-    
-    delay(250);//reduced delay from 1/2s to 50ms to allow serial buffer to fill
-    
-    timer++;
-  }
-  
+       setrudder(0);//set to neutral position      
+       
+    delay(10);     //wait to allow rudder signal to be sent to pololu
+
   return 0;
 }
 
 void RC(int steering, int sails)
-//change the RC vs autonomous selection mode
+//change the RC vs autonomous selection mode; also delay to allow the signals time to propogate before sending motor commands
 {
   if (steering)
     digitalWrite(RCsteeringSelect, HIGH);
@@ -1172,12 +981,19 @@ void RC(int steering, int sails)
     digitalWrite(RCsailsSelect, HIGH);
   else  
     digitalWrite(RCsailsSelect, LOW);
+ 
+  delayMicroseconds(100); //0.1ms delay to allow select signals time to propogate and settle (this is maybe overkill?)
 }
 
 //this functin controls the sails, proportional to the wind direction with no consideration for wind strength (yet)
-int setSails(){
+int sailControl(){
   int error =0;
   
+  if (abs(roll) > 30){ //if heeled over a lot
+   setSails(30); //set sails all the way out
+   return (1); //return 1 to indicate heel
+  }
+   
   error = sensorData(BUFF_MAX, 'w'); //updates heading_newest
   
   if (wind_angl_newest > 180) //wind is from port side
@@ -1321,22 +1137,40 @@ void loop()
   int error;
   int i;
   char input;
+  int waypointDirn =0;
   
-//sail testing code
-  error = straightSail();
+  //April 2 sailcode:
   
-  
-//// rudder testing code
-//// Accept a angle range to turn the rudder to
-//// float ang acceptable values: 90 degree total range (emulation); -45 = left (??); +45 = right(??); 0 = centre
-// setrudder(-45);
-// delay(1000);
-// setrudder(45);
-// delay(1000);
-// setrudder(0);
-// delay(1000);
+  //sail testing code; this makes the pololu yellow light come on with flashing red
+  waypointDirn = getWaypointDirection(); //get the next waypoint's direction (right now this just returns 90); must be positive 0-360
 
+//pseudocode to decide to sail upwind, and how to handle it:
+ 
+ //based on the waypoint direction and the wind direction, decide to sail upwind or straight to target
+  //if straight to target, continually update the major waypoint direction, and call straightSail to target
+  //if upwind, set an intermediate target and call sailStraight to target
+ //use getCloseHauledDirn, getWaypointDirection, sailUpWind (with lots of mods) to sort this out 
+ 
+//  highest direction possible = getCloseHauledDirn;
+//  if waypointDirn is higher (more towards wind) than closehauled direction, sailUpWind
+//      straightSail(getCloseHauledDirn); (this involves sailing as close to the wind as ossible, and tacking when we reach the corridor)
+//      if (location is outside corridor)
+//        tack;     
+//  else straightSail(waypointDirn);
+  
+ 
+  error = straightSail(waypointDirn); //sail based on compass only in a given direction
+  
+  delay(100);
 
+  error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor
+  
+  delay(100); //poolu crashes without this delay; maybe one command gets garbled with the next one?
+   
+/*
+//Testing code below here
+*/
+   
 //compass sample mode testing code, parsed
 //      error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
 //      Serial.println(heading_newest);
@@ -1351,15 +1185,16 @@ void loop()
 //   }
 //   Serial2.println("$PTNT,HTM*63");
 //   delay(1000);
-  
-
-//compass run mode testing code, unparsed
-//  while (Serial2.available()>0)
-//   {
-//     input = Serial2.read();
-//     Serial.print(input);
-//   }
-     
+//  
+//
+//////compass run mode testing code, unparsed
+////  while (Serial2.available()>0)
+////   {
+////     input = Serial2.read();
+////     Serial.print(input);
+////   }
+////  delay(20);
+//     
 //////wind run mode testing code, unparsed (note* this doesnt need the arduino to be switched to xbee and the onboard power, works with arduino USB powered)
 //  while (Serial3.available()>0)
 //   {
@@ -1367,7 +1202,7 @@ void loop()
 //     Serial.print(input);
 //   }        
 //   delay(250);
-     
+//     
   
 ////wind sample mode testing code, parsed; this is working for the wing angle and speed (tested by blowing on it)
 //      error = sensorData(BUFF_MAX, 'w'); //updates heading_newest
@@ -1377,16 +1212,17 @@ void loop()
 //      Serial3.println("$PAMTX*50");//temporarily disable commands until power cycles; not working
 //      delay(100);  
 
-//wind based sail control testing code
-  RC(0,0);// autonomous sail control
-  
-  for(i = 0; i < 10; i++)
-  {
-      Serial.println("Wind angle is: ");
-      Serial.println(wind_angl_newest);
-      error = setSails();
-      delay(100);  
-  }
+
+////wind based sail control testing code
+//  RC(0,0);// autonomous sail control
+//  
+//  for(i = 0; i < 10; i++)
+//  {
+//      Serial.println("Wind angle is: ");
+//      Serial.println(wind_angl_newest);
+//      error = setSails();
+//      delay(100);  
+//  }
 
   
 
@@ -1473,7 +1309,7 @@ void loop()
 //  Serial.println("0 degrees");
 // delay(1000);
 // Serial.println("0 degrees");
-  
+//  
   
 // simple compass, rudder control testing code
 //    if (heading_newest < 180)//the roller-skate-boat turns opposite to it's angle
