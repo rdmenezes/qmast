@@ -38,21 +38,29 @@
 
 
 //Constants
+
+//Boat parameter constants
+#define TACKING_ANGLE 30 //the highest angle we can point
+//serial data constants
 #define BUFF_MAX 255 // serial buffer length, set in HardwareSerial.cpp in arduino0022/hardware/arduino/cores/arduino
+//Calculation constantes
 //#define PI 3.14159265358979323846
 #define d2r (PI / 180.0)
 #define EARTHRAD 6367515 // for long trips only
+//motor control constants (deprecated, these need updating)
 #define MAXRUDDER 210  //Maximum rudder angle
 #define MINRUDDER 210   //Minimum rudder angle
 #define NRUDDER 210  //Neutral position
 #define MAXSAIL 180 //Neutral position
 
 //Pins
+//pololu pins
 #define resetPin 8 //Pololu reset (digital pin on arduino)
 #define txPin 9 //Pololu serial pin (with SoftwareSerial library)
 
 #define servoPin 10 //arduino Servo library setup
 
+//led pins
 #define noDataLED  48 // no data, error indicator LED
 #define oldDataLED 49 //there is data, but buffer is full, error indicator light
 #define checksumBadLED 50 // indicates checksum fail on data
@@ -60,19 +68,19 @@
 #define rolloverDataLED 52 //indicates data rolled over, not fast enough
 #define goodCompassDataLED 53 // indicates that strtok returned PTNTHTM, so we probably got good data
 
+//MUX pins
 #define RCsteeringSelect 12 //control pin for RC vs autonomous steering
 #define RCsailsSelect 13 //control pin for RC vs autonomous sails
 
-//reliableserial data merging
-//--------------------------
-
+//for serial data aquisition
 //This code hasn't been tested on the arduino yet; it should be compared to sailcode_alpha2 and 3, and to scanln
 #define SHORTEST_NMEA 5
 #define LONGEST_NMEA 120
 
 //!!!!when testing by sending strings through the serial monitor, you need to select "newline" ending from the dropdown beside the baud rate
 
-// what's the shortest possible data string?
+// what's the shortest possible serial data string?
+// for reliable serial data
 int		extraWindData = 0; //'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer
 int		savedChecksum=0;//clear the global saved XOR value
 int		savedXorState=0;//clear the global saved XORstate value
@@ -80,27 +88,29 @@ int		lostData = 1;//set a global flag to indicate that the loop isnt running fas
 int 		noData =1; // global flag to indicate serial buffer was empty
 char 		extraWindDataArray[LONGEST_NMEA]; // a buffer to store roll-over data in case this data is fetched mid-line
 //------------------------
-//end reliable serial data merging
 
 //for arduino Servo library control
 Servo myservo;  // create servo object to control a servo 
                 // a maximum of eight servo objects can be created 
 
-
-//Counters (Used for averaging)
+//Counters (Used for averaging input data, obsolete)
 int PTNTHTM;
 int GPGLL;
 int HCHDG;
 int WIMWV;
 int GPVTG;
 
-//Global variables
+//Global boat variables
+//Position variables
 float latitude; //Curent latitude
 float longitude; //Current longitude
 float GPSX; //Target X coordinate
 float GPSY; //Target Y coordinate
 float prevGPSX; //previous Target X coordinate
 float prevGPSY; //previous Target Y coordinate
+float waypointX;//Present waypoint's X (north/south, +'ve is north) coordinate
+float waypointY;//Present waypoint's Y (east/west, +'ve is east) coordinate
+
 //Heading angle using wind sensor
 float heading;//heading relative to true north
 float deviation;//deviation relative to true north; do we use this in our calculations?
@@ -454,6 +464,24 @@ int radiansToDegrees(float angle){
   return 180*angle/PI;
 }
 
+boolean between(int angle, int a, int b){
+  //figures out if angle is between a and b on a circular scale; assumes angles are 0 to 360 normalized
+
+  //first check which boundary condition is higher
+   if (a < b){ //b is bigger
+     if ((b - a) < 180) //check if the range numerically between a and b is smaller than the range numerically outside of a and b
+        return a <= angle && angle <= b; //small angle is between a and b
+     else //angle either has to be bigger than both bounds (b to 360) or smaller than both bounds (a to 0)
+        return (a <= angle && b <= angle) || (angle <= a && angle <=b); //small angle is outside a and b, either on the left or right side of zero
+   }
+   else { //a is the bigger number, same as above with a switched for b
+     if ((a - b) < 180) 
+        return b <= angle && angle <= a;
+     else
+        return (b <= angle && a <= angle) || (angle <= b && angle <=a);   
+   }
+}
+
 //from reliable serial data merge
 //adapted from http://forum.sparkfun.com/viewtopic.php?f=17&t=9570
 //(all of our checksums have numbers or capital letters so no worries about the UTIL_TOUPPER)
@@ -519,6 +547,8 @@ void setrudder(float ang)
 }
 
 void setSails(float ang)
+//this could make more sense conceptually for sails if it mapped 0 to 90 rather than -45 to +45
+// presently the working range on the smartwinch (april 3) only respoings to -30 to +30 angles
 {
   int servo_num =2;
   int pos; //position ("position" was highlighted as a special name?)
@@ -799,40 +829,24 @@ int Wind()
    Serial.println(PTNTHTM);
    */	return error;
 }
-//end reliable serila data merge
-
 
 int getWaypointDirection(){
-
-  int error=0;// = GPS(BUFF_MAX);
-
-  
-  if (error)
-    return(error);
+// computes the compass heading to the waypoint based on the latest known position of the boat, stored in latitude and longitude
+  int waypointHeading;//the heading to the waypoint from where we are
+  float x, y; //the difference between the boats location and the waypoint in x and y
     
-  return (90); //for testing, waypoint is always 90 degrees
-   
-// use present position and calculate angle - can incorporate this code into 
-////----taken from alpha 2 was  function TargetAng----------
-//  /* targetang function
-// * Duty: compute the angle between the boat and the target
-// * Inputs: none
-// * Output: none
-// * Returns: target's angle
-// */
-//	float angle, x, y; //moved up with other variables
-//	x = (longitude - GPSX);
-//	y = (latitude - GPSY);
-//	angle = radiansToDegrees(atan(y / x)); //sung: put in proper quadrant // change to atan2? atan returns radians; check what atan returns (0 to 180 in rad? or -90 to 90?)
-//	if (y<0)
-//                angle = angle +180;
-//        
-//        if (angle < 0)
-//		angle += 360;
-//	else if (angle > 360)
-//		angle -= 360;
-//	return angle;
-////---------------------------------------------------------
+  x = (waypointX - longitude); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
+  y = (waypointY - latitude); //y is the east/west coordinate, + in the east direction
+  waypointHeading = radiansToDegrees(atan2(y, x)); // atan2 returns -pi to pi, taking account of which variables are positive to put in proper quadrant 
+        
+  if (waypointHeading < 0)
+    waypointHeading += 360;
+  else if (waypointHeading > 360)
+    waypointHeading -= 360;
+    
+  return waypointHeading;
+
+ // return (90); //for testing, waypoint is always 90 degrees
 }
 
 
@@ -898,13 +912,21 @@ boolean canTack(){
 
 //needs fixing, logic is wrong
 int getCloseHauledDirn(boolean tackSide){
-  int desiredDirection=0;
-  //******this assumes wind_angl_newest is relative to north ***this is wrong. it is relative to the the bow/centerline of the  boat***
-  if (tackSide){
-    desiredDirection=wind_angl_newest+30; //placeholder should depend on wind and boat speed
-  }else{
-    desiredDirection=wind_angl_newest-30;//placeholder should depend on wind and boat speed
-  }
+  //find the compass heading that is close-hauled
+  int desiredDirection=0; //closehauled direction
+  int windHeading = 0; //compass bearing that the wind is coming from
+  
+  windHeading = wind_angl_newest + headingc; // calculate the compass heading that the wind is coming from; wind_angle_newest is relative to the boat's bow  
+
+  if (windHeading < 0) //normalize to 360
+    windHeading += 360;
+  else if (windHeading > 360)
+    windHeading -= 360;
+   
+  if (wind_angle_newest > 180) //wind from left side of boat first
+    desiredDirection = windHeading + TACKING_ANGLE; //bear off to the right
+  else 
+    desiredDirection = windHeading - TACKING_ANGLE; //bear off to the left
   
   return desiredDirection;
 }
@@ -994,13 +1016,13 @@ int sailControl(){
    return (1); //return 1 to indicate heel
   }
    
-  error = sensorData(BUFF_MAX, 'w'); //updates heading_newest
+  error = sensorData(BUFF_MAX, 'w'); //updates wind_angl_newest
   
-  if (wind_angl_newest > 180) //wind is from port side
+  if (wind_angl_newest > 180) //wind is from port side, but we dont care; fix this so we dont actually change the wind angle
     wind_angl_newest = 360 - wind_angl_newest; //set to 180 scale, dont care if it's on port or starboard right now, though we will for steering and will in future set a flag here
   
-  if (wind_angl_newest > 30) //not in irons
-    setSails(wind_angl_newest * 2/5 - 30 - 12);//scale the range of winds from 30-180 onto -30 to +30 controls; -30 means all the way in
+  if (wind_angl_newest > TACKING_ANGLE) //not in irons
+    setSails(wind_angl_newest*60/(180 - TACKING_ANGLE) - TACKING_ANGLE - TACKING_ANGLE*60/150);//scale the range of winds from 30->180 (150 degree range) onto -30 to +30 controls (60 degree range); -30 means all the way in
   else
     setSails(-30);// set sails all the way in, in irons
            
@@ -1060,14 +1082,20 @@ void setup()
 // digitalWrite(13, HIGH);
         
  delay(10);          
-        //initialize all counters/variables
   
+  //initialize all counters/variables
+  
+  
+  //Position variables
   latitude=0;//curent latitude
   longitude=0; //Current longitude
   GPSX=0; //Target X coordinate
   GPSY=0; //Target Y coordinate
   prevGPSX=0; //previous Target X coordinate
   prevGPSY=0; //previous Target Y coordinate
+  //Two locations in the parking lot as a test waypoint
+  waypointX=4413.7075;//Present waypoint's latitude (north/south, +'ve is north) coordinate
+  waypointY=07629.5199;//Present waypoint's longitude (east/west, +'ve is east) coordinate
   //Heading angle using wind sensor
   heading=0;//heading relative to true north
   deviation=0;//deviation relative to true north; do we use this in our calculations?
@@ -1142,8 +1170,9 @@ void loop()
   //April 2 sailcode:
   
   //sail testing code; this makes the pololu yellow light come on with flashing red
-  waypointDirn = getWaypointDirection(); //get the next waypoint's direction (right now this just returns 90); must be positive 0-360
-
+  waypointDirn = getWaypointDirection(); //get the next waypoint's direction (right now this just returns 90); must be positive 0-360 heading
+     
+  
 //pseudocode to decide to sail upwind, and how to handle it:
  
  //based on the waypoint direction and the wind direction, decide to sail upwind or straight to target
@@ -1152,7 +1181,17 @@ void loop()
  //use getCloseHauledDirn, getWaypointDirection, sailUpWind (with lots of mods) to sort this out 
  
 //  highest direction possible = getCloseHauledDirn;
-//  if waypointDirn is higher (more towards wind) than closehauled direction, sailUpWind
+  //move this out
+  if (wind_angl_newest > TACKING_ANGLE) //when sailing upwind this means that we're being inefficient
+  {
+   //can either turn up until this is not true, or find the heading and use the compass... uise the compass, wind sensor doesnt respond fast enough 
+    possibleDirection = getCloseHauledDirn(); // heading we can point on our current tack
+    error = straightSail(possibleDirection);   
+  }
+  else
+    //keep sailing the way you were; may need a variable to hold previous directions
+  
+ if waypointDirn is higher (more towards wind) than closehauled direction, sailUpWind
 //      straightSail(getCloseHauledDirn); (this involves sailing as close to the wind as ossible, and tacking when we reach the corridor)
 //      if (location is outside corridor)
 //        tack;     
