@@ -304,6 +304,7 @@ int Parser(char *val)
   }
 
   //Wind speed and wind direction
+  //when parsing this, need to verify that wind is strong enough to give a reading on the sensor
   if (strcmp(str, "$WIMWV") == 0) 
   {
     //sscanf(val, "$%5s,%f,%c,%f,%c,%c,", str, &wind_ang, &wind_ref,&wind_vel, &speed_unit, &valid);
@@ -465,9 +466,26 @@ int radiansToDegrees(float angle){
 }
 
 boolean between(int angle, int a, int b){
-  //figures out if angle is between a and b on a circular scale; assumes angles are 0 to 360 normalized
+  //figures out if angle is between a and b on a circular scale
+ 
+ //first ensure angles are 0 to 360 normalized
+ while (angle < 0)
+        angle+= 360;
+ while (angle >= 360)
+        angle-= 360;
 
-  //first check which boundary condition is higher
+  while (a < 0)
+        a+= 360;
+  while (a >= 360)
+        a-= 360;
+  
+  while (b < 0)
+        b+= 360;
+  while (b >= 360)
+        b-= 360;        
+   
+
+  //now check which boundary condition is higher and then determine if angle is between a and b, either on the inside or outside
    if (a < b){ //b is bigger
      if ((b - a) < 180) //check if the range numerically between a and b is smaller than the range numerically outside of a and b
         return a <= angle && angle <= b; //small angle is between a and b
@@ -830,28 +848,8 @@ int Wind()
    */	return error;
 }
 
-int getWaypointDirection(){
-// computes the compass heading to the waypoint based on the latest known position of the boat, stored in latitude and longitude
-  int waypointHeading;//the heading to the waypoint from where we are
-  float x, y; //the difference between the boats location and the waypoint in x and y
-    
-  x = (waypointX - longitude); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
-  y = (waypointY - latitude); //y is the east/west coordinate, + in the east direction
-  waypointHeading = radiansToDegrees(atan2(y, x)); // atan2 returns -pi to pi, taking account of which variables are positive to put in proper quadrant 
-        
-  if (waypointHeading < 0)
-    waypointHeading += 360;
-  else if (waypointHeading > 360)
-    waypointHeading -= 360;
-    
-  return waypointHeading;
-
- // return (90); //for testing, waypoint is always 90 degrees
-}
-
-
-//this function assumes wind_angl_newest is relative to north. This still needs to be fixed -Val and Tom
-void sailUpWind(){
+//this function assumes wind_angl_newest is relative to north. This still needs to be fixed -Val and Tom; This has been abandoned - christine, april 3
+void sailUpWind(){ 
   int closeHauledDirn=0;//desired direction
   int directionError=0;//difference between actual direction and desired
   int waypointDirn=0;//direction to waypoint
@@ -904,25 +902,90 @@ void sailUpWind(){
   }  
   
   //should also tack if we are far off course ; use a corridor to decide this
-  
 }
-boolean canTack(){
+boolean canTack(){ //abandonned, april 3, Christine
   return true;//placeholder should use wind speed vs boat speed
 }
 
-//needs fixing, logic is wrong
-int getCloseHauledDirn(boolean tackSide){
-  //find the compass heading that is close-hauled
+
+
+int stayInDownwindCorridor(int corridorHalfWidth){
+//calculate whether we're still inside the downwind corridor of the mark; if not, tacks if necessary
+  
+  int theta, distance;
+  
+  //do this with trig. It's a right-angled triangle, where opp is the distance perpendicular to the wind angle (the number we're looking for);
+ 
+  // and theta is the angle between the wind and the waypoint directions; positive when windDirn > waypointDirn
+  theta = getWaypointDirn() - getWindDirn();  
+  
+  // the hypotenuse is as long as the distance between the boat and the waypoint
+  hypotenuse = GPSconv(latitude, longitude, waypointX, waypointY); //this function might not work, nader wrote it
+  
+  //opp = hyp * sin(theta)
+  distance = hypotenuse * sin(degreesToRadians(theta));
+  
+  if (abs(distance) > corridorHalfWidth){ //we're outside
+    //can use the sign of distance to determine if we should be on the left or right tack; this works because when we do sin, it takes care of wrapping around 0/360
+    //a negative distance means that we are to the right of the corridor, waypoint is less than wind
+    if ( (distance  < 0 && wind_angl_newest > 180) || (distance > 0 && wind_angl_newest < 180){
+      //want newest_wind_angle < 180, ie wind coming from the right to left (starboard to port?) side of the boat when distance is negative; opposite when distance positive
+         tack();     //tack function should not return until successful tack
+    }
+   
+    return distance; //this should be positive or negative... depending on left or right side of corridor
+  }
+  else return 0;
+}
+
+double GPSconv(double lat1, double long1, double lat2, double long2) 
+//this is code to calculate the distance between 2 GPS coordinates, written by nader without any comments. Maybe it works. We'll see.
+{		
+	double dlong;
+	double dlat;
+	double a;
+	double c;
+	double d;
+
+	Serial.println("GPSconv");
+
+	dlong = (long2 - long1) * d2r;
+	dlat = (lat2 - lat1) * d2r;
+	a = sin(dlat / 2.0)*sin(dlat / 2.0) + cos(lat1 * d2r) * cos(lat2 * d2r) * sin(dlong / 2.0)*sin(dlong / 2.0);
+	c = 2 * atan(sqrt(a) / sqrt(1 - a)); //replaced atan2 with atan ? is there such thing as atan2 function before arduino?
+	d = 6367 * c;
+	
+	return d;
+}
+
+int getWaypointDirection(){
+// computes the compass heading to the waypoint based on the latest known position of the boat, stored in latitude and longitude
+  int waypointHeading;//the heading to the waypoint from where we are
+  float x, y; //the difference between the boats location and the waypoint in x and y
+    
+  x = (waypointX - longitude); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
+  y = (waypointY - latitude); //y is the east/west coordinate, + in the east direction
+  waypointHeading = radiansToDegrees(atan2(y, x)); // atan2 returns -pi to pi, taking account of which variables are positive to put in proper quadrant 
+        
+  if (waypointHeading < 0)
+    waypointHeading += 360;
+  else if (waypointHeading > 360)
+    waypointHeading -= 360;
+    
+  return waypointHeading;
+
+ // return (90); //for testing, waypoint is always 90 degrees
+}
+
+int getCloseHauledDirn(){
+  //find the compass heading that is close-hauled on the present tack
+  
   int desiredDirection=0; //closehauled direction
   int windHeading = 0; //compass bearing that the wind is coming from
   
-  windHeading = wind_angl_newest + headingc; // calculate the compass heading that the wind is coming from; wind_angle_newest is relative to the boat's bow  
+  windHeading = getWindDirn(); //compass bearing for the wind
 
-  if (windHeading < 0) //normalize to 360
-    windHeading += 360;
-  else if (windHeading > 360)
-    windHeading -= 360;
-   
+  //determine which tack we're on 
   if (wind_angle_newest > 180) //wind from left side of boat first
     desiredDirection = windHeading + TACKING_ANGLE; //bear off to the right
   else 
@@ -931,6 +994,19 @@ int getCloseHauledDirn(boolean tackSide){
   return desiredDirection;
 }
 
+int getWindDirn(){
+  //find the compass bearing the wind is coming from (ie if we were pointing this way, we'd be in irons)
+  int windHeading = 0; //compass bearing that the wind is coming from
+  
+  windHeading = wind_angl_newest + headingc; // calculate the compass heading that the wind is coming from; wind_angle_newest is relative to the boat's bow  
+
+  if (windHeading < 0) //normalize to 360
+    windHeading += 360;
+  else if (windHeading > 360)
+    windHeading -= 360;   
+
+  return windHeading;
+}
 
 void relayData(){//sends data to shore
 
@@ -1010,6 +1086,7 @@ void RC(int steering, int sails)
 //this functin controls the sails, proportional to the wind direction with no consideration for wind strength (yet)
 int sailControl(){
   int error =0;
+  int windAngle;
   
   if (abs(roll) > 30){ //if heeled over a lot
    setSails(30); //set sails all the way out
@@ -1018,11 +1095,13 @@ int sailControl(){
    
   error = sensorData(BUFF_MAX, 'w'); //updates wind_angl_newest
   
-  if (wind_angl_newest > 180) //wind is from port side, but we dont care; fix this so we dont actually change the wind angle
-    wind_angl_newest = 360 - wind_angl_newest; //set to 180 scale, dont care if it's on port or starboard right now, though we will for steering and will in future set a flag here
-  
-  if (wind_angl_newest > TACKING_ANGLE) //not in irons
-    setSails(wind_angl_newest*60/(180 - TACKING_ANGLE) - TACKING_ANGLE - TACKING_ANGLE*60/150);//scale the range of winds from 30->180 (150 degree range) onto -30 to +30 controls (60 degree range); -30 means all the way in
+  if (wind_angl_newest > 180) //wind is from port side, but we dont care
+    windAngle = 360 - wind_angl_newest; //set to 180 scale, dont care if it's on port or starboard right now, though we will for steering and will in future set a flag here
+  else
+    windAngle = wind_angl_newest;
+    
+  if (windAngle > TACKING_ANGLE) //not in irons
+    setSails(windAngle*60/(180 - TACKING_ANGLE) - TACKING_ANGLE - TACKING_ANGLE*60/150);//scale the range of winds from 30->180 (150 degree range) onto -30 to +30 controls (60 degree range); -30 means all the way in
   else
     setSails(-30);// set sails all the way in, in irons
            
@@ -1165,7 +1244,8 @@ void loop()
   int error;
   int i;
   char input;
-  int waypointDirn =0;
+  int waypointDirn, closeHauledDirection, windDirn =0;
+  int distanceOutsideCorridor;
   
   //April 2 sailcode:
   
@@ -1180,25 +1260,26 @@ void loop()
   //if upwind, set an intermediate target and call sailStraight to target
  //use getCloseHauledDirn, getWaypointDirection, sailUpWind (with lots of mods) to sort this out 
  
-//  highest direction possible = getCloseHauledDirn;
-  //move this out
-  if (wind_angl_newest > TACKING_ANGLE) //when sailing upwind this means that we're being inefficient
+  windDirn = getWindDirn();
+  //check if the waypoint is upwind, ie between the wind's direction and the direction we can point the boat without going into irons
+  if (between(waypointDirn, windDirn, windDirn + TACKING_ANGLE) || between(waypointDirn, windDirn, windDirn - TACKING_ANGLE)) //check if the waypoint's direction is between the wind and closehauled on either side
   {
    //can either turn up until this is not true, or find the heading and use the compass... uise the compass, wind sensor doesnt respond fast enough 
-    possibleDirection = getCloseHauledDirn(); // heading we can point on our current tack
-    error = straightSail(possibleDirection);   
-  }
-  else
-    //keep sailing the way you were; may need a variable to hold previous directions
+    closeHauledDirection = getCloseHauledDirn(); // heading we can point when closehauled on our current tack
+    error = straightSail(closeHauledDirection);   //sail closehauled always when upwind
+//  if (wind_angl_newest > TACKING_ANGLE) //when sailing upwind this means that we're being inefficient; but is we're sailing closehauled shouldnt ever have to check this
+
+    //this uses GPSconv, naders function which may not work:
+    //I made up 10, I dont know what the units on the corridor halfwidth distance would be
+    distanceOutsideCorridor = stayInDownwindCorridor(10); //checks if we're in the downwind corridor from the mark, and tacks if we aren't and arent heading towards it
+
+    //perhaps kill the program or switch to RC mode if we're way off course?
+    if (distanceOutsideCorridor > 50) //made up 50, i dont know what the units on distance would be
+      RC(1,1);  
+  }  
   
- if waypointDirn is higher (more towards wind) than closehauled direction, sailUpWind
-//      straightSail(getCloseHauledDirn); (this involves sailing as close to the wind as ossible, and tacking when we reach the corridor)
-//      if (location is outside corridor)
-//        tack;     
-//  else straightSail(waypointDirn);
-  
- 
-  error = straightSail(waypointDirn); //sail based on compass only in a given direction
+  else  
+    error = straightSail(waypointDirn); //sail based on compass only in a given direction
   
   delay(100);
 
