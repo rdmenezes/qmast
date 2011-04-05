@@ -1274,11 +1274,11 @@ void loop()
     distanceOutsideCorridor = stayInDownwindCorridor(10); //checks if we're in the downwind corridor from the mark, and tacks if we aren't and arent heading towards it
 
     //perhaps kill the program or switch to RC mode if we're way off course?
-    if (distanceOutsideCorridor > 50) //made up 50, i dont know what the units on distance would be
+    if (abs(distanceOutsideCorridor) > 50) //made up 50, i dont know what the units on distance would be
       RC(1,1);  
   }  
   
-  else  
+  else  //not upwind
     error = straightSail(waypointDirn); //sail based on compass only in a given direction
   
   delay(100);
