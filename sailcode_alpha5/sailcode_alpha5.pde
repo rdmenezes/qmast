@@ -180,8 +180,8 @@ int Parser(char *val)
   //GPSGLL gps latitude and longitude data
   double grades, frac; //the integer and fractional part of Degrees.minutes
   float lat_deg_nmea, lon_deg_nmea; // latitude and longitude in ddmm.mmmm degrees minutes format
-  float lat; //latitude read from the string converted to decimal dd.mmmm
-  float lon; //longitude read from the string converted to decimal dd.mmmm
+  double lat; //latitude read from the string converted to decimal dd.mmmm
+  double lon; //longitude read from the string converted to decimal dd.mmmm
   char lat_dir, lon_dir; //N,S,E,W direction character
   int hms; //the time stamp on GPS strings; hours minutes seconds
   char valid;//checks for the 'V' in GPS data strings (it's A if its invalid)
@@ -235,7 +235,23 @@ int Parser(char *val)
   if (strcmp(str, "$GPGLL") == 0) 
   {
    // sscanf(val, "$%5s,%f,%c,%f,%c,%d,%c,", str, &lat_deg_nmea, &lat_dir, &lon_deg_nmea, &lon_dir, &hms, &valid);
-    Serial.print(cp); //test for what GPS data is being returned
+   //"$GPGLL,4413.7075,N,07629.5199,W,192945,A,A*5E"
+   
+   //THIS ISNT WORKING because on arduino, floats only have 6 to 7 points of accuracy, same for doubles, so we're losing precision
+   //perhaps try splitting at the decimal point, subtracting the known degrees (huge accuracy, we wont travel a degree) to regain 2 extra digits
+   /* this is the output:
+   $GPGLL4413.71
+  0.14
+  44.00
+  7629.52
+  0.30
+  76.00
+  44.23
+  -76.49
+
+   */
+   
+    Serial.print(val); //test for what GPS data is being returned
     
     lat_deg_nmea_string = strtok(NULL, ","); // this will use the cp copied string, since strtok magically remembers which string it was initially referenced to if NULL if used instead of a string
     lat_dir = (char) * strtok(NULL, ","); // only a (char) not a array of chars. Hence, = typecast(char) dereferenced strtok. 
@@ -254,14 +270,23 @@ int Parser(char *val)
 
     //     lat_deg is in the format ddmm.mmmm 
 
+
+//testing gpgll with prints
+    Serial.println(lat_deg_nmea);//this should have 4 decimals, only printing 2
     //this first moves the decimal so that the latitude degrees is the whole part of the number
     //then modf returns the integer portion to 'grades' and the fractional (minutes) to 'frac'.
     frac = modf(lat_deg_nmea / 100.0, &grades); 
+    Serial.println(frac);
+    Serial.println(grades);
     // Frac is out of 60, not 100, since it's in minutes; so convert to a normal decimal
     lat = (double) (grades + frac * 100.0 / 60.0) * (lat_dir == 'S' ? -1.0    : 1.0); // change the sign of latitude based on if it's north/south
 
+
+    Serial.println(lon_deg_nmea);
     //do the same for longitude
     frac = modf(lon_deg_nmea / 100.0, &grades);
+    Serial.println(frac);
+    Serial.println(grades);
     lon = (double) (grades + frac * 100.0 / 60.0) * (lon_dir == 'W' ? -1.0 : 1.0);
 
     /*print("The string: %s\n", str);
@@ -815,15 +840,15 @@ int Wind()
  int error = 0;
 
       //Uncomment a section to test it parsing that kind of command! (will print the global variables)
- /* //GPS testing:
- int error = Parser("$GPGLL,4413.7075,N,07629.5199,W,192945,A,A*5E"); // this is returning 44.23  and -76.49; off by 0.1, 0.2?
+  //GPS testing:
+  error = Parser("$GPGLL,4413.7075,N,07629.5199,W,192945,A,A*5E"); // this is returning 44.23  and -76.49; off by 0.1, 0.2?
   Serial.println(latitude);//curent latitude
   Serial.println(longitude); //Current longitude
   //Serial.println(GPSX); //Target X coordinate
   //Serial.println(GPSY); //Target Y coordinate
   //Serial.println(prevGPSX); //previous Target X coordinate
   //Serial.println(prevGPSY); //previous Target Y coordinate
- */
+
 
  /* Heading angle using wind sensor testing:
   int error = Parser("$HCHDG,204.4,0.0,E,12.6,W*67"); //returning 204.4, 0.0, 12.6 - > good!
@@ -1263,6 +1288,9 @@ void loop()
   int distanceToWaypoint;
   
   delay(1000);
+  
+  error = Wind();
+  
   //April 2 sailcode:
 //
 //  error = sensorData(BUFF_MAX,'w');
@@ -1328,13 +1356,13 @@ void loop()
 
 
 //compass sample mode testing code, unparsed        
-  while (Serial2.available()>0)
-   {
-     input = Serial2.read();
-     Serial.print(input);
-   }
-   Serial2.println("$PTNT,HTM*63");
-   delay(1000);
+//  while (Serial2.available()>0)
+//   {
+//     input = Serial2.read();
+//     Serial.print(input);
+//   }
+//   Serial2.println("$PTNT,HTM*63");
+//   delay(1000);
   
 
 //////compass run mode testing code, unparsed
@@ -1346,12 +1374,12 @@ void loop()
 ////  delay(20);
 //     
 //////wind run mode testing code, unparsed (note* this doesnt need the arduino to be switched to xbee and the onboard power, works with arduino USB powered)
-  while (Serial3.available()>0)
-   {
-     input = Serial3.read();
-     Serial.print(input);
-   }        
-   delay(250);
+//  while (Serial3.available()>0)
+//   {
+//     input = Serial3.read();
+//     Serial.print(input);
+//   }        
+//   delay(250);
      
   
 ////wind sample mode testing code, parsed; this is working for the wing angle and speed (tested by blowing on it)
