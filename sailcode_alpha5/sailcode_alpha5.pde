@@ -41,8 +41,10 @@
 
 //Boat parameter constants
 #define TACKING_ANGLE 30 //the highest angle we can point
+//Navigation constants
+#define MARK_DISTANCE 1 //not sure what the units on this would be; the distance we have to be to a mark before moving to the next one
 //serial data constants
-#define BUFF_MAX 255 // serial buffer length, set in HardwareSerial.cpp in arduino0022/hardware/arduino/cores/arduino
+#define BUFF_MAX 511 // serial buffer length, set in HardwareSerial.cpp in arduino0022/hardware/arduino/cores/arduino
 //Calculation constantes
 //#define PI 3.14159265358979323846
 #define d2r (PI / 180.0)
@@ -212,9 +214,7 @@ int Parser(char *val)
   char *head2_string; //sscanf, strtok doesnt support directly scanning into floats; hence we are scanning into strings and then using atof to convert to float
   char *roll_string;
   char *pitch_string;
-  
- // Serial.print(val[0]); //test for $
-  
+    
   if (DataValid(val) == 0){ //check if the data is valid - ideally we'd do this by checking the checksum
     //Serial.print("Parses says: valid string, val (full string) is:\n");
   }
@@ -235,7 +235,8 @@ int Parser(char *val)
   if (strcmp(str, "$GPGLL") == 0) 
   {
    // sscanf(val, "$%5s,%f,%c,%f,%c,%d,%c,", str, &lat_deg_nmea, &lat_dir, &lon_deg_nmea, &lon_dir, &hms, &valid);
-
+    Serial.print(cp); //test for what GPS data is being returned
+    
     lat_deg_nmea_string = strtok(NULL, ","); // this will use the cp copied string, since strtok magically remembers which string it was initially referenced to if NULL if used instead of a string
     lat_dir = (char) * strtok(NULL, ","); // only a (char) not a array of chars. Hence, = typecast(char) dereferenced strtok. 
           // strtok returns a point to a character array; we only want the value at the pointer's address (first value)
@@ -583,6 +584,7 @@ void setSails(float ang)
   servo_command(servo_num,pos,0); //0 tells it to only turn short range
 
 }
+
 // 'c' = compass
 // 'w' = wind sensor
 // sensorData replaces Compass() and Wind() with one function. This is not complete; the rollover array (at least) needs to be split into two separate arrays.
@@ -602,6 +604,7 @@ int sensorData(int bufferLength, char device)
   bool twoCommasPresent = false; //Alright, this flag will be set if the data being read in has two commas in a row. This is needed since
   	  	  	  	  	  	  	  	 //it will crash the program as strtok will have trouble with the delimiters later.
 
+  Serial.println(device); //display that data is being gathered from a device
 
    // delay(5000);
    if(device == 'c')
@@ -616,7 +619,6 @@ int sensorData(int bufferLength, char device)
     digitalWrite(goodCompassDataLED, LOW); //data isnt good if it isnt there
   } 
   else {
-    Serial.println("There is data! ");
     digitalWrite(oldDataLED,LOW); //there is data, buffer isnt full, so turn off error indicator light
     digitalWrite(noDataLED,LOW);//turn off error indicator LED to warn about no data
     
@@ -656,14 +658,14 @@ int sensorData(int bufferLength, char device)
    // Serial.print(array[1]);
    // Serial.print(array[2]);
     
-    for (i = 0; i < dataAvailable; i++) {//this loop empties the whole serial buffer, and parses every time there is a newline
+    while(dataAvailable){//this loop empties the whole serial buffer, and parses every time there is a newline
     
      if(device == 'c')
       array[j] = Serial2.read();
       else  if(device == 'w')
       array[j] = Serial3.read();
       
-      Serial.print(array[j]);      
+      //Serial.print(array[j]);      
     	if (j > 0) {
     		if (array[j] == ',' && array[j-1] == ',') {
     			twoCommasPresent = true;
@@ -685,7 +687,7 @@ int sensorData(int bufferLength, char device)
         if (checksum==endCheckSum){
         //since hex values only take 4 bits, shift the more significant half to the left by 4 bits, the bitwise or it with the least significant half
         //then check if this value matches the calculated checksum (this part has been tested and should work)
-          Serial.println("checksum good, parsing.");
+        //  Serial.println("checksum good, parsing.");
 
           //Before parsing the valid string, check to see if the string contains two consecutive commas as indicated by the twoCommasPresent flag
           if (!twoCommasPresent) {
@@ -750,8 +752,12 @@ int sensorData(int bufferLength, char device)
      // Serial.println(array[j]/*,HEX*/);
       j++;
       
-      
-    }//end loop from 0 to dataAvailable
+      //keep emptying buffer until it's empty; doing this should limit roll-over data
+      if(device == 'c')
+        dataAvailable = Serial2.available(); //check how many bytes are in the buffer
+      else if (device == 'w')
+        dataAvailable = Serial3.available(); //check how many bytes are in the buffer
+    }//end loop, used to be from 0 to dataAvailable, now its while dataAvailable
 
 //Jan 28, Christine:
 //this is the part where the data is being messed up; extraWindDataArray isnt saving useful data, just 0's. Memory issue??? 
@@ -849,94 +855,68 @@ int Wind()
 }
 
 //this function assumes wind_angl_newest is relative to north. This still needs to be fixed -Val and Tom; This has been abandoned - christine, april 3
-void sailUpWind(){ 
-  int closeHauledDirn=0;//desired direction
-  int directionError=0;//difference between actual direction and desired
-  int waypointDirn=0;//direction to waypoint
-  int tackDirection=0;
-  int timer=0;
-  
-  closeHauledDirn=getCloseHauledDirn(tackSide);
+//void sailUpWind(){ 
+//  int closeHauledDirn=0;//desired direction
+//  int directionError=0;//difference between actual direction and desired
+//  int waypointDirn=0;//direction to waypoint
+//  int tackDirection=0;
+//  int timer=0;
+//  
+//  closeHauledDirn=getCloseHauledDirn(tackSide);
+//
+////sail in a straight line to close hauled direction
+//  straightSail(closeHauledDirn); //I believe this replaces the below block comment?
+///*  directionError = heading_newest - closeHauledDirn;
+//  
+//  while (timer < 10){
+//    if  (abs(directionError) > 10){
+//      setrudder(directionError); //adjust rudder proportional
+//      delay (10);
+//      setrudder(0); //straight rudder
+//    }  
+//    delay(500);
+//    timer ++;
+//  }*/
+//  
+//  //---check if we can close haul to target by tacking---
+//  waypointDirn = getWaypointDirection();
+//  tackDirection = getCloseHauledDirn(!tackSide);//other close hauled angle
+//  float slopeDesiredLine=0;//final close hauled path to target(slope)
+//  int yIntLine=0;//final close hauled path to target(y-intercept)
+//  slopeDesiredLine=1/(tan(degreesToRadians(180-tackDirection)));//this will explode if tan returns 0, but it shouldnt if you think about the sail logic
+//  yIntLine=latitude-slopeDesiredLine*longitude;//y=m*x+b ==>  b=y-m*x
+//  boolean aboveLine;//is the boat further north then the line
+//  
+//  if (latitude < slopeDesiredLine*longitude+yIntLine){//is y_boat < y_line at current x pos
+//    if (wind_angl_newest>=90&&wind_angl_newest<=270){//is wind coming from south
+//     if (canTack()){
+//       tackSide=!tackSide; 
+//       //maybe have tack function wich controls sails too       
+//     }else{
+//       //should bear off then tack
+//     }
+//    }
+//  }else{
+//   if (wind_angl_newest<=90||wind_angl_newest>=270){//is wind coming from noth
+//     if (canTack()){
+//       tackSide=!tackSide; 
+//       //maybe have tack function wich controls sails too
+//     }else{
+//       //should bear off then tack 
+//     }
+//    }
+//  }  
+//  
+//  //should also tack if we are far off course ; use a corridor to decide this
+//}
+//boolean canTack(){ //abandonned, april 3, Christine
+//  return true;//placeholder should use wind speed vs boat speed
+//}
 
-//sail in a straight line to close hauled direction
-  straightSail(closeHauledDirn); //I believe this replaces the below block comment?
-/*  directionError = heading_newest - closeHauledDirn;
-  
-  while (timer < 10){
-    if  (abs(directionError) > 10){
-      setrudder(directionError); //adjust rudder proportional
-      delay (10);
-      setrudder(0); //straight rudder
-    }  
-    delay(500);
-    timer ++;
-  }*/
-  
-  //---check if we can close haul to target by tacking---
-  waypointDirn = getWaypointDirection();
-  tackDirection = getCloseHauledDirn(!tackSide);//other close hauled angle
-  float slopeDesiredLine=0;//final close hauled path to target(slope)
-  int yIntLine=0;//final close hauled path to target(y-intercept)
-  slopeDesiredLine=1/(tan(degreesToRadians(180-tackDirection)));//this will explode if tan returns 0, but it shouldnt if you think about the sail logic
-  yIntLine=latitude-slopeDesiredLine*longitude;//y=m*x+b ==>  b=y-m*x
-  boolean aboveLine;//is the boat further north then the line
-  
-  if (latitude < slopeDesiredLine*longitude+yIntLine){//is y_boat < y_line at current x pos
-    if (wind_angl_newest>=90&&wind_angl_newest<=270){//is wind coming from south
-     if (canTack()){
-       tackSide=!tackSide; 
-       //maybe have tack function wich controls sails too       
-     }else{
-       //should bear off then tack
-     }
-    }
-  }else{
-   if (wind_angl_newest<=90||wind_angl_newest>=270){//is wind coming from noth
-     if (canTack()){
-       tackSide=!tackSide; 
-       //maybe have tack function wich controls sails too
-     }else{
-       //should bear off then tack 
-     }
-    }
-  }  
-  
-  //should also tack if we are far off course ; use a corridor to decide this
+void tack(){
+//fill in
 }
-boolean canTack(){ //abandonned, april 3, Christine
-  return true;//placeholder should use wind speed vs boat speed
-}
 
-
-
-int stayInDownwindCorridor(int corridorHalfWidth){
-//calculate whether we're still inside the downwind corridor of the mark; if not, tacks if necessary
-  
-  int theta, distance;
-  
-  //do this with trig. It's a right-angled triangle, where opp is the distance perpendicular to the wind angle (the number we're looking for);
- 
-  // and theta is the angle between the wind and the waypoint directions; positive when windDirn > waypointDirn
-  theta = getWaypointDirn() - getWindDirn();  
-  
-  // the hypotenuse is as long as the distance between the boat and the waypoint
-  hypotenuse = GPSconv(latitude, longitude, waypointX, waypointY); //this function might not work, nader wrote it
-  
-  //opp = hyp * sin(theta)
-  distance = hypotenuse * sin(degreesToRadians(theta));
-  
-  if (abs(distance) > corridorHalfWidth){ //we're outside
-    //can use the sign of distance to determine if we should be on the left or right tack; this works because when we do sin, it takes care of wrapping around 0/360
-    //a negative distance means that we are to the right of the corridor, waypoint is less than wind
-    if ( (distance  < 0 && wind_angl_newest > 180) || (distance > 0 && wind_angl_newest < 180){
-      //want newest_wind_angle < 180, ie wind coming from the right to left (starboard to port?) side of the boat when distance is negative; opposite when distance positive
-         tack();     //tack function should not return until successful tack
-    }
-   
-    return distance; //this should be positive or negative... depending on left or right side of corridor
-  }
-  else return 0;
-}
 
 double GPSconv(double lat1, double long1, double lat2, double long2) 
 //this is code to calculate the distance between 2 GPS coordinates, written by nader without any comments. Maybe it works. We'll see.
@@ -958,7 +938,7 @@ double GPSconv(double lat1, double long1, double lat2, double long2)
 	return d;
 }
 
-int getWaypointDirection(){
+int getWaypointDirn(){
 // computes the compass heading to the waypoint based on the latest known position of the boat, stored in latitude and longitude
   int waypointHeading;//the heading to the waypoint from where we are
   float x, y; //the difference between the boats location and the waypoint in x and y
@@ -986,7 +966,7 @@ int getCloseHauledDirn(){
   windHeading = getWindDirn(); //compass bearing for the wind
 
   //determine which tack we're on 
-  if (wind_angle_newest > 180) //wind from left side of boat first
+  if (wind_angl_newest > 180) //wind from left side of boat first
     desiredDirection = windHeading + TACKING_ANGLE; //bear off to the right
   else 
     desiredDirection = windHeading - TACKING_ANGLE; //bear off to the left
@@ -1011,7 +991,8 @@ int getWindDirn(){
 void relayData(){//sends data to shore
 
  //send data to zigbee
- Serial.println(latitude); //Curent latitude
+ Serial.println();
+ Serial.print(latitude); //Curent latitude
  Serial.print(",");
  Serial.print(longitude); //current longitude
  Serial.print(",");
@@ -1021,8 +1002,39 @@ void relayData(){//sends data to shore
  Serial.print(",");
  Serial.print(wind_angl);  //wind angle, (relative to boat or north?)
  Serial.print(",");
- Serial.println(wind_velocity);//wind velocity in knots
+ Serial.print(wind_velocity);//wind velocity in knots
+ Serial.print(",");
+ Serial.println(headingc);//compass heading
+
+}
+int stayInDownwindCorridor(int corridorHalfWidth){
+//calculate whether we're still inside the downwind corridor of the mark; if not, tacks if necessary
+  
+  int theta;
+  float distance, hypotenuse;
+  
+  //do this with trig. It's a right-angled triangle, where opp is the distance perpendicular to the wind angle (the number we're looking for);
  
+  // and theta is the angle between the wind and the waypoint directions; positive when windDirn > waypointDirn
+  theta = getWaypointDirn() - getWindDirn();  
+  
+  // the hypotenuse is as long as the distance between the boat and the waypoint
+  hypotenuse = GPSconv(latitude, longitude, waypointX, waypointY); //this function might not work, nader wrote it
+  
+  //opp = hyp * sin(theta)
+  distance = hypotenuse * sin(degreesToRadians(theta));
+  
+  if (abs(distance) > corridorHalfWidth){ //we're outside
+    //can use the sign of distance to determine if we should be on the left or right tack; this works because when we do sin, it takes care of wrapping around 0/360
+    //a negative distance means that we are to the right of the corridor, waypoint is less than wind
+    if ( (distance  < 0 && wind_angl_newest > 180) || (distance > 0 && wind_angl_newest < 180) ){
+      //want newest_wind_angle < 180, ie wind coming from the right to left (starboard to port?) side of the boat when distance is negative; opposite when distance positive
+         tack();     //tack function should not return until successful tack
+    }
+   
+    return distance; //this should be positive or negative... depending on left or right side of corridor
+  }
+  else return 0;
 }
 
 int straightSail(int waypointDirn){
@@ -1173,8 +1185,8 @@ void setup()
   prevGPSX=0; //previous Target X coordinate
   prevGPSY=0; //previous Target Y coordinate
   //Two locations in the parking lot as a test waypoint
-  waypointX=4413.7075;//Present waypoint's latitude (north/south, +'ve is north) coordinate
-  waypointY=07629.5199;//Present waypoint's longitude (east/west, +'ve is east) coordinate
+  waypointX=44.24;//Present waypoint's latitude (north/south, +'ve is north) coordinate
+  waypointY=-76.48;//Present waypoint's longitude (east/west, +'ve is east) coordinate
   //Heading angle using wind sensor
   heading=0;//heading relative to true north
   deviation=0;//deviation relative to true north; do we use this in our calculations?
@@ -1246,47 +1258,65 @@ void loop()
   char input;
   int waypointDirn, closeHauledDirection, windDirn =0;
   int distanceOutsideCorridor;
+  int numWaypoints =1;
+  int waypoint;
+  int distanceToWaypoint;
   
+  delay(1000);
   //April 2 sailcode:
-  
-  //sail testing code; this makes the pololu yellow light come on with flashing red
-  waypointDirn = getWaypointDirection(); //get the next waypoint's direction (right now this just returns 90); must be positive 0-360 heading
-     
-  
-//pseudocode to decide to sail upwind, and how to handle it:
- 
- //based on the waypoint direction and the wind direction, decide to sail upwind or straight to target
-  //if straight to target, continually update the major waypoint direction, and call straightSail to target
-  //if upwind, set an intermediate target and call sailStraight to target
- //use getCloseHauledDirn, getWaypointDirection, sailUpWind (with lots of mods) to sort this out 
- 
-  windDirn = getWindDirn();
-  //check if the waypoint is upwind, ie between the wind's direction and the direction we can point the boat without going into irons
-  if (between(waypointDirn, windDirn, windDirn + TACKING_ANGLE) || between(waypointDirn, windDirn, windDirn - TACKING_ANGLE)) //check if the waypoint's direction is between the wind and closehauled on either side
-  {
-   //can either turn up until this is not true, or find the heading and use the compass... uise the compass, wind sensor doesnt respond fast enough 
-    closeHauledDirection = getCloseHauledDirn(); // heading we can point when closehauled on our current tack
-    error = straightSail(closeHauledDirection);   //sail closehauled always when upwind
-//  if (wind_angl_newest > TACKING_ANGLE) //when sailing upwind this means that we're being inefficient; but is we're sailing closehauled shouldnt ever have to check this
-
-    //this uses GPSconv, naders function which may not work:
-    //I made up 10, I dont know what the units on the corridor halfwidth distance would be
-    distanceOutsideCorridor = stayInDownwindCorridor(10); //checks if we're in the downwind corridor from the mark, and tacks if we aren't and arent heading towards it
-
-    //perhaps kill the program or switch to RC mode if we're way off course?
-    if (abs(distanceOutsideCorridor) > 50) //made up 50, i dont know what the units on distance would be
-      RC(1,1);  
-  }  
-  
-  else  //not upwind
-    error = straightSail(waypointDirn); //sail based on compass only in a given direction
-  
-  delay(100);
-
-  error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor
-  
-  delay(100); //poolu crashes without this delay; maybe one command gets garbled with the next one?
-   
+//
+//  error = sensorData(BUFF_MAX,'w');
+//  error = sensorData(BUFF_MAX,'c');  
+//  
+//  for (waypoint = 0; waypoint < numWaypoints; waypoint++){  
+//    //  waypointX = waypointXArray[waypoint]; //4413.7075;//Present waypoint's latitude (north/south, +'ve is north) coordinate
+//    //  waypointY = waypointYArray[waypoint]; //07629.5199;//Present waypoint's longitude (east/west, +'ve is east) coordinate
+//    // error = sailToMark();
+//    distanceToWaypoint = GPSconv(latitude, longitude, waypointX, waypointY);
+//    while (distanceToWaypoint > MARK_DISTANCE){
+//      //sail testing code; this makes the pololu yellow light come on with flashing red
+//
+//      relayData();//send data to xbee
+//      Serial.println(distanceToWaypoint);
+//     //pseudocode to decide to sail upwind, and how to handle it:
+//   
+//     //based on the waypoint direction and the wind direction, decide to sail upwind or straight to target
+//     //if straight to target, continually update the major waypoint direction, and call straightSail to target
+//     //if upwind, set an intermediate target and call sailStraight to target
+//     //use getCloseHauledDirn, getWaypointDirection, sailUpWind (with lots of mods) to sort this out 
+//
+//      waypointDirn = getWaypointDirn(); //get the next waypoint's compass bearing; must be positive 0-360 heading
+//      windDirn = getWindDirn();
+//      //check if the waypoint is upwind, ie between the wind's direction and the direction we can point the boat without going into irons
+//      if (between(waypointDirn, windDirn, windDirn + TACKING_ANGLE) || between(waypointDirn, windDirn, windDirn - TACKING_ANGLE)) //check if the waypoint's direction is between the wind and closehauled on either side
+//      {
+//       //can either turn up until this is not true, or find the heading and use the compass... uise the compass, wind sensor doesnt respond fast enough 
+//        closeHauledDirection = getCloseHauledDirn(); // heading we can point when closehauled on our current tack
+//        error = straightSail(closeHauledDirection);   //sail closehauled always when upwind
+//    //  if (wind_angl_newest > TACKING_ANGLE) //when sailing upwind this means that we're being inefficient; but is we're sailing closehauled shouldnt ever have to check this
+//    
+//        //this uses GPSconv, naders function which may not work:
+//        //I made up 10, I dont know what the units on the corridor halfwidth distance would be
+//        distanceOutsideCorridor = stayInDownwindCorridor(10); //checks if we're in the downwind corridor from the mark, and tacks if we aren't and arent heading towards it
+//    
+//        //perhaps kill the program or switch to RC mode if we're way off course?
+//        if (abs(distanceOutsideCorridor) > 50) //made up 50, i dont know what the units on distance would be
+//          RC(1,1);  
+//      }  
+//      
+//      else  //not upwind
+//        error = straightSail(waypointDirn); //sail based on compass only in a given direction
+//      
+//      delay(100);
+//    
+//        error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor
+//      
+//      delay(100); //poolu crashes without this delay; maybe one command gets garbled with the next one?
+//    } 
+//  }
+//  RC(1,1);  //back to RC mode
+//  Serial.println("Close to waypoint, program over.");
+//  while(1); //end program
 /*
 //Testing code below here
 */
@@ -1297,16 +1327,16 @@ void loop()
 //      delay(5000);
 
 
-////compass sample mode testing code, unparsed        
-//  while (Serial2.available()>0)
-//   {
-//     input = Serial2.read();
-//     Serial.print(input);
-//   }
-//   Serial2.println("$PTNT,HTM*63");
-//   delay(1000);
-//  
-//
+//compass sample mode testing code, unparsed        
+  while (Serial2.available()>0)
+   {
+     input = Serial2.read();
+     Serial.print(input);
+   }
+   Serial2.println("$PTNT,HTM*63");
+   delay(1000);
+  
+
 //////compass run mode testing code, unparsed
 ////  while (Serial2.available()>0)
 ////   {
@@ -1316,13 +1346,13 @@ void loop()
 ////  delay(20);
 //     
 //////wind run mode testing code, unparsed (note* this doesnt need the arduino to be switched to xbee and the onboard power, works with arduino USB powered)
-//  while (Serial3.available()>0)
-//   {
-//     input = Serial3.read();
-//     Serial.print(input);
-//   }        
-//   delay(250);
-//     
+  while (Serial3.available()>0)
+   {
+     input = Serial3.read();
+     Serial.print(input);
+   }        
+   delay(250);
+     
   
 ////wind sample mode testing code, parsed; this is working for the wing angle and speed (tested by blowing on it)
 //      error = sensorData(BUFF_MAX, 'w'); //updates heading_newest
