@@ -150,16 +150,17 @@ int waypt[20]; //maximum of 10 waypoints for now
 
 //Menu hack globals
 int StraightSailDirection;
-int MenuReturn;
+int CurrentSelection;
 
-//Andrew Brannanwrote this during 2010-2011
+//Andrew Brannan wrote this during 2010-2011
 //returns the value of the menu item so loop knows what to do.
+//returns 0 when all updating happened in the menu (e.g. setting RC mode) and code should continue with previous selection
 int displayMenu()
 {
 	boolean stayInMenu = true; 					
 	boolean hasSelection = false;
-	boolean hasRudderAngle = false;
-	byte selection;
+	boolean hasSailDirection = false;
+	char selection;
 	boolean someVal = false;
 	boolean hasTackVal = false;
         boolean compassData = false;
@@ -168,11 +169,15 @@ int displayMenu()
 	boolean hasX = false;
         boolean hasY = false;
         boolean badGPS = false;
+        boolean hasRudderRCvalue = false;
+        boolean hasSailsRCvalue = false;
         double gpsDigit = 0;
         int power = 3;
         
         
-	byte rudderAngle;
+	char sailDirection;
+        byte rudderRCvalue;
+        byte sailsRCvalue;
 	byte tackVal;
 	
 	float temp;
@@ -182,23 +187,25 @@ int displayMenu()
 	
 	Serial.println("");
 	
-	//this loops through the menu until the user has selected the "exit menu" function 
-	while(stayInMenu == true)
+	//Val: not anymore, now return stuff based on inputs, 0 for unchanged //this loops through the menu until the user has selected the "exit menu" function 
+	while(true)//stayInMenu == true)
 	{
 		//menu options
 		Serial.println("");
 		Serial.println("___________________  MENU  ______________________");
 		Serial.println("");
 		Serial.println("");
-		Serial.println("1.	Input Waypoints");
-		Serial.println("2.	Begin automated sailing");
-		Serial.println("3.	Straight sail");
-		Serial.println("4.	Sailside");
-		Serial.println("5.	Tack");
-		Serial.println("6.	Get Wind Sensor Data");
-		Serial.println("7.      Get Compass Data");
-                Serial.println("8.      Get Speed Data");
-		Serial.println("9.	Exit Menu");
+		Serial.println("a.	Input Waypoints");
+		Serial.println("b.	Begin automated sailing");
+		Serial.println("c.     *Straight sail");
+		Serial.println("d.	Sailside");
+		Serial.println("e.	Tack");
+		Serial.println("f.	Get Wind Sensor Data");
+		Serial.println("g.      Get Compass Data");
+                Serial.println("h.      Get Speed Data");
+                Serial.println("i.     *Toggle RC");
+		Serial.println("j.     *Exit Menu");
+                Serial.println("z.     *Clear serial buffer");
 		Serial.println("");
 		Serial.println("Select option:");
 		
@@ -211,7 +218,7 @@ int displayMenu()
 		{
 			if(Serial.available() > 0)
 			{ 
-				selection = Serial.read() - '0';     //the " - '0' " converts the ASCII char to its actaul integer value (ex: without this, if the user entered '1' it would store as 49)			
+				selection = Serial.read(); //Val: switched to char values since out of single digits // - '0';     //the " - '0' " converts the ASCII char to its actaul integer value (ex: without this, if the user entered '1' it would store as 49)			
 				hasSelection = true;
 			}	
 		}
@@ -223,8 +230,8 @@ int displayMenu()
 		{
 			//call input waypoints function
                         //assuming that waypoints are of the form XXXX.XXXX....X
-			case 1:
-				Serial.println("Selected 1");
+			case 'a':
+				Serial.println("Selected a");
 
                                 prevGPSX = GPSX; //Storing current GPS values and then reseting them too zero
                                 prevGPSY = GPSY;
@@ -345,53 +352,84 @@ int displayMenu()
                                 Serial.print(GPSX);
                                 Serial.print(" ,Y = ");
                                 Serial.println(GPSY);
+                                
+                                return 0; //function set waypoints but then still need to tell boat what to do
 				break;
 				
 				//start automated sailing	
-			case 2:
-				Serial.println("Selected 2");
+			case 'b':
+				Serial.println("Selected autonomous sailing. Currently unused in menu.");
 				//Sail();      calls functions to begin automated sailing
+
+                                return 0;//update this when it does something :)
 				break;
 				
 				//call rudder angle set function
-			case 3:
-				Serial.println("Enter desired compass bearing, from 0 to 360: ");
+			case 'c':
+				Serial.println("Enter desired compass direction (n, s, e, w): ");
                                 //april 8th 2011 in process of being hacked from set rudder angle to set sail angle, Valerie is being really lazy and keeping the name rudderAngle for now
-				while(hasRudderAngle == false)
+				while(hasSailDirection == false)
 				{
 					if(Serial.available() > 0)
 					{ 
 						//this will have to be changed to use Serial.readln function
-						rudderAngle = Serial.read() - '0';     //the " - '0' " converts the ASCII char to its actaul integer value (ex: without this, if the user entered '1' it would store as 49)	
-						if(rudderAngle >= 0 && rudderAngle <= 360)	//check for valid rudder angle input
-						{
-							hasRudderAngle = true;
-							//setRudder(float(rudderAngle)); 
-                                                        StraightSailDirection = rudderAngle;
-							Serial.print("Compass bearing set to: ");
-							temp = float(rudderAngle);
-							Serial.println(temp);
-						}
-						else
-						{
-							Serial.println("Invalid Angle");
-						}
+						sailDirection = Serial.read(); //- '0'; now reading a char    //the " - '0' " converts the ASCII char to its actaul integer value (ex: without this, if the user entered '1' it would store as 49)	
+//						if(rudderAngle >= 0 && rudderAngle <= 360)	//check for valid rudder angle input
+//						{
+//							hasRudderAngle = true;
+//							//setRudder(float(rudderAngle)); 
+//                                                        StraightSailDirection = rudderAngle;
+//							Serial.print("Compass bearing set to: ");
+//							temp = float(rudderAngle);
+//							Serial.println(temp);
+//						}
+//						else
+//						{
+//							Serial.println("Invalid Angle");
+//						}
+
+                                                switch(sailDirection)
+                                              {  //the input char sailDirection
+                                                case 'n':
+                                                  StraightSailDirection = 0;
+                                                  hasSailDirection = true;
+                                                break;
+                                                case 's':
+                                                  StraightSailDirection = 180;
+                                                  hasSailDirection = true;
+                                                break;
+                                                case 'e':
+                                                  StraightSailDirection = 90;
+                                                  hasSailDirection = true;
+                                                break;
+                                                case 'w':
+                                                  StraightSailDirection = 270;
+                                                  hasSailDirection = true;
+                                                break;
+                                                default:
+                                                  Serial.println("Invalid entry, please enter n,s,e or w");
+                                                break;
+                                              }
+                                                
+                                                
 					}
 
                                        
 				}
                                 return 3;	
-				hasRudderAngle = false;
+				//hasSailDirection = false; // Val: why set this local variable back to false? Can probably delete this.
 				break;
 				
 				//call sailside function
-				case 4:
-					Serial.println("Selected SailSide");	
-					//Sailside();       
-					break;
+				case 'd':
+					Serial.println("Selected SailSide. Currently unused in menu.");	
+					//Sailside();     
+                                        return 0;
+  					break;
 					
 					//call tack function
-				case 5:
+				case 'e':
+                                        Serial.println("Select tack direction. Currently unused in menu");
 					Serial.println("Enter Tack direction: ");
 					while(hasTackVal == false)
 					{
@@ -412,10 +450,11 @@ int displayMenu()
 						}	
 					}
 					
+                                        return 0;
 					break;
 					
 					//call wind function	
-					case 6:
+					case 'f':
 						Serial.println("Selected Wind");
 						windData = sensorData(BUFF_MAX,'w');
 
@@ -430,7 +469,7 @@ int displayMenu()
 
 						break;
 						//exits the menu
-					case 7:
+					case 'g':
 						Serial.println("Selected Compass");
 						compassData = sensorData(BUFF_MAX,'c');
         						
@@ -448,10 +487,10 @@ int displayMenu()
                                                   Serial.println("Error fetching compass data");
                                                 }
                                                 
-
+                                                return 0;
 						break;
 
-                                        case 8:
+                                        case 'h':
 						Serial.println("Selected Speed");
         						                         
                                                   Serial.println("Speed Data: ");
@@ -459,15 +498,60 @@ int displayMenu()
                                                   Serial.println(bspeed);
                                                   Serial.print("  Boat's speed(knots):   ");
                                                   Serial.println(bspeedk);
-                                                
+                                                return 0;
 						break;
-						
-					case 9:
+					
+                                        case 'i':
+                                            Serial.println("Selected Toggle RC");
+                                            Serial.println("Enter desired RUDDER control value (1 for RC, 0 for autonomous)");
+                                            while (!hasRudderRCvalue) {
+                                              if(Serial.available())
+                                              {
+                                                rudderRCvalue = Serial.read() - '0';
+                                                if(rudderRCvalue == 0 || rudderRCvalue == 1)
+                                                {
+                                                 hasRudderRCvalue = true;
+                                                }
+                                                else
+                                                {
+                                                  Serial.print("read value: ");
+                                                  Serial.println(rudderRCvalue, DEC);
+                                                  Serial.println("Invalid value, please enter 0 or 1");
+                                                  
+                                                }
+                                              }
+                                              
+                                            }//end rudder rc value
+                                            Serial.println("Enter desired SAILS control value (1 for RC, 0 for autonomous)");
+                                            while (!hasSailsRCvalue) {
+                                               if(Serial.available())
+                                              {
+                                                sailsRCvalue = Serial.read() - '0';
+                                                if(sailsRCvalue == 0 || sailsRCvalue == 1)
+                                                {
+                                                  hasSailsRCvalue = true;
+                                                  
+                                                }
+                                                else
+                                                {
+                                                  Serial.println("Invalid value, please enter 0 or 1");
+                                                }
+                                              }
+                                              
+                                            }// end sails rc value
+                                            
+                                            RC(rudderRCvalue, sailsRCvalue);      
+           
+                                         return 0;                                 
+                                        
+                                        break;
+					case 'j':
 						Serial.println("Exiting Menu");
-						stayInMenu = false;
+                                                return 0;
+						//stayInMenu = false;
 						//does nothing
 
-                                        case 32: //If you press z it clears the serial buffer
+                                        case 'z': //If you press z it clears the serial buffer
                                                 Serial.flush();
                                                 Serial.println("Serial Buffer Cleared");
                                                 break;
@@ -1412,18 +1496,31 @@ int straightSail(int waypointDirn){
   return 0;
 }
 
+
+// 0 is autonomous, 1 is RC controlled
 void RC(int steering, int sails)
 //change the RC vs autonomous selection mode; also delay to allow the signals time to propogate before sending motor commands
 {
-  if (steering)
+  if (steering){
     digitalWrite(RCsteeringSelect, HIGH);
-  else
+   
+  }
+  else{
     digitalWrite(RCsteeringSelect, LOW);
+  }
+  
+    //Serial.print("Set rudder control to value: ");
+   // Serial.println(steering);
     
-  if (sails)
+  if (sails){
     digitalWrite(RCsailsSelect, HIGH);
-  else  
+  }
+  else  {
     digitalWrite(RCsailsSelect, LOW);
+  }
+  
+   // Serial.print("Set sails control to value: ");
+    //Serial.println(sails);
  
   delayMicroseconds(100); //0.1ms delay to allow select signals time to propogate and settle (this is maybe overkill?)
 }
@@ -1594,22 +1691,30 @@ void loop()
   int numWaypoints =1;
   int waypoint;
   int distanceToWaypoint;
+  int menuReturn;
   
   delay(1000);
   
   //Sail using Menu
   if(Serial.available())
   {
-    MenuReturn = displayMenu();   
+      menuReturn = displayMenu();
+         if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.g. setting RC mode)
+      {
+        CurrentSelection = menuReturn;
+      }  
   }
   
-  switch (MenuReturn) {
+  switch (CurrentSelection) {
   case 3:
+  Serial.print("Sailing towards: ");
+  Serial.print(StraightSailDirection, DEC);
+  Serial.println(" degrees.");
   straightSail(StraightSailDirection);
   break;
         
   default:
-  Serial.println("invalid menu return"); 
+  Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
     
   }
   
