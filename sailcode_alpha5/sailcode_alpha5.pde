@@ -49,6 +49,10 @@
 //#define PI 3.14159265358979323846
 #define d2r (PI / 180.0)
 #define EARTHRAD 6367515 // for long trips only
+#define DEGREE_TO_MINUTE 60 //there are 60 minutes in one degree
+#define LATITUDE_TO_METER 1855 // there are (approximately) 1855 meters in a minute of latitude; this isn't true for longitude, as it depends on the latitude
+//there are approximately 1314 m in a minute of longitude at 45 degrees north; this difference will mean that if we just use deltax over deltay in minutes to find an angle it will be wrong
+#define LONGITUDE_TO_METER 1314
 //motor control constants (deprecated, these need updating)
 #define MAXRUDDER 210  //Maximum rudder angle
 #define MINRUDDER 210   //Minimum rudder angle
@@ -104,14 +108,24 @@ int GPVTG;
 
 //Global boat variables
 //Position variables
-float latitude; //Curent latitude
-float longitude; //Current longitude
+//float latitude; //Curent latitude, low precision, old
+//float longitude; 
+double longitudeDeg; //latitude and longitude of boat's location, split into more precise degrees and minutes, to fit into a float
+double longitudeMin;
+double latitudeDeg;
+double latitudeMin;
+//as far as I know, these need to be phased out and arent used for any reason:
 float GPSX; //Target X coordinate
 float GPSY; //Target Y coordinate
 float prevGPSX; //previous Target X coordinate
 float prevGPSY; //previous Target Y coordinate
-float waypointX;//Present waypoint's X (north/south, +'ve is north) coordinate
-float waypointY;//Present waypoint's Y (east/west, +'ve is east) coordinate
+//float waypointX;//Present waypoint's X (north/south, +'ve is north) coordinate
+//float waypointY;//Present waypoint's Y (east/west, +'ve is east) coordinate
+double waypointLatDeg;//Present waypoint's latitude (x) degrees (north/south, +'ve is north) coordinate
+double waypointLatMin;//Present waypoint's latitude (x) minutes (north/south, +'ve is north) coordinate
+double waypointLongDeg;//Present waypoint's longitude (y) degrees (east/west, +'ve is east) coordinate
+double waypointLongMin;//Present waypoint's longitude (y) minutes (east/west, +'ve is east) coordinate
+
 
 //Heading angle using wind sensor
 float heading;//heading relative to true north
@@ -580,6 +594,61 @@ int DataValid(char *val)
 	//Check the end of the string
 }
 
+void ParseGPGLL(char *GPGLL_string, double *degree, double *minute){
+       //these are because Arduino float doesnt have enough precision, so have to parse twice to get end digits  
+  //ParseGPGLL(lat_deg_nmea_string, &latitudeDeg, &latitudeMin); 
+    //convert the ddmm.mmmm string into dd, mm.mmmm (because there isnt enough precision in an arduino float, we split it into 2)
+    
+//this will only work if strings are terminated by a recognizable null token by strtok, as described here: http://www.acm.uiuc.edu/webmonkeys/book/c_guide/2.14.html
+//the idea is to copy all the data beyond the first 3 characters over to a new string, before converting to a float
+// Then convert these saved numbers as higher precision points for the float
+    float smallFraction; //the smaller fractional part of the string, in float    
+    char smallFractionString[10]; //the smaller fractional part of the string
+    float lowPrecisionGPS; //result of using atof on a high-precision GPS variable (drops the end precision)
+    double intMinute; //the integer portion of minutes (ie mm of mm.mmmm)
+    float fractionalMinute; // the fractional portion of minutes (ie 0.mmmm of mm.mmmm)
+    int i; //counter
+    double temp; //garbage
+    
+   
+    //find degrees and low precision minutes      
+    lowPrecisionGPS = atof(GPGLL_string);
+      //get the degrees part, and the integer minutes part
+    // this wont work if somehow there are more than 2 digits of minutes (ie ddmmm.mmmm wll give ddm and mm.mmmm); this shouldnt happen
+    // this should work for 3 digit degrees though (ie dddmm.mmmm -> ddd and mm.mmmm)
+    *minute = 100*modf(lowPrecisionGPS / 100.0, degree); //processes ddmm.mm into dd (latDegrees) and mm.mm (latMinutes), low precision minute
+    //degree stores the integer, minute the fractional part (with low accuracy, ie mm.mm)      
+    
+  //now find high precision minutes
+  
+    //find the precise decimal portion (ie the 0.mmmm part), store in fractionalMinute
+   //drop a few high digits (ddmm.mmmm -> m.mmmm) to make it fit in the precision of a float
+    i = 0;
+    while (GPGLL_string[i+4]){ 
+        smallFractionString[i] = GPGLL_string[i+4];
+        i++;
+    }
+    smallFractionString[i]='\0';//append end of string character
+    
+    //now there should be 4 decimal points, and 2 integers; this should fit in a float
+    smallFraction = atof(smallFractionString);
+
+    //drop the integer part (m.mmmm -> m and 0.mmmm), save the high precision fraction
+    fractionalMinute = modf(smallFraction, &temp); //0.mmmm
+
+
+    //drop the fraction from the low precision minute variable, save the integer part
+    temp = modf(*minute, &intMinute);//drop the decimal part, we already have it; save the integer part into intMinute
+    
+    //combine the fraction and integer parts to get a high precision minute variable
+    *minute = intMinute + fractionalMinute;//combine the decimal and integer halfs of the minutes into one number
+    
+  //diagnostic printing
+    Serial.println(*degree,5);
+    Serial.println(*minute,5);      
+
+}
+
 int Parser(char *val) 
 {
   //I changed parser to no longer sum up the data
@@ -595,10 +664,12 @@ int Parser(char *val)
   char cp[100]; //temporary array for parsing, a copy of val
 
   //GPSGLL gps latitude and longitude data
-  double grades, frac; //the integer and fractional part of Degrees.minutes
-  float lat_deg_nmea, lon_deg_nmea; // latitude and longitude in ddmm.mmmm degrees minutes format
-  double lat; //latitude read from the string converted to decimal dd.mmmm
-  double lon; //longitude read from the string converted to decimal dd.mmmm
+  //old method variables (delete after ParseGPGLL is tested)
+//  double grades, frac; //the integer and fractional part of Degrees.minutes
+//  float lat_deg_nmea, lon_deg_nmea; // latitude and longitude in ddmm.mmmm degrees minutes format
+//  double lat; //latitude read from the string converted to decimal dd.mmmm
+//  double lon; //longitude read from the string converted to decimal dd.mmmm
+ //new method variables
   char lat_dir, lon_dir; //N,S,E,W direction character
   int hms; //the time stamp on GPS strings; hours minutes seconds
   char valid;//checks for the 'V' in GPS data strings (it's A if its invalid)
@@ -656,63 +727,32 @@ int Parser(char *val)
    
    //THIS ISNT WORKING because on arduino, floats only have 6 to 7 points of accuracy, same for doubles, so we're losing precision
    //perhaps try splitting at the decimal point, subtracting the known degrees (huge accuracy, we wont travel a degree) to regain 2 extra digits
-   /* this is the output:
-   $GPGLL4413.71
-  0.14
-  44.00
-  7629.52
-  0.30
-  76.00
-  44.23
-  -76.49
-
-   */
-   
-    Serial.print(val); //test for what GPS data is being returned
     
     lat_deg_nmea_string = strtok(NULL, ","); // this will use the cp copied string, since strtok magically remembers which string it was initially referenced to if NULL if used instead of a string
     lat_dir = (char) * strtok(NULL, ","); // only a (char) not a array of chars. Hence, = typecast(char) dereferenced strtok. 
           // strtok returns a point to a character array; we only want the value at the pointer's address (first value)
     lon_deg_nmea_string = strtok(NULL, ",");
     lon_dir = (char) * strtok(NULL, ",");
-    hms_string = strtok(NULL, ",");
-    
-    lat_deg_nmea = atof(lat_deg_nmea_string);
-    lon_deg_nmea = atof(lon_deg_nmea_string);
+    hms_string = strtok(NULL, ",");    
+
     hms = atoi(hms_string); //hms is converted to integer, not float
 
+    ParseGPGLL(lat_deg_nmea_string, &latitudeDeg, &latitudeMin); //convert the ddmm.mmmm string into dd, mm.mmmm (because there isnt enough precision in an arduino float, we split it into 2)
+    ParseGPGLL(lon_deg_nmea_string, &longitudeDeg, &longitudeMin); 
+
+    if (lat_dir == 'S')
+    {
+      latitudeDeg = latitudeDeg * -1.0; // change the sign of latitude based on if it's north/south
+      latitudeMin = latitudeMin * -1.0;
+    }
+    if (lon_dir == 'W')    
+    {          
+      longitudeDeg = longitudeDeg * -1.0;
+      longitudeMin = longitudeMin * -1.0;
+    }          
      //check 'valid' before continuing; throw error code if not valid -> do this properly
-  //  if (valid == 'V')
-  //    return 1; 
-
-    //     lat_deg is in the format ddmm.mmmm 
-
-
-//testing gpgll with prints
-    Serial.println(lat_deg_nmea);//this should have 4 decimals, only printing 2
-    //this first moves the decimal so that the latitude degrees is the whole part of the number
-    //then modf returns the integer portion to 'grades' and the fractional (minutes) to 'frac'.
-    frac = modf(lat_deg_nmea / 100.0, &grades); 
-    Serial.println(frac);
-    Serial.println(grades);
-    // Frac is out of 60, not 100, since it's in minutes; so convert to a normal decimal
-    lat = (double) (grades + frac * 100.0 / 60.0) * (lat_dir == 'S' ? -1.0    : 1.0); // change the sign of latitude based on if it's north/south
-
-
-    Serial.println(lon_deg_nmea);
-    //do the same for longitude
-    frac = modf(lon_deg_nmea / 100.0, &grades);
-    Serial.println(frac);
-    Serial.println(grades);
-    lon = (double) (grades + frac * 100.0 / 60.0) * (lon_dir == 'W' ? -1.0 : 1.0);
-
-    /*print("The string: %s\n", str);
-     printf("Lat_dir nmea: %f\n", lat_deg_nmea);
-     printf("Lat: %f\n", lon1);
-     printf("Lat_dir: %c\n", lon_dir);*/
-
-    latitude = lat; //cb! dont we want a moving average? 
-    longitude = lon;        
+    //  if (valid == 'V')
+    //    return 1; 
   }
 
   //Wind sensor compass
@@ -1054,7 +1094,8 @@ int sensorData(int bufferLength, char device)
    else if (device == 'w')
    dataAvailable = Serial3.available(); //check how many bytes are in the buffer
  
- if(!dataAvailable){
+ if(!dataAvailable)
+ {
     noData = 1;//set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
     Serial.println("No data available. ");
     digitalWrite(noDataLED,HIGH);//turn on error indicator LED to warn about no data present
@@ -1121,31 +1162,31 @@ int sensorData(int bufferLength, char device)
       //  Serial.print("read slash n, checksum is:  ");
         //compass strings seem to end with *<checksum>\r\n (carriage return, linefeed = 0x0D, 0x0A) so there's an extra j index between the two checksum values (j-3, j-2) and the current j.
         //just skip over it when checking the checksum
-        endCheckSum = (convertASCIItoHex(array[j-3]) << 4) | convertASCIItoHex(array[j-2]); //calculate the checksum by converting from the ASCII to HEX 
+          endCheckSum = (convertASCIItoHex(array[j-3]) << 4) | convertASCIItoHex(array[j-2]); //calculate the checksum by converting from the ASCII to HEX 
      //   Serial.print(endCheckSum,HEX);
     //    Serial.print("  , checksum calculated is  ");
      //   Serial.println(checksum,HEX);
         //check the XOR before bothering to parse; if its ok, reset the xor and parse, reset j
-        if (checksum==endCheckSum){
+          if (checksum==endCheckSum){
         //since hex values only take 4 bits, shift the more significant half to the left by 4 bits, the bitwise or it with the least significant half
         //then check if this value matches the calculated checksum (this part has been tested and should work)
         //  Serial.println("checksum good, parsing.");
 
           //Before parsing the valid string, check to see if the string contains two consecutive commas as indicated by the twoCommasPresent flag
-          if (!twoCommasPresent) {
+            if (!twoCommasPresent) {
              // Serial.println(array[0]); //print first character (should be $)
               array[j+1] = '\0';//append the end of string character
               digitalWrite(twoCommasLED,LOW);//turn off error indicator LED to warn about old data
               error = Parser(array); //checksum was successful, so parse              
               //delay(500);  //trying to add a delay to account for the fact that the code works when print out all the elements of the array, but not when you don't. Seems sketchy.
-          } else {
+             } else {
         	  twoCommasPresent = false;
                   Serial.println("Two commas present, didnt parse");
                   
         	  //This will be where we handle the presence of twoCommas, since it means that the boat is doing something strange
         	  //AKA tilted two far, bad compass data
         	  //GPS can't locate satellites, lots of commas, no values.
-          }
+              }
           
           digitalWrite(checksumBadLED,LOW);//checksum was bad if on, its not bad anymore
           
@@ -1172,7 +1213,7 @@ int sensorData(int bufferLength, char device)
         twoCommasPresent = false; // there isnt any data, so reset the twoCommasPresent
       } 
       else if (j > LONGEST_NMEA){//if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
-      Serial.println("string too long, clearing some stuff");
+        Serial.println("string too long, clearing some stuff");
         j = -1;//start at the first byte to fill the array
         // Serial2.flush(); //dont flush because there might be good data at the end
         checksum=0;//set the xor checksum back to zero
@@ -1259,8 +1300,8 @@ int Wind()
       //Uncomment a section to test it parsing that kind of command! (will print the global variables)
   //GPS testing:
   error = Parser("$GPGLL,4413.7075,N,07629.5199,W,192945,A,A*5E"); // this is returning 44.23  and -76.49; off by 0.1, 0.2?
-  Serial.println(latitude);//curent latitude
-  Serial.println(longitude); //Current longitude
+ // Serial.println(latitude);//curent latitude
+ // Serial.println(longitude); //Current longitude
   //Serial.println(GPSX); //Target X coordinate
   //Serial.println(GPSY); //Target Y coordinate
   //Serial.println(prevGPSX); //previous Target X coordinate
@@ -1380,14 +1421,36 @@ double GPSconv(double lat1, double long1, double lat2, double long2)
 	return d;
 }
 
-int getWaypointDirn(){
-// computes the compass heading to the waypoint based on the latest known position of the boat, stored in latitude and longitude
-  int waypointHeading;//the heading to the waypoint from where we are
-  float x, y; //the difference between the boats location and the waypoint in x and y
+double GPSdistance(double latitudeDeg1, double latitudeMin1, double longitudeDeg1, double longitudeMin1, double latitudeDeg2, double latitudeMin2, double longitudeDeg2, double longitudeMin2) {
+  //finds the distance between two latitude, longitude gps coordinates, in meters
+    double deltaLat, deltaLong; //distance in x and y directions
+    double distance;
     
-  x = (waypointX - longitude); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
-  y = (waypointY - latitude); //y is the east/west coordinate, + in the east direction
-  waypointHeading = radiansToDegrees(atan2(y, x)); // atan2 returns -pi to pi, taking account of which variables are positive to put in proper quadrant 
+    deltaLong = (longitudeDeg2 - longitudeDeg1)*DEGREE_TO_MINUTE + (longitudeMin2 - longitudeMin1); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
+    deltaLat = (latitudeDeg2 - latitudeDeg1)*DEGREE_TO_MINUTE + (latitudeMin2 - latitudeMin1); //y is the east/west coordinate, + in the east direction
+    
+    //convert to meters, based on the number of meters in a minute, looked up for the given latitude
+    deltaLat = deltaLat*LATITUDE_TO_METER; 
+    deltaLong = deltaLong*LONGITUDE_TO_METER;
+    
+    distance = sqrt (deltaLat*deltaLat + deltaLong*deltaLong);     
+    
+    return distance;
+}
+
+int getWaypointDirn(){
+// computes the compass heading to the waypoint based on the latest known position of the boat and the present waypoint, both in global variables
+// first converting minutes to meters
+  int waypointHeading;//the heading to the waypoint from where we are
+  float deltaX, deltaY; //the difference between the boats location and the waypoint in x and y
+  
+  // there are (approximately) 1855 meters in a minute of latitude; this isn't true for longitude, as it depends on the latitude
+  //there are approximately 1314 m in a minute of longitude at 45 degrees north; this difference will mean that if we just use deltax over deltay in minutes to find an angle it will be wrong
+
+  deltaX = (waypointLatDeg - latitudeDeg)*DEGREE_TO_MINUTE + (waypointLatMin - latitudeMin); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
+  deltaY = (waypointLongDeg - longitudeDeg)*DEGREE_TO_MINUTE + (waypointLongMin - longitudeMin); //y is the east/west coordinate, + in the east direction
+   
+  waypointHeading = radiansToDegrees(atan2(deltaY*LONGITUDE_TO_METER, deltaX*LATITUDE_TO_METER)); // atan2 returns -pi to pi, taking account of which variables are positive to put in proper quadrant 
         
   if (waypointHeading < 0)
     waypointHeading += 360;
@@ -1434,9 +1497,13 @@ void relayData(){//sends data to shore
 
  //send data to zigbee
  Serial.println();
- Serial.print(latitude); //Curent latitude
+ Serial.print(latitudeDeg);
+ Serial.print(","); 
+ Serial.print(latitudeMin);
  Serial.print(",");
- Serial.print(longitude); //current longitude
+ Serial.print(longitudeDeg); //latitude and longitude of boat's location, split into more precise degrees and minutes, to fit into a float
+ Serial.print(",");
+ Serial.print(longitudeMin);
  Serial.print(",");
  Serial.print(bspeed); //boat speed 
  Serial.print(",");
@@ -1451,6 +1518,7 @@ void relayData(){//sends data to shore
 }
 int stayInDownwindCorridor(int corridorHalfWidth){
 //calculate whether we're still inside the downwind corridor of the mark; if not, tacks if necessary
+// corridorHalfWidth is in meters
   
   int theta;
   float distance, hypotenuse;
@@ -1460,8 +1528,10 @@ int stayInDownwindCorridor(int corridorHalfWidth){
   // and theta is the angle between the wind and the waypoint directions; positive when windDirn > waypointDirn
   theta = getWaypointDirn() - getWindDirn();  
   
-  // the hypotenuse is as long as the distance between the boat and the waypoint
-  hypotenuse = GPSconv(latitude, longitude, waypointX, waypointY); //this function might not work, nader wrote it
+  // the hypotenuse is as long as the distance between the boat and the waypoint, in meters
+  hypotenuse = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);//latitude is Y, longitude X for waypoints
+  
+  //GPSconv(latitude, longitude, waypointX, waypointY); //this function might not work, nader wrote it
   
   //opp = hyp * sin(theta)
   distance = hypotenuse * sin(degreesToRadians(theta));
@@ -1472,6 +1542,7 @@ int stayInDownwindCorridor(int corridorHalfWidth){
     if ( (distance  < 0 && wind_angl_newest > 180) || (distance > 0 && wind_angl_newest < 180) ){
       //want newest_wind_angle < 180, ie wind coming from the right to left (starboard to port?) side of the boat when distance is negative; opposite when distance positive
          tack();     //tack function should not return until successful tack
+         Serial.println("Outside corridor, tacking");
     }
    
     return distance; //this should be positive or negative... depending on left or right side of corridor
@@ -1632,16 +1703,26 @@ void setup()
   //initialize all counters/variables
   
   
-  //Position variables
-  latitude=0;//curent latitude
-  longitude=0; //Current longitude
-  GPSX=0; //Target X coordinate
-  GPSY=0; //Target Y coordinate
-  prevGPSX=0; //previous Target X coordinate
-  prevGPSY=0; //previous Target Y coordinate
-  //Two locations in the parking lot as a test waypoint
-  waypointX=44.24;//Present waypoint's latitude (north/south, +'ve is north) coordinate
-  waypointY=-76.48;//Present waypoint's longitude (east/west, +'ve is east) coordinate
+  //Old Position variables, no longer used
+//  latitude=0;//curent latitude
+//  longitude=0; //Current longitude
+//  //Two locations in the parking lot as a test waypoint
+//  waypointY=44.24;//Present waypoint's latitude (north/south, +'ve is north) coordinate
+//  waypointX=-76.48;//Present waypoint's longitude (east/west, +'ve is east) coordinate
+
+  //current position from sensors
+  latitudeDeg=0;//curent latitude
+  latitudeMin=0;//curent latitude
+  longitudeDeg=0; //Current longitude
+  longitudeMin=0; //Current longitude
+  
+  //longitude
+  waypointLongDeg = 0;
+  waypointLongMin = 0;
+  //latitude
+  waypointLatDeg = 0;
+  waypointLatMin = 0;
+  
   //Heading angle using wind sensor
   heading=0;//heading relative to true north
   deviation=0;//deviation relative to true north; do we use this in our calculations?
@@ -1695,15 +1776,13 @@ void setup()
 //$PAMTC,EN,S // save to EEPROM (changing wind sensor settings only affects RAM; unless this command is used, settings will return to previous state when power is cycled)
 
 
-  delay(200);
-  
-  setrudder(0);
-  
   RC(0,0);// autonomous sail and rudder control
   
-  delay(5000);
+  delay(10);
   
-  
+  setrudder(0);
+   
+  delay(5000);  
 }
 
 void loop()
@@ -1716,6 +1795,7 @@ void loop()
   int numWaypoints =1;
   int waypoint;
   int distanceToWaypoint;
+  boolean downWind;
   int menuReturn;
   
   delay(1000);
@@ -1759,7 +1839,7 @@ void loop()
 //    //  waypointX = waypointXArray[waypoint]; //4413.7075;//Present waypoint's latitude (north/south, +'ve is north) coordinate
 //    //  waypointY = waypointYArray[waypoint]; //07629.5199;//Present waypoint's longitude (east/west, +'ve is east) coordinate
 //    // error = sailToMark();
-//    distanceToWaypoint = GPSconv(latitude, longitude, waypointX, waypointY);
+//    distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);//returns in meters
 //    while (distanceToWaypoint > MARK_DISTANCE){
 //      //sail testing code; this makes the pololu yellow light come on with flashing red
 //
@@ -1783,11 +1863,11 @@ void loop()
 //    //  if (wind_angl_newest > TACKING_ANGLE) //when sailing upwind this means that we're being inefficient; but is we're sailing closehauled shouldnt ever have to check this
 //    
 //        //this uses GPSconv, naders function which may not work:
-//        //I made up 10, I dont know what the units on the corridor halfwidth distance would be
+//        //I made up 10, the units are in meters
 //        distanceOutsideCorridor = stayInDownwindCorridor(10); //checks if we're in the downwind corridor from the mark, and tacks if we aren't and arent heading towards it
 //    
 //        //perhaps kill the program or switch to RC mode if we're way off course?
-//        if (abs(distanceOutsideCorridor) > 50) //made up 50, i dont know what the units on distance would be
+//        if (abs(distanceOutsideCorridor) > 50) //made up 50, this is the distance from a point directly downwind of the waypoint in meters
 //          RC(1,1);  
 //      }  
 //      
@@ -1804,6 +1884,8 @@ void loop()
 //  RC(1,1);  //back to RC mode
 //  Serial.println("Close to waypoint, program over.");
 //  while(1); //end program
+
+
 /*
 //Testing code below here
 */
@@ -1981,9 +2063,58 @@ void loop()
 //  Serial.print("\n10 degrees");   
 //setrudder(10);
 //delay(2000);
+
+
+
+//error-checking navigation code:  
+
+//  //set present latitude and longitude to the middle tree
+//  error = Parser("$GPGLL,4413.6939,N,07629.5335,W,230544,A,A*5C"); 
+//    
+//  //set the waypoint to the corner of the dirt pit
+//  //latitude
+//  waypointLatDeg = 44;
+//  waypointLatMin = 13.7067;
+//  //longitude
+//  waypointLongDeg = -76;
+//  waypointLongMin = -29.4847;
+//  
+//  //set wind direction
+//  error = Parser("$WIMWV,40.0,R,0.5,N,A*26");
+//   
+//  //leave compass direction at it's 0 default
+//  heading_newest=0;//heading relative to true north, newest
+//  
+//  //find the distance to the waypoint
+//  distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);
+//  Serial.print("Waypoint distance: ");
+//  Serial.println(distanceToWaypoint);
+//  
+//  //find the direction to the waypoint
+//  waypointDirn = getWaypointDirn(); //get the next waypoint's compass bearing; must be positive 0-360 heading
+//  Serial.print("Waypoint dirn: ");
+//  Serial.println(waypointDirn);
+//  
+//  //find the wind direction
+//  windDirn = getWindDirn();
+//  Serial.print("Wind dirn: ");
+//  Serial.println(windDirn);
+//  
+//  //closehauled dirn
+//  closeHauledDirection = getCloseHauledDirn();
+//  Serial.print("Closehauled dirn: ");
+//  Serial.println(closeHauledDirection);
+//  
+//  //check if we're downwind
+//  if(between(waypointDirn, windDirn - TACKING_ANGLE, windDirn + TACKING_ANGLE)) //check if the waypoint's direction is between the wind and closehauled on either side
+//    Serial.println("Downwind");
+//  else  
+//    Serial.println("not downwind");
+//  
+//  //check downwind corridor  
+//  distanceOutsideCorridor = stayInDownwindCorridor(10);
+//  Serial.print("Corridor distance: ");
+//  Serial.println(distanceOutsideCorridor);    
     
 }
-
-
-
 
