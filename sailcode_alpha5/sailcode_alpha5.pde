@@ -1834,6 +1834,14 @@ void loop()
   
   
   //April 2 sailcode:
+  
+  //set the waypoint to the corner of the dirt pit
+  //latitude
+  waypointLatDeg = 44;
+  waypointLatMin = 13.7067;
+  //longitude
+  waypointLongDeg = -76;
+  waypointLongMin = -29.4847;
 
   error = sensorData(BUFF_MAX,'w');
   error = sensorData(BUFF_MAX,'c');  
