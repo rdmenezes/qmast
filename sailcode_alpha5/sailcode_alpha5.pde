@@ -1800,7 +1800,8 @@ void loop()
   int distanceToWaypoint;
   boolean downWind;
   int menuReturn;
-  
+  int GPSerrors =0;
+  int compassErrors = 0;
   delay(1000);
   
   //errorchecking parse, float accuracy issue with gpgll
@@ -1834,17 +1835,57 @@ void loop()
   
   
   //April 2 sailcode:
+  //Waypoints:
+ //GPGLL,4413.6803,N,07629.5175,W,232409,A,A*58 south lamp post
+ //GPGLL,4413.6927,N,07629.5351,W,230533,A,A*51 middle tree by door
+ //GPGLL,4413.7067,N,07629.4847,W,232037,A,A*53 NW corner of the dirt pit by white house
+ //GPGLL,4413.7139,N,07629.5007,W,231721,A,A*57 middle lamp post
+ //GPGLL,4413.7207,N,07629.5247,W,231234,A,A*5E at the top of the parking lot/bay ramp, where the edging and sidewalk end
+ 
+ //compass magnetic vs gps differences?? look up
   
-  //set the waypoint to the corner of the dirt pit
+  //set the waypoint to the south lamp post
   //latitude
   waypointLatDeg = 44;
-  waypointLatMin = 13.7067;
+  waypointLatMin = 13.6803;
   //longitude
   waypointLongDeg = -76;
-  waypointLongMin = -29.4847;
+  waypointLongMin = -29.5175;
+  
+  //set our initial position to the tree by the door (made these up)
+  latitudeDeg = 44;
+  latitudeMin = 13.6927;
+  longitudeDeg = -76;
+  longitudeMin = -29.5351;
 
-  error = sensorData(BUFF_MAX,'w');
+//perhaps loop these calls untik we get a signal? this doesnt seem to have worked.. or maybe it did and I lost xbee connection
+//  while(latitudeDeg==0 && GPSerrors < 60)
+//   {
+//     error = sensorData(BUFF_MAX,'w');
+//     delay(100);
+//     Serial.println("no gps data");
+//     GPSerrors++;
+//   }
+//
+//  while(heading_newest == 0 && compassErrors < 60)
+//  {
+//      error = sensorData(BUFF_MAX,'c');  
+//      delay(100);
+//      Serial.println("no compass data");
+//      compassErrors++;
+//  }
+//
+//if (GPSerrors >= 60 || compassErrors >= 60){
+//  while(1)
+//    {
+//      Serial.println("Too many data errors, end of program (press reset to try again).");
+//      delay(1000);
+//    }
+//    
+//}
+
   error = sensorData(BUFF_MAX,'c');  
+  error = sensorData(BUFF_MAX,'w');  
   
   for (waypoint = 0; waypoint < numWaypoints; waypoint++){  
     //  waypointX = waypointXArray[waypoint]; //4413.7075;//Present waypoint's latitude (north/south, +'ve is north) coordinate
@@ -1869,6 +1910,7 @@ void loop()
       //check if the waypoint is upwind, ie between the wind's direction and the direction we can point the boat without going into irons
       if (between(waypointDirn, windDirn - TACKING_ANGLE, windDirn + TACKING_ANGLE)) //check if the waypoint's direction is between the wind and closehauled on either side (ie are we downwind?)
       {
+        Serial.println("Downwind of waypoint");
        //can either turn up until this is not true, or find the heading and use the compass... uise the compass, wind sensor doesnt respond fast enough 
         closeHauledDirection = getCloseHauledDirn(); // heading we can point when closehauled on our current tack
         error = straightSail(closeHauledDirection);   //sail closehauled always when upwind
