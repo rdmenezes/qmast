@@ -21,6 +21,10 @@
 - sail control
 */
 
+//All bearing calculations in this code assume that the compass returns True North readings. ie it is adjusted for declination.
+//If this is not true: adjust for declination in the Parse() function, as compass data is decoded add or subtract the declination
+
+
 //#include <math.h> doesnt work
 
 #include <SoftwareSerial.h> 
@@ -41,8 +45,12 @@
 
 //Boat parameter constants
 #define TACKING_ANGLE 30 //the highest angle we can point
-//Navigation constants
+//Course Navigation constants
 #define MARK_DISTANCE 1 //the distance we have to be to a mark before moving to the next one, in meters
+
+//Station keeping navigation constants
+#define STATION_KEEPING_RADIUS 15 //the radius we want to stay around the centre-point of the station-keeping course; full width is 40 meters
+
 //serial data constants
 #define BUFF_MAX 511 // serial buffer length, set in HardwareSerial.cpp in arduino0022/hardware/arduino/cores/arduino
 //Calculation constantes
@@ -121,12 +129,32 @@ float prevGPSX; //previous Target X coordinate
 float prevGPSY; //previous Target Y coordinate
 //float waypointX;//Present waypoint's X (north/south, +'ve is north) coordinate
 //float waypointY;//Present waypoint's Y (east/west, +'ve is east) coordinate
-double waypointLatDeg;//Present waypoint's latitude (x) degrees (north/south, +'ve is north) coordinate
-double waypointLatMin;//Present waypoint's latitude (x) minutes (north/south, +'ve is north) coordinate
-double waypointLongDeg;//Present waypoint's longitude (y) degrees (east/west, +'ve is east) coordinate
-double waypointLongMin;//Present waypoint's longitude (y) minutes (east/west, +'ve is east) coordinate
+
+double courseWaypointsLatDeg[10];//List of waypoint's latitude (x) degrees (north/south, +'ve is north) coordinate
+double courseWaypointsLatMin[10];//List of waypoint's latitude (x) minutes (north/south, +'ve is north) coordinate
+double courseWaypointsLonDeg[10];//List of waypoint's longitude (y) degrees (east/west, +'ve is east) coordinate
+double courseWaypointsLonMin[10];//List of waypoint's longitude (y) minutes (east/west, +'ve is east) coordinate
 
 
+//Station keeping variables
+
+//Station-keeping waypoints; 4 corners of the square
+double stationCornersLatDeg = 44;
+double stationCornersLatMin[4] = {13.6803, 13.6927, 13.7067, 13.7139};
+double stationCornersLonDeg = -76;
+double stationCornersLonMin[4] = {29.5175, 29.5351, 29.4647, 29.5007};
+
+ //GPGLL,4413.6803,N,07629.5175,W,232409,A,A*58 south lamp post
+ //GPGLL,4413.6927,N,07629.5351,W,230533,A,A*51 middle tree by door
+ //GPGLL,4413.7067,N,07629.4847,W,232037,A,A*53 NW corner of the dirt pit by white house
+ //GPGLL,4413.7139,N,07629.5007,W,231721,A,A*57 middle lamp post
+ //GPGLL,4413.7207,N,07629.5247,W,231234,A,A*5E at the top of the parking lot/bay ramp, where the edging and sidewalk end
+double stationWaypointsLatDeg = 44;
+double stationWaypointsLatMin[4];
+double stationWaypointsLonDeg = -76;
+double stationWaypointsLonMin[4];
+
+//Sensor data
 //Heading angle using wind sensor
 float heading;//heading relative to true north
 float deviation;//deviation relative to true north; do we use this in our calculations?
@@ -165,6 +193,7 @@ int waypt[20]; //maximum of 10 waypoints for now
 //Menu hack globals
 int StraightSailDirection;
 int CurrentSelection;
+
 
 //Andrew Brannan wrote this during 2010-2011
 //returns the value of the menu item so loop knows what to do.
@@ -641,12 +670,7 @@ void ParseGPGLL(char *GPGLL_string, double *degree, double *minute){
     temp = modf(*minute, &intMinute);//drop the decimal part, we already have it; save the integer part into intMinute
     
     //combine the fraction and integer parts to get a high precision minute variable
-    *minute = intMinute + fractionalMinute;//combine the decimal and integer halfs of the minutes into one number
-    
-  //diagnostic printing
-    Serial.println(*degree,5);
-    Serial.println(*minute,5);      
-
+    *minute = intMinute + fractionalMinute;//combine the decimal and integer halfs of the minutes into one number        
 }
 
 int Parser(char *val) 
@@ -1289,6 +1313,39 @@ int sensorData(int bufferLength, char device)
    return error;
 }
 
+void connectSensors(){
+//this function loops for 1 minute,until we get a signal or it times out
+//useful at the start of any program
+//but this doesnt seem to have worked in testing or maybe it did and I lost xbee connection  
+  int GPSerrors =0;
+  int compassErrors = 0;
+  int error;
+  
+  while(latitudeDeg==0 && GPSerrors < 600)
+   {
+     error = sensorData(BUFF_MAX,'w');
+     delay(100);
+     Serial.println("no gps data");
+     GPSerrors++;
+   }
+
+  while(heading_newest == 0 && compassErrors < 600)
+  {
+      error = sensorData(BUFF_MAX,'c');  
+      delay(100);
+      Serial.println("no compass data");
+      compassErrors++;
+  }
+
+  if (GPSerrors >= 600 || compassErrors >= 600){
+    while(1)
+    {
+      Serial.println("Too many data errors, end of program (press reset to try again).");
+      delay(1000);
+    }  
+  }
+  
+}
 
 
 int Wind() 
@@ -1438,7 +1495,7 @@ double GPSdistance(double latitudeDeg1, double latitudeMin1, double longitudeDeg
     return distance;
 }
 
-int getWaypointDirn(){
+int getWaypointDirn(double waypointLatDeg, double waypointLatMin, double waypointLongDeg, double waypointLongMin){
 // computes the compass heading to the waypoint based on the latest known position of the boat and the present waypoint, both in global variables
 // first converting minutes to meters
   int waypointHeading;//the heading to the waypoint from where we are
@@ -1452,14 +1509,13 @@ int getWaypointDirn(){
    
   waypointHeading = radiansToDegrees(atan2(deltaY*LONGITUDE_TO_METER, deltaX*LATITUDE_TO_METER)); // atan2 returns -pi to pi, taking account of which variables are positive to put in proper quadrant 
         
+  //normalize direction
   if (waypointHeading < 0)
     waypointHeading += 360;
   else if (waypointHeading > 360)
     waypointHeading -= 360;
     
   return waypointHeading;
-
- // return (90); //for testing, waypoint is always 90 degrees
 }
 
 int getCloseHauledDirn(){
@@ -1516,7 +1572,7 @@ void relayData(){//sends data to shore
  Serial.println(headingc);//compass heading
 
 }
-int stayInDownwindCorridor(int corridorHalfWidth){
+int stayInDownwindCorridor(int corridorHalfWidth, double waypointLatDeg, double waypointLatMin, double waypointLongDeg, double waypointLongMin){
 //calculate whether we're still inside the downwind corridor of the mark; if not, tacks if necessary
 // corridorHalfWidth is in meters
   
@@ -1526,7 +1582,7 @@ int stayInDownwindCorridor(int corridorHalfWidth){
   //do this with trig. It's a right-angled triangle, where opp is the distance perpendicular to the wind angle (the number we're looking for);
  
   // and theta is the angle between the wind and the waypoint directions; positive when windDirn > waypointDirn
-  theta = getWaypointDirn() - getWindDirn();  
+  theta = getWaypointDirn( waypointLatDeg,  waypointLatMin, waypointLongDeg, waypointLongMin) - getWindDirn();  
   
   // the hypotenuse is as long as the distance between the boat and the waypoint, in meters
   hypotenuse = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);//latitude is Y, longitude X for waypoints
@@ -1551,6 +1607,213 @@ int stayInDownwindCorridor(int corridorHalfWidth){
    //If distance is negative, distance/abs(distance) is -1, therefore we add the corridor halfwidth to a negative number, giving 0 at the boundary and -'ve number outside
   }
   else return 0;
+}
+
+void getStationKeepingCentre(double *centreLatMin, double *centreLonMin){
+  //this function averages the GPS locations to find the centre point of the rectangle; has to be tested on Arduino
+  
+  /*
+  double stationLatDeg = 44;
+  double stationCornersLatMin[4] = {13.6803, 13.6927, 13.7067, 13.7139};
+  double stationLonDeg = -76;
+  double stationLonMin[4] = {29.5175,29.5351,29.4647,29.5007};
+  */
+
+  double sumLatMin = 0;
+  double sumLonMin = 0;
+  int i;//counter
+  
+  for (i = 0; i < 4; i++)
+  {
+    sumLatMin+= stationCornersLatMin[i];
+    sumLonMin+= stationCornersLonMin[i];
+  }
+  *centreLatMin = sumLatMin/4;
+  *centreLonMin = sumLonMin/4;
+}
+
+void fillStationKeepingWaypoints(double centreLatMin, double centreLonMin, int windBearing){
+  
+  double deltaLat;
+  double deltaLon;
+  int i;
+  
+  //distance in meters from midpoint to each mark is in STATION_KEEPING_RADIUS; this is the hypotenuse of a lat/long right angled triangle
+  
+  //the wind bearing is the angle from north to the direction the wind is coming from
+  //it's also the direction we're putting the mark (want one mark directly upwind, 90 degrees to wind, downwind, -90 degrees)
+  
+  for (i = 0; i < 4; i++){
+    deltaLat = STATION_KEEPING_RADIUS*cos(windBearing+90*i)/LATITUDE_TO_METER; //latitude is along the north vector
+    deltaLon = STATION_KEEPING_RADIUS*sin(windBearing+90*i)/LONGITUDE_TO_METER; //longitude is perpendicular to the north vector
+    stationWaypointsLatMin[i] = deltaLat + centreLatMin;
+    stationWaypointsLonMin[i] = deltaLon + centreLonMin;
+  }    
+}
+
+int stationKeep(){
+  //update the waypoints every bit to make sure we're compensating for the wind correctly
+  //straightsail to the waypoints
+  //ensure we've reached each waypoint before going to the next one
+
+  // setup waypoints (requires that wayoints are manually entered
+  double centreLatMin, centreLonMin;
+  int windDirn;
+  int error;
+
+  //Present waypoint variables
+  double waypointLatDeg;//Present waypoint's latitude (x) degrees (north/south, +'ve is north) coordinate
+  double waypointLatMin;//Present waypoint's latitude (x) minutes (north/south, +'ve is north) coordinate
+  double waypointLongDeg;//Present waypoint's longitude (y) degrees (east/west, +'ve is east) coordinate
+  double waypointLongMin;//Present waypoint's longitude (y) minutes (east/west, +'ve is east) coordinate
+
+  int waypoint; //waypoint counter
+  int distanceToWaypoint;//the boat's distance to the present waypoint
+  
+  //Timer variables
+  long start_time, elapsed_time, current_time;
+  
+  //get data from sensors for global variables
+  error = sensorData(BUFF_MAX,'c');  
+  error = sensorData(BUFF_MAX,'w');  
+  
+  //set up waypoints
+  getStationKeepingCentre(&centreLatMin, &centreLonMin); //find the centre of the global stationkeeping corner variables
+  windDirn = getWindDirn(); //find the wind direction so we can set out waypoints downwind from it
+  fillStationKeepingWaypoints(centreLatMin, centreLonMin, windDirn);//set global station keeping waypoints  
+  
+  //sail between waypoints until 5 minute timer is up
+
+  //initialize waypoints
+  waypointLatDeg =  stationWaypointsLatDeg;
+  waypointLongDeg = stationWaypointsLonDeg;    
+  
+  waypoint = 2; //start by sailing to the downwind waypoint
+  
+  
+  start_time = millis();//record the starting clock time
+  
+  //timed 5 minute loop of going through the waypoints
+  do {
+      //latitude
+      waypointLatMin =  stationWaypointsLatMin[waypoint];
+      //longitude
+      waypointLongMin =  stationWaypointsLonMin[waypoint];   
+          
+      distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);//returns in meters
+
+      while (distanceToWaypoint > MARK_DISTANCE)
+      {           
+        //send data to xbee for reporting purposes
+        relayData();
+        Serial.println(distanceToWaypoint);
+        
+        //set rudder and sails    
+        error = sailToWaypoint(waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin); //sets the rudder, stays in corridor if sailing upwind       
+        delay(100);//give rudder time to adjust? this might not be necessary
+        error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
+        delay(100); //poolu crashes without this delay; maybe one command gets garbled with the next one?
+      
+        distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);//returns in meters
+      } 
+      
+      waypoint++;
+      if (waypoint ==5)       
+          waypoint = 0;    
+          
+      current_time = millis(); //get the Arduino clock time
+      elapsed_time = current_time - start_time;//calculate elapsed miliseconds since the start of the 5 minute loop
+  } while(elapsed_time < 300000); // (5min) * (60s/min) * (1000ms/s)
+  
+  //leave square; can either calculate the closest place to leave, or just head downwind as we do here:
+  while (1)
+  {
+    windDirn = getWindDirn();
+    error = straightSail(windDirn+180); //sail based on compass only in downwind direction
+    delay(100);//give rudder time to adjust? this might not be necessary
+    error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
+    delay(100); //poolu crashes without this delay; maybe one command gets garbled with the next one?     
+  }    
+  
+}
+
+void sailCourse(){
+  //sail the race course 
+  
+  int error; 
+
+  //waypoint variables
+  int numWaypoints = 1;//total number of waypoints
+  int waypoint; //waypoint counter, advances when we reach each waypoint
+  int distanceToWaypoint;//the boat's distance to the present waypoint
+      
+  //Present waypoint variables
+  double waypointLatDeg;//Present waypoint's latitude (x) degrees (north/south, +'ve is north) coordinate
+  double waypointLatMin;//Present waypoint's latitude (x) minutes (north/south, +'ve is north) coordinate
+  double waypointLongDeg;//Present waypoint's longitude (y) degrees (east/west, +'ve is east) coordinate
+  double waypointLongMin;//Present waypoint's longitude (y) minutes (east/west, +'ve is east) coordinate
+
+ //Known Waypoints:
+ //GPGLL,4413.6803,N,07629.5175,W,232409,A,A*58 south lamp post
+ //GPGLL,4413.6927,N,07629.5351,W,230533,A,A*51 middle tree by door
+ //GPGLL,4413.7067,N,07629.4847,W,232037,A,A*53 NW corner of the dirt pit by white house
+ //GPGLL,4413.7139,N,07629.5007,W,231721,A,A*57 middle lamp post
+ //GPGLL,4413.7207,N,07629.5247,W,231234,A,A*5E at the top of the parking lot/bay ramp, where the edging and sidewalk end
+
+
+  //Global variable setup (put this in setup() function), and as a manu option to input waypoints
+
+  //set the waypoint to the south lamp post
+  courseWaypointsLatDeg[0] = 44;//List of waypoint's latitude (x) degrees (north/south, +'ve is north) coordinate
+  courseWaypointsLatMin[0] = 13.6803;//List of waypoint's latitude (x) minutes (north/south, +'ve is north) coordinate
+  courseWaypointsLonDeg[0] = -76;//List of waypoint's longitude (y) degrees (east/west, +'ve is east) coordinate
+  courseWaypointsLonMin[0] = -29.5175;//List of waypoint's longitude (y) minutes (east/west, +'ve is east) coordinate
+
+  //set our initial position to the tree by the door 
+  latitudeDeg = 44;
+  latitudeMin = 13.6927;
+  longitudeDeg = -76;
+  longitudeMin = -29.5351;
+ 
+  
+ //get wind and compass data before starting to move
+
+  error = sensorData(BUFF_MAX,'c');  
+  error = sensorData(BUFF_MAX,'w');  
+  
+  for (waypoint = 0; waypoint < numWaypoints; waypoint++){
+    
+    //transfer from the global list to our local single waypoint so that we can have simpler code; 
+    //it might be better to just send in the "waypoint" variable and have each function reference the global array
+    //or create a "GPScoordinate" structure to simplify things; right now there are 4 variables per location
+    
+    //latitude
+    waypointLatDeg = courseWaypointsLatDeg[waypoint];
+    waypointLatMin = courseWaypointsLatMin[waypoint];
+    //longitude
+    waypointLongDeg = courseWaypointsLonDeg[waypoint];
+    waypointLongMin = courseWaypointsLonMin[waypoint];   
+          
+    distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);//returns in meters
+
+    while (distanceToWaypoint > MARK_DISTANCE){
+      //sail testing code; this makes the pololu yellow light come on with flashing red
+      
+      //send data to xbee for reporting purposes
+      relayData();
+      Serial.println(distanceToWaypoint);
+      
+      //set rudder and sails    
+      error = sailToWaypoint(waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin); //sets the rudder, stays in corridor if sailing upwind       
+      delay(100);//give rudder time to adjust? this might not be necessary
+      error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
+      delay(100); //poolu crashes without this delay; maybe one command gets garbled with the next one?
+      
+      distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);//returns in meters
+    } 
+  } //end loop through waypoints
+  
+  RC(1,1);  //back to RC mode
 }
 
 int straightSail(int waypointDirn){
@@ -1593,6 +1856,50 @@ int straightSail(int waypointDirn){
     delay(10);     //wait to allow rudder signal to be sent to pololu
 
   return 0;
+}
+
+int sailToWaypoint(double waypointLatDeg, double waypointLatMin, double waypointLongDeg, double waypointLongMin){
+  //sets the rudder to sail towards the waypoint, either upwind or downwind
+  // if outside of a downwind corridor, subfunction stayInDownwindCorridor will tack 
+  //the subfunctions still use the global variables for the waypoint to sail to
+    int waypointDirn, closeHauledDirection, windDirn =0;
+    int distanceOutsideCorridor;
+    int error = 0;
+     //based on the waypoint direction and the wind direction, decide to sail upwind or straight to target
+     //if straight to target, continually update the major waypoint direction, and call straightSail to target
+     //if upwind, set an intermediate target and call sailStraight to target
+     //use getCloseHauledDirn, getWaypointDirection, sailUpWind (with lots of mods) to sort this out 
+
+      waypointDirn = getWaypointDirn(waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin); //get the next waypoint's compass bearing; must be positive 0-360 heading
+      windDirn = getWindDirn();
+      //check if the waypoint is upwind, ie between the wind's direction and the direction we can point the boat without going into irons
+      if (between(waypointDirn, windDirn - TACKING_ANGLE, windDirn + TACKING_ANGLE)) //check if the waypoint's direction is between the wind and closehauled on either side (ie are we downwind?)
+      {
+        Serial.println("Downwind of waypoint");
+       //can either turn up until this is not true, or find the heading and use the compass... uise the compass, wind sensor doesnt respond fast enough 
+
+    //  if (wind_angl_newest > TACKING_ANGLE) //when sailing upwind this means that we're being inefficient; but is we're sailing closehauled shouldnt ever have to check this
+    
+        //this uses GPSconv, naders function which may not work:
+        //I made up 10, the units are in meters
+        distanceOutsideCorridor = stayInDownwindCorridor(10, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin); //checks if we're in the downwind corridor from the mark, and tacks if we aren't and arent heading towards it
+        // if distanceOutsideCOrridor is non-zero, the boat is outside the corridor, stayInDownwindCorridor ensures it is on the tack that would bring it back into the corridor
+        if (distanceOutsideCorridor != 0)
+          Serial.println("Outside downwind corridor");
+        
+        closeHauledDirection = getCloseHauledDirn(); // heading we can point when closehauled on our current tack
+        error = straightSail(closeHauledDirection);   //sail closehauled always when upwind
+
+        
+        //perhaps kill the program or switch to RC mode if we're way off course?
+        if (abs(distanceOutsideCorridor) > 50) //made up 50, this is the distance from a point directly downwind of the waypoint in meters
+          RC(1,1);  
+      }  
+      
+      else  //not upwind
+        error = straightSail(waypointDirn); //sail based on compass only in a given direction
+        
+      return (error);
 }
 
 
@@ -1648,6 +1955,8 @@ int sailControl(){
            
   return error;
 }
+
+
 
 void setup()
 {
@@ -1719,13 +2028,7 @@ void setup()
   longitudeDeg=0; //Current longitude
   longitudeMin=0; //Current longitude
   
-  //longitude
-  waypointLongDeg = 0;
-  waypointLongMin = 0;
-  //latitude
-  waypointLatDeg = 0;
-  waypointLatMin = 0;
-  
+ 
   //Heading angle using wind sensor
   heading=0;//heading relative to true north
   deviation=0;//deviation relative to true north; do we use this in our calculations?
@@ -1785,7 +2088,7 @@ void setup()
   
   setrudder(0);
    
-  delay(5000);  
+  delay(5000);  //setup delay
 }
 
 void loop()
@@ -1793,8 +2096,6 @@ void loop()
   int error;
   int i;
   char input;
-  int waypointDirn, closeHauledDirection, windDirn =0;
-  int distanceOutsideCorridor;
   int numWaypoints =1;
   int waypoint;
   int distanceToWaypoint;
@@ -1802,11 +2103,12 @@ void loop()
   int menuReturn;
   int GPSerrors =0;
   int compassErrors = 0;
-  delay(1000);
-  
-  //errorchecking parse, float accuracy issue with gpgll
-  //error = Wind();
-  
+
+  delay(100);//setup delay, avoid spamming the serial port
+   
+ //  connectSensors(); //waits for sensors to be connected; this isnt working, re-test
+ 
+
     //Sail using Menu
 //  if(Serial.available())
 //  {
@@ -1832,115 +2134,11 @@ void loop()
   
   
   
-  
-  
   //April 2 sailcode:
-  //Waypoints:
- //GPGLL,4413.6803,N,07629.5175,W,232409,A,A*58 south lamp post
- //GPGLL,4413.6927,N,07629.5351,W,230533,A,A*51 middle tree by door
- //GPGLL,4413.7067,N,07629.4847,W,232037,A,A*53 NW corner of the dirt pit by white house
- //GPGLL,4413.7139,N,07629.5007,W,231721,A,A*57 middle lamp post
- //GPGLL,4413.7207,N,07629.5247,W,231234,A,A*5E at the top of the parking lot/bay ramp, where the edging and sidewalk end
- 
- //compass magnetic vs gps differences?? look up
+  sailCourse();
   
-  //set the waypoint to the south lamp post
-  //latitude
-  waypointLatDeg = 44;
-  waypointLatMin = 13.6803;
-  //longitude
-  waypointLongDeg = -76;
-  waypointLongMin = -29.5175;
-  
-  //set our initial position to the tree by the door (made these up)
-  latitudeDeg = 44;
-  latitudeMin = 13.6927;
-  longitudeDeg = -76;
-  longitudeMin = -29.5351;
-
-//perhaps loop these calls untik we get a signal? this doesnt seem to have worked.. or maybe it did and I lost xbee connection
-//  while(latitudeDeg==0 && GPSerrors < 60)
-//   {
-//     error = sensorData(BUFF_MAX,'w');
-//     delay(100);
-//     Serial.println("no gps data");
-//     GPSerrors++;
-//   }
-//
-//  while(heading_newest == 0 && compassErrors < 60)
-//  {
-//      error = sensorData(BUFF_MAX,'c');  
-//      delay(100);
-//      Serial.println("no compass data");
-//      compassErrors++;
-//  }
-//
-//if (GPSerrors >= 60 || compassErrors >= 60){
-//  while(1)
-//    {
-//      Serial.println("Too many data errors, end of program (press reset to try again).");
-//      delay(1000);
-//    }
-//    
-//}
-
-  error = sensorData(BUFF_MAX,'c');  
-  error = sensorData(BUFF_MAX,'w');  
-  
-  for (waypoint = 0; waypoint < numWaypoints; waypoint++){  
-    //  waypointX = waypointXArray[waypoint]; //4413.7075;//Present waypoint's latitude (north/south, +'ve is north) coordinate
-    //  waypointY = waypointYArray[waypoint]; //07629.5199;//Present waypoint's longitude (east/west, +'ve is east) coordinate
-    // error = sailToMark();
-    distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);//returns in meters
-
-    while (distanceToWaypoint > MARK_DISTANCE){
-      //sail testing code; this makes the pololu yellow light come on with flashing red
-
-      relayData();//send data to xbee
-      Serial.println(distanceToWaypoint);
-     //pseudocode to decide to sail upwind, and how to handle it:
-   
-     //based on the waypoint direction and the wind direction, decide to sail upwind or straight to target
-     //if straight to target, continually update the major waypoint direction, and call straightSail to target
-     //if upwind, set an intermediate target and call sailStraight to target
-     //use getCloseHauledDirn, getWaypointDirection, sailUpWind (with lots of mods) to sort this out 
-
-      waypointDirn = getWaypointDirn(); //get the next waypoint's compass bearing; must be positive 0-360 heading
-      windDirn = getWindDirn();
-      //check if the waypoint is upwind, ie between the wind's direction and the direction we can point the boat without going into irons
-      if (between(waypointDirn, windDirn - TACKING_ANGLE, windDirn + TACKING_ANGLE)) //check if the waypoint's direction is between the wind and closehauled on either side (ie are we downwind?)
-      {
-        Serial.println("Downwind of waypoint");
-       //can either turn up until this is not true, or find the heading and use the compass... uise the compass, wind sensor doesnt respond fast enough 
-        closeHauledDirection = getCloseHauledDirn(); // heading we can point when closehauled on our current tack
-        error = straightSail(closeHauledDirection);   //sail closehauled always when upwind
-    //  if (wind_angl_newest > TACKING_ANGLE) //when sailing upwind this means that we're being inefficient; but is we're sailing closehauled shouldnt ever have to check this
-    
-        //this uses GPSconv, naders function which may not work:
-        //I made up 10, the units are in meters
-        distanceOutsideCorridor = stayInDownwindCorridor(10); //checks if we're in the downwind corridor from the mark, and tacks if we aren't and arent heading towards it
-        // if distanceOutsideCOrridor is non-zero, the boat is outside the corridor, stayInDownwindCorridor ensures it is on the tack that would bring it back into the corridor
-        
-        //perhaps kill the program or switch to RC mode if we're way off course?
-        if (abs(distanceOutsideCorridor) > 50) //made up 50, this is the distance from a point directly downwind of the waypoint in meters
-          RC(1,1);  
-      }  
-      
-      else  //not upwind
-        error = straightSail(waypointDirn); //sail based on compass only in a given direction
-      
-      delay(100);
-    
-        error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor
-      
-      delay(100); //poolu crashes without this delay; maybe one command gets garbled with the next one?
-      
-        distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);//returns in meters
-    } 
-  }
-  RC(1,1);  //back to RC mode
   while(1){
-    Serial.println("Close to waypoint, program over.");
+    Serial.println("Program over.");
     delay(1000);
   } //end program
 
