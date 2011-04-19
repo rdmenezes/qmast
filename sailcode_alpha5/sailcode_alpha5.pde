@@ -50,6 +50,7 @@
 
 //Station keeping navigation constants
 #define STATION_KEEPING_RADIUS 15 //the radius we want to stay around the centre-point of the station-keeping course; full width is 40 meters
+#define WIND_CHANGE_THRESHOLD 10 // the angle in degrees that the wind is allowed to shift by before we recalculate the waypoint locations (to avoid tacking)
 
 //serial data constants
 #define BUFF_MAX 511 // serial buffer length, set in HardwareSerial.cpp in arduino0022/hardware/arduino/cores/arduino
@@ -200,6 +201,21 @@ int CurrentSelection;
 //returns 0 when all updating happened in the menu (e.g. setting RC mode) and code should continue with previous selection
 int displayMenu()
 {
+  /*
+  Menu tasks:
+   change the time to exit station-keeping (ie 2 minutes before 5 minutes in very light wind, at 5 minute in strong wind, based on subjective idea of how long the boat might take to leave the square)
+   switch rudder/sail control directions (ie different mechanical setups may reverse which direction is left/right, in/out);
+   enable RC mode; 
+   input GPS locations for a regular course and for station-keeping;
+   tell the boat to start navigating a course; 
+   tell the boat to start station-keeping; 
+   report data; 
+   probably some other things that we'll think of as we parking-lot test
+   adjust for compass declination
+   Neat ideas:
+   - verbose mode
+   */  
+  
 	boolean stayInMenu = true; 					
 	boolean hasSelection = false;
 	boolean hasSailDirection = false;
@@ -754,7 +770,10 @@ int getCloseHauledDirn(){
 }
 
 int getWindDirn(){
+  //ensure that BOTH sensorData(w) AND sensorData(c) are called before calling this, or the bearing will be off since the data was collected at different times
+  
   //find the compass bearing the wind is coming from (ie if we were pointing this way, we'd be in irons)
+  //be careful that we dont update the wind direction bearing based on new compass data and old wind data
   int windHeading = 0; //compass bearing that the wind is coming from
   
   windHeading = wind_angl_newest + headingc; // calculate the compass heading that the wind is coming from; wind_angle_newest is relative to the boat's bow  
@@ -873,10 +892,14 @@ int stationKeep(){
   //update the waypoints every bit to make sure we're compensating for the wind correctly
   //straightsail to the waypoints
   //ensure we've reached each waypoint before going to the next one
+  
+  // this function presently sails in a square with radius 15m from the centre-point; 
+  //sailing between waypoints 1 and 3 will have the boat sailing in a beam reach (90 degrees to wind) always and may be more successful
+  //this logic may fail (or at least take a long time to leave the box) in very light winds
 
   // setup waypoints (requires that wayoints are manually entered
   double centreLatMin, centreLonMin;
-  int windDirn;
+  int windDirn, waypointWindDirn;
   int error;
 
   //Present waypoint variables
@@ -889,7 +912,8 @@ int stationKeep(){
   int distanceToWaypoint;//the boat's distance to the present waypoint
   
   //Timer variables
-  long start_time, elapsed_time, current_time;
+  long startTime, elapsedTime, currentTime, waypointTime;
+  boolean timesUp = false;
   
   //get data from sensors for global variables
   error = sensorData(BUFF_MAX,'c');  
@@ -898,6 +922,7 @@ int stationKeep(){
   //set up waypoints
   getStationKeepingCentre(&centreLatMin, &centreLonMin); //find the centre of the global stationkeeping corner variables
   windDirn = getWindDirn(); //find the wind direction so we can set out waypoints downwind from it
+  waypointWindDirn = windDirn;
   fillStationKeepingWaypoints(centreLatMin, centreLonMin, windDirn);//set global station keeping waypoints  
   
   //sail between waypoints until 5 minute timer is up
@@ -906,10 +931,10 @@ int stationKeep(){
   waypointLatDeg =  stationWaypointsLatDeg;
   waypointLongDeg = stationWaypointsLonDeg;    
   
-  waypoint = 2; //start by sailing to the downwind waypoint
+  waypoint = 2; //start by sailing to the downwind waypoint  
   
-  
-  start_time = millis();//record the starting clock time
+  startTime = millis();//record the starting clock time
+  waypointTime = startTime;
   
   //timed 5 minute loop of going through the waypoints
   do {
@@ -920,32 +945,54 @@ int stationKeep(){
           
       distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);//returns in meters
 
-      while (distanceToWaypoint > MARK_DISTANCE)
+      while (distanceToWaypoint > MARK_DISTANCE && !timesUp)
       {           
         //send data to xbee for reporting purposes
         relayData();
         Serial.println(distanceToWaypoint);
         
-        //set rudder and sails    
+        //set rudder and sails 
+        error = sensorData(BUFF_MAX,'c');     
+        error = sensorData(BUFF_MAX,'w');            
         error = sailToWaypoint(waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin); //sets the rudder, stays in corridor if sailing upwind       
         delay(100);//give rudder time to adjust? this might not be necessary
         error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
-        delay(100); //poolu crashes without this delay; maybe one command gets garbled with the next one?
+        delay(100); //pololu crashes without this delay; maybe one command gets garbled with the next one?
       
+        //check timer
+        currentTime = millis(); //get the Arduino clock time
+
+        //update waypoints every second
+        if (currentTime - waypointTime > 1000){
+          error = sensorData(BUFF_MAX,'c'); //these might need to be taken out if the sensorData buffer is wrapping around from being called too frequently (wrap-around is broken)
+          error = sensorData(BUFF_MAX,'w');
+          windDirn = getWindDirn(); //find the wind direction so we can set out waypoints downwind from it
+          if (!between(waypointWindDirn, windDirn + WIND_CHANGE_THRESHOLD, windDirn - WIND_CHANGE_THRESHOLD)){ //the present wind direction has changed from the previous waypoint setup
+            fillStationKeepingWaypoints(centreLatMin, centreLonMin, windDirn);//set global station keeping waypoints  
+            waypointWindDirn = windDirn;
+          }
+          waypointTime = currentTime;
+        }        
+        
+        elapsedTime = currentTime - startTime;//calculate elapsed miliseconds since the start of the 5 minute loop
+        if(elapsedTime > 300000) // (5min) * (60s/min) * (1000ms/s)
+          timesUp = true;
+        
         distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);//returns in meters
-      } 
+      } //end go to waypoint
       
       waypoint++;
       if (waypoint ==5)       
-          waypoint = 0;    
+          waypoint = 0;     
           
-      current_time = millis(); //get the Arduino clock time
-      elapsed_time = current_time - start_time;//calculate elapsed miliseconds since the start of the 5 minute loop
-  } while(elapsed_time < 300000); // (5min) * (60s/min) * (1000ms/s)
+  } while(!timesUp); //loop the whole go to waypoint, check sensors and go to next waypoint until the time is up
   
   //leave square; can either calculate the closest place to leave, or just head downwind as we do here:
   while (1)
   {
+    error = sensorData(BUFF_MAX,'c'); //these might need to be taken out if the sensorData buffer is wrapping around from being called too frequently (wrap-around is broken)
+    error = sensorData(BUFF_MAX,'w');
+      
     windDirn = getWindDirn();
     error = straightSail(windDirn+180); //sail based on compass only in downwind direction
     delay(100);//give rudder time to adjust? this might not be necessary
@@ -1077,6 +1124,8 @@ int straightSail(int waypointDirn){
 }
 
 int sailToWaypoint(double waypointLatDeg, double waypointLatMin, double waypointLongDeg, double waypointLongMin){
+  //must update sensor data before calling this
+  
   //sets the rudder to sail towards the waypoint, either upwind or downwind
   // if outside of a downwind corridor, subfunction stayInDownwindCorridor will tack 
   //the subfunctions still use the global variables for the waypoint to sail to
