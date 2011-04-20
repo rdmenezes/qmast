@@ -178,9 +178,10 @@ float wind_angl_newest;//wind angle, (relative to boat)
 //Pololu
 SoftwareSerial servo_ser = SoftwareSerial(7, txPin); // for connecting via a nonbuffered serial port to pololu -output only
 
-boolean tackSide=0;//tacking to left or right
-int port1;//what is this?
-char total[10000];//cb buffer variable
+
+//boolean tackSide=0;//tacking to left or right
+//int port1;//what is this?
+//char total[10000];//cb buffer variable
 
 
 //set the reach target flag up
@@ -897,6 +898,22 @@ int stationKeep(){
   //sailing between waypoints 1 and 3 will have the boat sailing in a beam reach (90 degrees to wind) always and may be more successful
   //this logic may fail (or at least take a long time to leave the box) in very light winds
 
+
+//Tacking vs downwindCorridor:
+//- for stationKeeping, sailtoWaypoint calls downwindCorridor, with the default 10m width;
+//- if waypoints are set properly, it shouldnt ever be downwind, so dont need to worry about downwindCorridor
+//- but if it calls it, this 10m width is too wide for a 5m barrier
+//- can just call tack when we switch waypoints, assume that everything is fine :) instead of just turning, this will prevent failures but may lead to the boat leaving the box
+//
+//
+//Future station-keeping strategy:
+//- figure 8 at the top of the box (towards the middle to allow for tacking radius); check time before tacking to see if we should just leave the box
+//- exit at bottom if theres time to kill before 5 minutes, if short time keep sailing straight to exit faster
+//- sail down edge and check time, leave as 5 minutes hits
+
+
+
+
   // setup waypoints (requires that wayoints are manually entered
   double centreLatMin, centreLonMin;
   int windDirn, waypointWindDirn;
@@ -983,7 +1000,9 @@ int stationKeep(){
       
       waypoint++;
       if (waypoint ==5)       
-          waypoint = 0;     
+          waypoint = 0;
+
+      turnToWaypoint(); //gybe    
           
   } while(!timesUp); //loop the whole go to waypoint, check sensors and go to next waypoint until the time is up
   
