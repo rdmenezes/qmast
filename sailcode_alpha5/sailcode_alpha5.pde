@@ -318,6 +318,7 @@ int displayMenu()
                                     //Code to get serial data from the buffer and put it into GPSX
                           
                                     while(gpsDigit != (46-'0')){
+        //                              while(Serial.available() == 0);    //wait until serial data is available
                                       gpsDigit = Serial.read() - '0';
                                       
                                       /*if(gpsDigit < 0 || gpsDigit > 9){ //checking for invalid gps data
