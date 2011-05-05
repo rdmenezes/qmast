@@ -42,7 +42,9 @@
 
 
 //Constants
-
+#define MAIN_SERVO_RATE 1   //constants for porting to new boat
+#define JIB_SERVO_RATE 1
+#define RUDDER_SERVO_RATE 1
 //Boat parameter constants
 #define TACKING_ANGLE 30 //the highest angle we can point
 //Course Navigation constants
@@ -406,8 +408,7 @@ int displayMenu()
                                   
                                 }
                                 
-                                
-                                
+                                                              
                                 Serial.print("Entered waypoints:  X = ");
                                 Serial.print(GPSX);
                                 Serial.print(" ,Y = ");
@@ -608,7 +609,7 @@ int displayMenu()
 					case 'j':
 						Serial.println("Exiting Menu");
                                                 return 0;
-						//stayInMenu = false;
+					//	stayInMenu = false;
 						//does nothing
 
                                         case 'z': //If you press z it clears the serial buffer
@@ -619,8 +620,7 @@ int displayMenu()
 					default:
 						break;
 			}	
-			
-			
+						
 			
 	}
 }	
@@ -1002,7 +1002,7 @@ int stationKeep(){
       if (waypoint ==5)       
           waypoint = 0;
 
-      turnToWaypoint(); //gybe    
+   //   turnToWaypoint(); //gybe    
           
   } while(!timesUp); //loop the whole go to waypoint, check sensors and go to next waypoint until the time is up
   
@@ -1396,47 +1396,47 @@ void loop()
  
 
     //Sail using Menu
-//  if(Serial.available())
-//  {
-//      menuReturn = displayMenu();
-//         if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.g. setting RC mode)
-//      {
-//        CurrentSelection = menuReturn;
-//      }  
-//  }
-//  
-//  switch (CurrentSelection) {
-//  case 3:
-//  Serial.print("Sailing towards: ");
-//  Serial.print(StraightSailDirection, DEC);
-//  Serial.println(" degrees.");
-//  straightSail(StraightSailDirection);
-//  break;
-//        
-//  default:
-//  Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
-//    
-//  }
+  if(Serial.available())
+  {
+      menuReturn = displayMenu();
+         if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.g. setting RC mode)
+      {
+        CurrentSelection = menuReturn;
+      }  
+  
+  switch (CurrentSelection) {
+  case 3:
+  Serial.print("Sailing towards: ");
+  Serial.print(StraightSailDirection, DEC);
+  Serial.println(" degrees.");
+  straightSail(StraightSailDirection);
+  break;
+        
+  default:
+  Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
+   } 
+ }
+ 
   
   
   
   //April 2 sailcode:
-  sailCourse();
-  
-  while(1){
-    Serial.println("Program over.");
-    delay(1000);
-  } //end program
-
+//  sailCourse();
+//  
+//  while(1){
+//    Serial.println("Program over.");
+//    delay(1000);
+//  } //end program
+//
 
 /*
 //Testing code below here
 */
    
 //compass sample mode testing code, parsed
-//      error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
-//      Serial.println(heading_newest);
-//      delay(5000);
+      error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
+      Serial.println(heading_newest);
+      delay(5000);
 
 
 //compass sample mode testing code, unparsed        
@@ -1447,7 +1447,7 @@ void loop()
 //   }
 //   Serial2.println("$PTNT,HTM*63");
 //   delay(1000);
-//  
+  
 
 //////compass run mode testing code, unparsed
 ////  while (Serial2.available()>0)
@@ -1601,10 +1601,13 @@ void loop()
 //Polulu Test Code
 //Serial.print("\n 320 degrees");   
 //setrudder(320);
+//setSails(15);
 ////  arduinoServo(30);
 //delay(2000); 
 //  Serial.print("\n10 degrees");   
 //setrudder(10);
+//setSails(-15);
+//
 //delay(2000);
 
 
