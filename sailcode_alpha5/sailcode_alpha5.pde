@@ -138,6 +138,14 @@ double courseWaypointsLatMin[10];//List of waypoint's latitude (x) minutes (nort
 double courseWaypointsLonDeg[10];//List of waypoint's longitude (y) degrees (east/west, +'ve is east) coordinate
 double courseWaypointsLonMin[10];//List of waypoint's longitude (y) minutes (east/west, +'ve is east) coordinate
 
+struct Waypoints{
+  double latDeg;
+  double latMin;
+  double lonDeg;
+  double lonMin;
+};
+Waypoints racePoints[10];
+//struct for holding course waypoints 
 
 //Station keeping variables
 
@@ -233,9 +241,10 @@ int displayMenu()
         boolean badGPS = false;
         boolean hasRudderRCvalue = false;
         boolean hasSailsRCvalue = false;
-        double gpsDigit = 0;
-        int power = 3;
-        
+        float gpsDigit = 0;
+        float power = 3;
+        int coornum = 0;
+        int i;
         
 	char sailDirection;
         byte rudderRCvalue;
@@ -270,6 +279,7 @@ int displayMenu()
                 Serial.println("z.     *Clear serial buffer");
 		Serial.println("");
 		Serial.println("Select option:");
+
 		
 		//clears values from previous menu selection
 		hasSelection = false;
@@ -301,24 +311,26 @@ int displayMenu()
                                 GPSX = 0;
                                 hasX = false;
                                 hasY = false;	
-                                power = 3;
-                                
+                                power = 1;
+                                Serial.println("Enter Which coordinate to update:  ");
+                                while(Serial.available() == 0);    //wait until serial data is available            
+                                coornum = Serial.read() - '0';
                                 /*
-                                BASIC LOGIC TO PARSE COORDONITES
+                                BASIC LOGIC TO PARSE COORDINATES
                                 
-                                The Serial input can only take 1 character at a time, so you have to read each character from the input co-ordoninte (eg. 1234.5678) 
-                                and then rebuild the co-ordonite inside the arduino.  The way this program does it is to keep a running "power" variable.  Each time 
+                                The Serial input can only take 1 character at a time, so you have to read each character from the input co-ordinate (eg. 1234.5678) 
+                                and then rebuild the co-ordinate inside the arduino.  The way this program does it is to keep a running "power" variable.  Each time 
                                 a new character is read, it is mulitplied by 10^power, then added to the final value.  Power is then deceremented by one and the
                                 process is repeated until there are no more characters to be read.
                                 */
                               
-                                Serial.println("Enter GPS X Co-ordonite:  ");
+                                Serial.println("Enter GPS X Co-ordinate:  ");
                                 while(!hasX){
                                   if(Serial.available() > 0){
                                     //Code to get serial data from the buffer and put it into GPSX
-                          
-                                    while(gpsDigit != (46-'0')){
-        //                              while(Serial.available() == 0);    //wait until serial data is available
+                                      for (i = 0; i < 2; i++){
+                             
+                                      while(Serial.available() == 0);    //wait until serial data is available
                                       gpsDigit = Serial.read() - '0';
                                       
                                       /*if(gpsDigit < 0 || gpsDigit > 9){ //checking for invalid gps data
@@ -327,42 +339,46 @@ int displayMenu()
                                          break; 
                                       }   
                                        */  
-                                      GPSX = GPSX + (gpsDigit*pow(10,power));
-                                      
+                                      racePoints[coornum].latDeg =  racePoints[coornum].latDeg + (gpsDigit*pow(10,power));
+                                            
                                       Serial.println(power);
                                       Serial.println(gpsDigit*pow(10,power));
-                                      power--;                           
-                                    }
+                                      power--;                
+                                        }      
+                                      
+                                      power = 1;
+                                 do{     
+                                                              while(Serial.available() == 0);    //wait until serial data is available
+                                      gpsDigit = Serial.read() - '0';
+                                      if(gpsDigit >=0){
+                                      racePoints[coornum].latMin =  racePoints[coornum].latMin + (gpsDigit*pow(10,power));
+                                            
+                                      Serial.println(power);
+                                      Serial.println(gpsDigit*pow(10,power));
+                                      power--;                
+                                      }    
+                                 }while(gpsDigit != (46-'0'));  
+                               
                                    // if(badGPS = true)
                                    //   break;
-                                    gpsDigit = Serial.read(); //Just reading the '.' to get rid of it and get too the stuff after the decimal
-                                    //power--;
+                              //     gpsDigit = Serial.read() ; //Just reading the '.' to get rid of it and get too the stuff after the decimal
+                                    //power--;                  
                                     while(Serial.available() > 0){
-                                      gpsDigit = Serial.read() - '0';
-                                      GPSX = GPSX + (gpsDigit * pow(10,power));
-                                      
-                                     /* if(gpsDigit < 0 || gpsDigit > 9){ //checking for invalid gps data
-                                         badGPS = true;
-                                         Serial.flush();
-                                         break; 
-                                      } 
-                                      */
+                                      gpsDigit = Serial.read() - '0';  
+                                     racePoints[coornum].latMin =  racePoints[coornum].latMin + gpsDigit*pow(10.0,power);
                                       Serial.println(power);
                                       Serial.println(gpsDigit*pow(10,power));
-                                      power--; 
-
+                                      power--;                                  
                                     }
-                                    
                                     hasX = true;
-                                    Serial.println(GPSX);
-                                  }
-                                  
-                                  
-                                }
+                                    Serial.println(racePoints[coornum].latDeg);
+                                    Serial.println(racePoints[coornum].latMin);
+                                  }                                                                 
                                 
+                                }
                                 power = 3;
                                 
-                                Serial.println("Enter GPS Y Co-ordonite:  ");
+                                Serial.println("Enter GPS Y Co-ordinate:  ");
                                 while(!hasY){
                                   if(Serial.available() > 0){
                                     //Code to get serial data from the buffer and put it into GPSX
@@ -1053,7 +1069,6 @@ void sailCourse(){
   courseWaypointsLatMin[0] = 13.6803;//List of waypoint's latitude (x) minutes (north/south, +'ve is north) coordinate
   courseWaypointsLonDeg[0] = -76;//List of waypoint's longitude (y) degrees (east/west, +'ve is east) coordinate
   courseWaypointsLonMin[0] = -29.5175;//List of waypoint's longitude (y) minutes (east/west, +'ve is east) coordinate
-
   //set our initial position to the tree by the door 
   latitudeDeg = 44;
   latitudeMin = 13.6927;
@@ -1412,8 +1427,10 @@ void loop()
   Serial.println(" degrees.");
   straightSail(StraightSailDirection);
   break;
-        
-  default:
+  case 0:
+  break;
+      
+        default:
   Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
    } 
  }
