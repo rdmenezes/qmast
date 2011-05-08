@@ -207,7 +207,7 @@ int StraightSailDirection;
 int CurrentSelection;
 
 
-//Andrew Brannan wrote this during 2010-2011
+//Andrew Brannan wrote the skeleton of this during 2010-2011
 //returns the value of the menu item so loop knows what to do.
 //returns 0 when all updating happened in the menu (e.g. setting RC mode) and code should continue with previous selection
 int displayMenu()
@@ -218,6 +218,7 @@ int displayMenu()
    switch rudder/sail control directions (ie different mechanical setups may reverse which direction is left/right, in/out);
    enable RC mode; 
    input GPS locations for a regular course and for station-keeping;
+   *option to clear these waypoints without having to overwrite;
    tell the boat to start navigating a course; 
    tell the boat to start station-keeping; 
    report data; 
@@ -1099,6 +1100,11 @@ void sailCourse(){
     while (distanceToWaypoint > MARK_DISTANCE){
       //sail testing code; this makes the pololu yellow light come on with flashing red
       
+      //update sensor data
+       error = sensorData(BUFF_MAX,'c');  
+       error = sensorData(BUFF_MAX,'w');  //val and nat is this too often to call wind data? could use a loop counter to only call it every 10 times say. We'll see.
+      
+      
       //send data to xbee for reporting purposes
       relayData();
       Serial.println(distanceToWaypoint);
@@ -1182,6 +1188,8 @@ int sailToWaypoint(double waypointLatDeg, double waypointLatMin, double waypoint
 
     //  if (wind_angl_newest > TACKING_ANGLE) //when sailing upwind this means that we're being inefficient; but is we're sailing closehauled shouldnt ever have to check this
     
+        //val and nate: thoughts: we'll come back to this corridor idea, maybe stick with supertack for now since it will be more obvious what the boat is doing when we're water testing
+    
         //this uses GPSconv, naders function which may not work:
         //I made up 10, the units are in meters
         distanceOutsideCorridor = stayInDownwindCorridor(10, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin); //checks if we're in the downwind corridor from the mark, and tacks if we aren't and arent heading towards it
@@ -1192,6 +1200,7 @@ int sailToWaypoint(double waypointLatDeg, double waypointLatMin, double waypoint
         closeHauledDirection = getCloseHauledDirn(); // heading we can point when closehauled on our current tack
         error = straightSail(closeHauledDirection);   //sail closehauled always when upwind
 
+     
         
         //perhaps kill the program or switch to RC mode if we're way off course?
         if (abs(distanceOutsideCorridor) > 50) //made up 50, this is the distance from a point directly downwind of the waypoint in meters
@@ -1412,40 +1421,40 @@ void loop()
  
 
     //Sail using Menu
-  if(Serial.available())
-  {
-      menuReturn = displayMenu();
-         if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.g. setting RC mode)
-      {
-        CurrentSelection = menuReturn;
-      }  
-  
-  switch (CurrentSelection) {
-  case 3:
-  Serial.print("Sailing towards: ");
-  Serial.print(StraightSailDirection, DEC);
-  Serial.println(" degrees.");
-  straightSail(StraightSailDirection);
-  break;
-  case 0:
-  break;
-      
-        default:
-  Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
-   } 
- }
+//  if(Serial.available())
+//  {
+//      menuReturn = displayMenu();
+//         if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.g. setting RC mode)
+//      {
+//        CurrentSelection = menuReturn;
+//      }  
+//  
+//  switch (CurrentSelection) {
+//  case 3://Straight Sail towards N,S,E,W as 0, 180, 90, 270. No sail control.
+//  Serial.print("Sailing towards: ");
+//  Serial.print(StraightSailDirection, DEC);
+//  Serial.println(" degrees.");
+//  straightSail(StraightSailDirection);
+//  break;
+//  case 0:
+//  break;
+//      
+//        default:
+//  Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
+//   } 
+// }
  
   
   
   
   //April 2 sailcode:
-//  sailCourse();
-//  
-//  while(1){
-//    Serial.println("Program over.");
-//    delay(1000);
-//  } //end program
-//
+  sailCourse();
+  
+  while(1){
+    Serial.println("Program over.");
+    delay(1000);
+  } //end program
+
 
 /*
 //Testing code below here
