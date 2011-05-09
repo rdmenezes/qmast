@@ -138,14 +138,19 @@ double courseWaypointsLatMin[10];//List of waypoint's latitude (x) minutes (nort
 double courseWaypointsLonDeg[10];//List of waypoint's longitude (y) degrees (east/west, +'ve is east) coordinate
 double courseWaypointsLonMin[10];//List of waypoint's longitude (y) minutes (east/west, +'ve is east) coordinate
 
-struct Waypoints{
+struct points{
   double latDeg;
   double latMin;
   double lonDeg;
   double lonMin;
-};
-Waypoints racePoints[10];
+};            
+points waypoints[10] ={        //optional preset values for registers
+  {44.0,13.6927,-76.0,29.5175}, 
+  {0,0,0,0}, 
+  {0,0,0,0}};
 //struct for holding course waypoints 
+//initialization of struct
+
 
 //Station keeping variables
 
@@ -246,6 +251,9 @@ int displayMenu()
         float power = 3;
         int coornum = 0;
         int i;
+        char cont;
+        boolean donePoints;
+        char wayNum;
         
 	char sailDirection;
         byte rudderRCvalue;
@@ -277,6 +285,8 @@ int displayMenu()
                 Serial.println("h.      Get Speed Data");
                 Serial.println("i.     *Toggle RC");
 		Serial.println("j.     *Exit Menu");
+                Serial.println("k.      Stationkeeping");
+                Serial.println("l.      View Current waypoints");
                 Serial.println("z.     *Clear serial buffer");
 		Serial.println("");
 		Serial.println("Select option:");
@@ -304,18 +314,19 @@ int displayMenu()
 			//call input waypoints function
                         //assuming that waypoints are of the form XXXX.XXXX....X
 			case 'a':
-				Serial.println("Selected a");
-
-                                prevGPSX = GPSX; //Storing current GPS values and then reseting them too zero
-                                prevGPSY = GPSY;
-                                GPSY = 0;
-                                GPSX = 0;
+			      Serial.println("Selected a");
+                              do{
                                 hasX = false;
                                 hasY = false;	
+                                donePoints = false;
                                 power = 1;
                                 Serial.println("Enter Which coordinate to update:  ");
                                 while(Serial.available() == 0);    //wait until serial data is available            
                                 coornum = Serial.read() - '0';
+                                waypoints[coornum].latDeg = 0;
+                                waypoints[coornum].latMin = 0;
+                                waypoints[coornum].lonDeg = 0;
+                                waypoints[coornum].lonMin = 0;
                                 /*
                                 BASIC LOGIC TO PARSE COORDINATES
                                 
@@ -323,6 +334,7 @@ int displayMenu()
                                 and then rebuild the co-ordinate inside the arduino.  The way this program does it is to keep a running "power" variable.  Each time 
                                 a new character is read, it is mulitplied by 10^power, then added to the final value.  Power is then deceremented by one and the
                                 process is repeated until there are no more characters to be read.
+                                Values are stored in the waypoints struct under latDeg, latMin, lonDeg, lonMin, Multiple values can now be entered. 
                                 */
                               
                                 Serial.println("Enter GPS X Co-ordinate:  ");
@@ -330,7 +342,7 @@ int displayMenu()
                                   if(Serial.available() > 0){
                                     //Code to get serial data from the buffer and put it into GPSX
                                       for (i = 0; i < 2; i++){
-                             
+
                                       while(Serial.available() == 0);    //wait until serial data is available
                                       gpsDigit = Serial.read() - '0';
                                       
@@ -340,7 +352,7 @@ int displayMenu()
                                          break; 
                                       }   
                                        */  
-                                      racePoints[coornum].latDeg =  racePoints[coornum].latDeg + (gpsDigit*pow(10,power));
+                                      waypoints[coornum].latDeg =  waypoints[coornum].latDeg + (gpsDigit*pow(10,power));
                                             
                                       Serial.println(power);
                                       Serial.println(gpsDigit*pow(10,power));
@@ -349,10 +361,10 @@ int displayMenu()
                                       
                                       power = 1;
                                  do{     
-                                                              while(Serial.available() == 0);    //wait until serial data is available
+                                       while(Serial.available() == 0);    //wait until serial data is available
                                       gpsDigit = Serial.read() - '0';
                                       if(gpsDigit >=0){
-                                      racePoints[coornum].latMin =  racePoints[coornum].latMin + (gpsDigit*pow(10,power));
+                                      waypoints[coornum].latMin =  waypoints[coornum].latMin + (gpsDigit*pow(10,power));
                                             
                                       Serial.println(power);
                                       Serial.println(gpsDigit*pow(10,power));
@@ -366,25 +378,26 @@ int displayMenu()
                                     //power--;                  
                                     while(Serial.available() > 0){
                                       gpsDigit = Serial.read() - '0';  
-                                     racePoints[coornum].latMin =  racePoints[coornum].latMin + gpsDigit*pow(10.0,power);
+                                     waypoints[coornum].latMin =  waypoints[coornum].latMin + gpsDigit*pow(10.0,power);
                                       Serial.println(power);
                                       Serial.println(gpsDigit*pow(10,power));
                                       power--;                                  
                                     }
                                     hasX = true;
-                                    Serial.println(racePoints[coornum].latDeg);
-                                    Serial.println(racePoints[coornum].latMin);
+                                    Serial.println(waypoints[coornum].latDeg,0);
+                                    Serial.println(waypoints[coornum].latMin,4);
                                   }                                                                 
                                 
                                 }
-                                power = 3;
+                                power = 1;
                                 
                                 Serial.println("Enter GPS Y Co-ordinate:  ");
-                                while(!hasY){
+                                  while(!hasY){
                                   if(Serial.available() > 0){
                                     //Code to get serial data from the buffer and put it into GPSX
-                          
-                                    while(gpsDigit != (46-'0')){
+                                      for (i = 0; i < 2; i++){
+                             
+                                      while(Serial.available() == 0);    //wait until serial data is available
                                       gpsDigit = Serial.read() - '0';
                                       
                                       /*if(gpsDigit < 0 || gpsDigit > 9){ //checking for invalid gps data
@@ -393,54 +406,67 @@ int displayMenu()
                                          break; 
                                       }   
                                        */  
-                                      GPSY = GPSY + (gpsDigit*pow(10,power));
-                                      
+                                      waypoints[coornum].lonDeg =  waypoints[coornum].lonDeg + (gpsDigit*pow(10,power));
+                                            
                                       Serial.println(power);
                                       Serial.println(gpsDigit*pow(10,power));
-                                      power--;                           
-                                    }
+                                      power--;                
+                                        }      
+                                      
+                                      power = 1;
+                                 do{     
+                                       while(Serial.available() == 0);    //wait until serial data is available
+                                      gpsDigit = Serial.read() - '0';
+                                      if(gpsDigit >=0){
+                                      waypoints[coornum].lonMin =  waypoints[coornum].lonMin + (gpsDigit*pow(10,power));
+                                            
+                                      Serial.println(power);
+                                      Serial.println(gpsDigit*pow(10,power));
+                                      power--;                
+                                      }    
+                                 }while(gpsDigit != (46-'0'));  
+                               
                                    // if(badGPS = true)
                                    //   break;
-                                    gpsDigit = Serial.read(); //Just reading the '.' to get rid of it and get too the stuff after the decimal
-                                    //power--;
+                              //     gpsDigit = Serial.read() ; //Just reading the '.' to get rid of it and get too the stuff after the decimal
+                                    //power--;                  
                                     while(Serial.available() > 0){
-                                      gpsDigit = Serial.read() - '0';
-                                      GPSY = GPSY + (gpsDigit * pow(10,power));
-                                      
-                                     /* if(gpsDigit < 0 || gpsDigit > 9){ //checking for invalid gps data
-                                         badGPS = true;
-                                         Serial.flush();
-                                         break; 
-                                      } 
-                                      */
+                                      gpsDigit = Serial.read() - '0';  
+                                     waypoints[coornum].lonMin =  waypoints[coornum].lonMin + gpsDigit*pow(10.0,power);
                                       Serial.println(power);
                                       Serial.println(gpsDigit*pow(10,power));
-                                      power--; 
-
+                                      power--;                                  
                                     }
-                                    
                                     hasY = true;
-                                    Serial.println(GPSY);
-                                  }
-                                  
-                                  
+                                    Serial.println(waypoints[coornum].lonDeg,0);
+                                    Serial.println(waypoints[coornum].lonMin,4);
+                                  }                                                                 
+                                
                                 }
-                                
-                                                              
+                                                                                              
                                 Serial.print("Entered waypoints:  X = ");
-                                Serial.print(GPSX);
+                                Serial.print(waypoints[coornum].latDeg,0);
+                                Serial.print(waypoints[coornum].latMin,4);
                                 Serial.print(" ,Y = ");
-                                Serial.println(GPSY);
-                                
+                                Serial.print(waypoints[coornum].lonDeg,0);
+                                Serial.println(waypoints[coornum].lonMin,4);
+                                Serial.println("Enter Another? (y/n)");
+                                while(Serial.available() == 0); 
+                                cont = Serial.read();
+                                if(cont == 'y'){
+                                 donePoints = true; 
+                                }  
+                              }while(donePoints == true);
+                                donePoints = false;
                                 return 0; //function set waypoints but then still need to tell boat what to do
 				break;
 				
 				//start automated sailing	
 			case 'b':
-				Serial.println("Selected autonomous sailing. Currently unused in menu.");
-				//Sail();      calls functions to begin automated sailing
+				Serial.println("Selected autonomous sailing. Currently testing in menu.");
+				//Sail();      calls functions to begin automated sailing currently calls sailCourse, but cannot break out of loop
 
-                                return 0;//update this when it does something :)
+                                return 2;//update this when it does something :)
 				break;
 				
 				//call rudder angle set function
@@ -490,10 +516,8 @@ int displayMenu()
                                                 break;
                                               }
                                                 
-                                                
 					}
-
-                                       
+      
 				}
                                 return 3;	
 				//hasSailDirection = false; // Val: why set this local variable back to false? Can probably delete this.
@@ -629,6 +653,29 @@ int displayMenu()
                                                 return 0;
 					//	stayInMenu = false;
 						//does nothing
+                                        case 'k':
+                                                Serial.println("StationKeeping");   //stationkeeping menu item, currently untested
+                                                Serial.println("Using the first 4 coordinates as corners"); //cannot access menu when stationkeeping
+                                                stationWaypointsLatDeg = waypoints[0].latDeg;
+                                                stationWaypointsLonDeg = waypoints[0].lonDeg;                                           
+                                                for(i = 0; i < 4; i++){                                                  
+                                                stationWaypointsLatMin[i] = waypoints[i].latMin;
+                                                stationWaypointsLonMin[i] = waypoints[i].lonMin;
+                                                }
+                                                return 1;
+                                        case 'l':
+                                                Serial.println("View Waypoints"); //shows all waypoints that have been entered
+                                                for(i = 0; i < 10; i++){
+                                                Serial.print( i );
+                                                Serial.print(" ");
+                                                Serial.print(waypoints[i].latDeg,0);
+                                                Serial.print(waypoints[i].latMin,4);
+                                                Serial.print(" ");
+                                                Serial.print(waypoints[i].lonDeg,0);
+                                                Serial.println(waypoints[i].lonMin,4);
+                                                } 
+                                                return 0;   
+                                                break;   
 
                                         case 'z': //If you press z it clears the serial buffer
                                                 Serial.flush();
@@ -706,7 +753,43 @@ int displayMenu()
 //  return true;//placeholder should use wind speed vs boat speed
 //}
 
-void tack(){
+void tack(){    //early tacking code, simpler than the unimplemented version for testing 
+boolean tackComplete = false;      
+float startingWind_angl = wind_angl;
+int newData = 0;
+int dirn = 0;
+while(tackComplete == false){      //tacks depending on the side the wind is aproaching from
+  if(wind_angl <180){
+    setSails(0);
+    setrudder(-45);
+    while(wind_angl <180){
+      delay(100);
+      newData = sensorData(BUFF_MAX, 'w');    //checks to see if turned far enough
+      }
+    delay(1000);                        //delay to complete turning \
+    newData = sensorData(BUFF_MAX, 'w');
+    dirn = getCloseHauledDirn();
+    sailStraight(dirn);
+    if(wind_angl >180){            //exits when turned far enough
+      tackComplete = 1;
+      }  
+    }
+      if(wind_angl >180){        //mirror for other side
+    setSails(0);
+    setrudder(-45);
+    while(wind_angl > 180){
+      delay(100);
+      newData = sensorData(BUFF_MAX, 'w');
+      }
+    delay(1000);
+    dirn = getCloseHauledDirn();
+    sailStraight(dirn);
+    newData = sensorData(BUFF_MAX, 'w');
+    if(wind_angl < 180){
+      tackComplete = 1;
+      }  
+    }
+  }
 //fill in
 }
 
@@ -1036,7 +1119,7 @@ int stationKeep(){
     error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
     delay(100); //poolu crashes without this delay; maybe one command gets garbled with the next one?     
   }    
-  
+  return 0;
 }
 
 void sailCourse(){
@@ -1421,49 +1504,54 @@ void loop()
  
 
     //Sail using Menu
-//  if(Serial.available())
-//  {
-//      menuReturn = displayMenu();
-//         if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.g. setting RC mode)
-//      {
-//        CurrentSelection = menuReturn;
-//      }  
-//  
-//  switch (CurrentSelection) {
-//  case 3://Straight Sail towards N,S,E,W as 0, 180, 90, 270. No sail control.
-//  Serial.print("Sailing towards: ");
-//  Serial.print(StraightSailDirection, DEC);
-//  Serial.println(" degrees.");
-//  straightSail(StraightSailDirection);
-//  break;
-//  case 0:
-//  break;
-//      
-//        default:
-//  Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
-//   } 
-// }
+  if(Serial.available())
+  {
+      menuReturn = displayMenu();
+         if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.g. setting RC mode)
+      {
+        CurrentSelection = menuReturn;
+      }  
+  
+  switch (CurrentSelection) {
+  case 3://Straight Sail towards N,S,E,W as 0, 180, 90, 270. No sail control.
+  Serial.print("Sailing towards: ");
+  Serial.print(StraightSailDirection, DEC);
+  Serial.println(" degrees.");
+  straightSail(StraightSailDirection);
+  break;
+  case 1:        //this will be station keeping
+  Serial.println("StationKeeping");
+  stationKeep();
+  break;    
+  case 2:
+  Serial.println("sailing to waypoint");
+  sailCourse();
+  break;
+        default:
+  Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
+   } 
+ }
  
   
   
   
   //April 2 sailcode:
-  sailCourse();
-  
-  while(1){
-    Serial.println("Program over.");
-    delay(1000);
-  } //end program
+//  sailCourse();
+//  
+//  while(1){
+//    Serial.println("Program over.");
+//    delay(1000);
+//  } //end program
 
 
 /*
 //Testing code below here
 */
    
-//compass sample mode testing code, parsed
-      error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
-      Serial.println(heading_newest);
-      delay(5000);
+////compass sample mode testing code, parsed
+//      error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
+//      Serial.println(heading_newest);
+//      delay(5000);
 
 
 //compass sample mode testing code, unparsed        
