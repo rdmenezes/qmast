@@ -31,6 +31,8 @@
 //for pololu non-buffering serial channel
 #include <String.h> //for parsing - necessary?
 #include <stdio.h> //for parsing - necessary?
+#include <avr/interrupt.h>  //for future awesome interrupt routines
+#include <avr/io.h>
 
 
 #include <Servo.h>  //for arduino generating PWM to run a servo
@@ -42,6 +44,8 @@
 
 
 //Constants
+#define INIT_TIMER_COUNT 0          //setup for timer interrupt
+#define RESET_TIMER2 TCNT2 = INIT_TIMER_COUNT
 #define MAIN_SERVO_RATE 1   //constants for porting to new boat
 #define JIB_SERVO_RATE 1
 #define RUDDER_SERVO_RATE 1
@@ -150,6 +154,8 @@ points waypoints[10] ={        //optional preset values for registers
   {0,0,0,0}};
 //struct for holding course waypoints 
 //initialization of struct
+//note that passing the struct into a function as a parameter may not work, 
+//if a function is accepting a struct or returning a struct is may have to be written in a separate tab as a .h file
 
 
 //Station keeping variables
@@ -203,9 +209,19 @@ SoftwareSerial servo_ser = SoftwareSerial(7, txPin); // for connecting via a non
 int finish; //something similar is needed for the actual program
 int rc = 0; 
 //char waypts[] = "$WAYP"; //for arduino, this should be implemented in String class objects (unless the memory use is too high)
-int waypt[20]; //maximum of 10 waypoints for now
+int waypt[20]; //maximum of 10 waypoints for now 
 //String waypts = String("$WAYP"); //for arduino
+int intCounter =0;
 
+//**ISR** 
+//ISR(TIMER2_OVF_vect) {
+//
+//  intCounter ++;
+//  if (intCounter == 5000) {
+//    Serial.println("interrupt!!!");
+//    intCounter = 0;
+//  }
+//};
 
 //Menu hack globals
 int StraightSailDirection;
@@ -250,10 +266,12 @@ int displayMenu()
         float gpsDigit = 0;
         float power = 3;
         int coornum = 0;
-        int i;
-        char cont;
-        boolean donePoints;
-        char wayNum;
+        int i;            //counter
+        char cont;          //check for adding more waypoints
+        boolean donePoints;  //check for waypoint input completion  
+        char wayNum;        
+        char select;        //select for clearing data
+        boolean hasVal = false;
         
 	char sailDirection;
         byte rudderRCvalue;
@@ -287,6 +305,7 @@ int displayMenu()
 		Serial.println("j.     *Exit Menu");
                 Serial.println("k.      Stationkeeping");
                 Serial.println("l.      View Current waypoints");
+                Serial.println("m.      Clear all waypoints");
                 Serial.println("z.     *Clear serial buffer");
 		Serial.println("");
 		Serial.println("Select option:");
@@ -676,6 +695,34 @@ int displayMenu()
                                                 } 
                                                 return 0;   
                                                 break;   
+                                        case 'm':
+                                                Serial.println("Clear all waypoints? (y/n)");
+                                                while(hasVal == false){
+                                                if(Serial.available() > 0){
+                                                select = Serial.read();
+                                                if(select == 'y'){
+                                                for(i = 0; i < 10; i++){
+                                                   waypoints[i].latDeg = 0;
+                                                   waypoints[i].latMin = 0;
+                                                   waypoints[i].lonDeg = 0;
+                                                   waypoints[i].lonMin = 0;
+                                                   hasVal = true;
+                                                   Serial.println("Cleared");
+                                                    }
+                                                  }else if(select == 'n'){
+                                                  Serial.println("no changes made");
+                                                  hasVal = true;
+                                                  break;
+                                                  }  
+                                                else{ 
+                                                  Serial.println("invalid input");
+                                                 
+                                                  
+                                                    }
+                                                  }
+                                                }
+                                                return 0;
+                                                break;
 
                                         case 'z': //If you press z it clears the serial buffer
                                                 Serial.flush();
@@ -769,7 +816,7 @@ while(tackComplete == false){      //tacks depending on the side the wind is apr
     delay(1000);                        //delay to complete turning \
     newData = sensorData(BUFF_MAX, 'w');
     dirn = getCloseHauledDirn();
-    sailStraight(dirn);
+   straightSail(dirn);
     if(wind_angl >180){            //exits when turned far enough
       tackComplete = 1;
       }  
@@ -783,7 +830,7 @@ while(tackComplete == false){      //tacks depending on the side the wind is apr
       }
     delay(1000);
     dirn = getCloseHauledDirn();
-    sailStraight(dirn);
+    straightSail(dirn);
     newData = sensorData(BUFF_MAX, 'w');
     if(wind_angl < 180){
       tackComplete = 1;
@@ -1354,12 +1401,19 @@ int sailControl(){
 
 void setup()
 {
+        
 	Serial.begin(9600);
 	//Serial1.begin(9600);
-
- Serial2.begin(19200);
- //Serial2.begin(9600);
- Serial3.begin(4800);
+//For interrupt sets frequency
+//  TCCR2A |= ((1 << CS22) | (1 << CS21) | (1 << CS20));
+//  //Timer2 Overflow Interrupt Enable
+//  TIMSK2 |= (1 << TOIE2);
+//  RESET_TIMER2;
+//  sei();
+//         
+// Serial2.begin(19200);
+// //Serial2.begin(9600);
+// Serial3.begin(4800);
 
 //for pololu
         pinMode(txPin, OUTPUT);
