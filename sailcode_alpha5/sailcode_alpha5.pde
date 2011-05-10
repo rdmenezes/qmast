@@ -103,11 +103,15 @@
 // what's the shortest possible serial data string?
 // for reliable serial data
 int		extraWindData = 0; //'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer
-int		savedChecksum=0;//clear the global saved XOR value
-int		savedXorState=0;//clear the global saved XORstate value
+int             extraCompassData = 0;
+int		savedWindChecksum=0;//clear the global saved XOR value
+int		savedWindXorState=0;//clear the global saved XORstate value
+int		savedCompassChecksum=0;
+int		savedCompassXorState=0;
 int		lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
 int 		noData =1; // global flag to indicate serial buffer was empty
 char 		extraWindDataArray[LONGEST_NMEA]; // a buffer to store roll-over data in case this data is fetched mid-line
+char            extraCompassDataArray[LONGEST_NMEA];
 //------------------------
 
 //for arduino Servo library control

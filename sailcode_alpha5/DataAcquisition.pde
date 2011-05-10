@@ -53,7 +53,7 @@ int sensorData(int bufferLength, char device)
        }
 
     
-    //first copy all the leftover data into array from the buffer; //newer than !!!, we don't actually need an extra data array for the compass since its in sample mode - Val and Nate and Laszlo //!!! this has to depend on if it's wind or compass, and different arrays for them!
+    //first copy all the leftover data into array from the buffer;  //!!! this has to depend on if it's wind or compass, and different arrays for them!
     if(device == 'w')
     {
       for (i = 0; i < extraWindData; i++){
@@ -61,16 +61,35 @@ int sensorData(int bufferLength, char device)
         //probably actually don't need the second global array
       }
     }
+    else if (device == 'c')
+    {
+      for (i = 0; i < extraCompassData; i++){
+        array[i] = extraCompassDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
+        //probably actually don't need the second global array
+      }
+    }
     
     //now continue filling array from the serial port
-    checksum = savedChecksum;//set the xor error checksum to the saved value (only xor if between $ and *)
-    xorState = savedXorState;//set the XOR state (whether to use the next data in the xor checksum) from global
-    j = extraWindData; //j is a counter for the number of bytes which have been stored but not parsed yet
-
-    extraWindData = 0;//reset for the next time, in case there isn't any extraData; could optimize these variable declarations
-    savedChecksum = 0;//reset for the next time
-    savedXorState = 0;//reset for next time
-
+  
+    if(device == 'w')
+    {
+      checksum = savedWindChecksum;//set the xor error checksum to the saved value (only xor if between $ and *)
+      xorState = savedWindXorState;//set the XOR state (whether to use the next data in the xor checksum) from global
+      j = extraWindData; //j is a counter for the number of bytes which have been stored but not parsed yet
+      extraWindData = 0;//reset for the next time, in case there isn't any extraData; could optimize these variable declarations
+      savedWindChecksum = 0;//reset for the next time
+      savedWindXorState = 0;//reset for next time
+    }
+    else if (device == 'c')
+    {
+      checksum = savedCompassChecksum;//set the xor error checksum to the saved value (only xor if between $ and *)
+      xorState = savedCompassXorState;//set the XOR state (whether to use the next data in the xor checksum) from global
+      j = extraCompassData; //j is a counter for the number of bytes which have been stored but not parsed yet
+      extraCompassData = 0;//reset for the next time, in case there isn't any extraData; could optimize these variable declarations
+      savedCompassChecksum = 0;//reset for the next time
+      savedCompassXorState = 0;//reset for next time
+    }
+    
   //  Serial.print(array[0]);
    // Serial.print(array[1]);
    // Serial.print(array[2]);
@@ -186,12 +205,24 @@ int sensorData(int bufferLength, char device)
 
     if ((j > 0) && (j < LONGEST_NMEA) && (twoCommasPresent==false)) { //this means that there was leftover data; set a flag and save the state globally
 
-      for (i = 0; i < j; i++)
-        extraWindDataArray[i] = array[i]; //copy the leftover data into the temp global array
+      if (device == 'w')
+      {
+        for (i = 0; i < j; i++)
+          extraWindDataArray[i] = array[i]; //copy the leftover data into the temp global array
+          extraWindData = j;
+          savedWindChecksum=checksum;
+          savedWindXorState=xorState;
+      }
+      else if (device == 'c')
+      {
+        for (i = 0; i < j; i++)
+          extraCompassDataArray[i] = array[i];
+          extraCompassData = j;
+          savedCompassChecksum=checksum;
+          savedCompassXorState=xorState;
+      }
 
-      extraWindData = j;
-      savedChecksum=checksum;
-      savedXorState=xorState;
+      
       // twoCommasPresent status isnt saved, since data isnt saved if it has two commas
       Serial.println("Stored extra data - ");
       digitalWrite(rolloverDataLED, HIGH); //indicates data rolled over, not fast enough
