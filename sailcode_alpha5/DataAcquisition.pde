@@ -41,7 +41,7 @@ int sensorData(int bufferLength, char device)
     //when we get the data out
     
     //flushing data is probably not the best; the data will not be corrupt since the port blocks, it will justbe old, so accept it.
-//      Serial2.flush(); //clear the serial buffer
+      Serial.flush(); //clear the serial buffer
 //    extraWindData = 0; //'clear' the extra data buffer, because any data wrapping around will be destroyed by clearing the buffer
 //    savedChecksum=0;//clear the saved XOR value
 //    savedXorState=0;//clear the saved XORstate value
@@ -111,6 +111,7 @@ int sensorData(int bufferLength, char device)
              // Serial.println(array[0]); //print first character (should be $)
               array[j+1] = '\0';//append the end of string character
               digitalWrite(twoCommasLED,LOW);//turn off error indicator LED to warn about old data
+              Serial.println("Good string, about to parse");
               error = Parser(array); //checksum was successful, so parse              
               //delay(500);  //trying to add a delay to account for the fact that the code works when print out all the elements of the array, but not when you don't. Seems sketchy.
              } else {
