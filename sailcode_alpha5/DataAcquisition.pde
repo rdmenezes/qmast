@@ -53,10 +53,13 @@ int sensorData(int bufferLength, char device)
        }
 
     
-    //first copy all the leftover data into array from the buffer; !!! this has to depend on if it's wind or compass, and different arrays for them!
-    for (i = 0; i < extraWindData; i++){
-      array[i] = extraWindDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
-      //probably actually don't need the second global array
+    //first copy all the leftover data into array from the buffer; //newer than !!!, we don't actually need an extra data array for the compass since its in sample mode - Val and Nate and Laszlo //!!! this has to depend on if it's wind or compass, and different arrays for them!
+    if(device == 'w')
+    {
+      for (i = 0; i < extraWindData; i++){
+        array[i] = extraWindDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
+        //probably actually don't need the second global array
+      }
     }
     
     //now continue filling array from the serial port
