@@ -1185,7 +1185,7 @@ void sailCourse(){
       
       //update sensor data
        error = sensorData(BUFF_MAX,'c');  
-       error = sensorData(BUFF_MAX,'w');  //val and nat is this too often to call wind data? could use a loop counter to only call it every 10 times say. We'll see.
+       error = sensorData(BUFF_MAX,'w');  //val and nate is this too often to call wind data? could use a loop counter to only call it every 10 times say. We'll see.
       
       
       //send data to xbee for reporting purposes
@@ -1196,7 +1196,7 @@ void sailCourse(){
       error = sailToWaypoint(waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin); //sets the rudder, stays in corridor if sailing upwind       
       delay(100);//give rudder time to adjust? this might not be necessary
       error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
-      delay(100); //poolu crashes without this delay; maybe one command gets garbled with the next one?
+      delay(100); //pololu crashes without this delay; maybe one command gets garbled with the next one?
       
       distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, waypointLatDeg, waypointLatMin, waypointLongDeg, waypointLongMin);//returns in meters
     } 
