@@ -76,4 +76,15 @@ void setJib(float ang)
 
   pos = JIB_SERVO_RATE*(ang + 45) * 254.0/90.0;
 }
-
+void setMain(float ang)
+//code for setting main sail only
+{
+  int sernum = 0;
+  int pos;
+  if (ang > 45)
+  ang = 45;
+  else if (ang < -45)
+  ang = -45;
+  
+  pos = MAIN_SERVO_RATE* (ang + 45) * 254.0/90.0;
+}
