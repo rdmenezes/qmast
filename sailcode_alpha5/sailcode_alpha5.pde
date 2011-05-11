@@ -216,6 +216,8 @@ int rc = 0;
 int waypt[20]; //maximum of 10 waypoints for now 
 //String waypts = String("$WAYP"); //for arduino
 int intCounter =0;
+int points;
+int currentPoint = 0;
 
 //**ISR** 
 //ISR(TIMER2_OVF_vect) {
@@ -281,6 +283,8 @@ int displayMenu()
         byte rudderRCvalue;
         byte sailsRCvalue;
 	byte tackVal;
+        boolean hasCourse;
+        int pointNum;
 	
 	float temp;
 	
@@ -488,7 +492,25 @@ int displayMenu()
 			case 'b':
 				Serial.println("Selected autonomous sailing. Currently testing in menu.");
 				//Sail();      calls functions to begin automated sailing currently calls sailCourse, but cannot break out of loop
-
+                                Serial.println("Enter number of waypoints");
+                                hasCourse = false;
+                                while(hasCourse == false){
+                                  while(Serial.available() ==false);
+                                  points = Serial.read() - '0';
+                                  for(i = 0; i < points; i++){
+                                    Serial.print("Select waypoint for waypoint ");
+                                    Serial.println(i);
+                                    while(Serial.available() == false);
+                                     pointNum = Serial.read();
+                                     courseWaypointsLatDeg[i] = waypoints[pointNum].latDeg;
+                                     courseWaypointsLatMin[i] = waypoints[pointNum].latMin;
+                                     courseWaypointsLonDeg[i] = waypoints[pointNum].lonDeg;
+                                     courseWaypointsLonMin[i] = waypoints[pointNum].lonMin;
+                                     Serial.println("added waypoint to course");
+                                    }
+                                  
+                                  hasCourse = true;
+                                }
                                 return 2;//update this when it does something :)
 				break;
 				
@@ -720,9 +742,7 @@ int displayMenu()
                                                   }  
                                                 else{ 
                                                   Serial.println("invalid input");
-                                                 
-                                                  
-                                                    }
+                                                   }
                                                   }
                                                 }
                                                 return 0;
@@ -736,7 +756,6 @@ int displayMenu()
 					default:
 						break;
 			}	
-						
 			
 	}
 }	
@@ -803,47 +822,78 @@ int displayMenu()
 //boolean canTack(){ //abandonned, april 3, Christine
 //  return true;//placeholder should use wind speed vs boat speed
 //}
-
-void tack(){    //early tacking code, simpler than the unimplemented version for testing 
+//early tacking code, simpler than the unimplemented version for testing 
+//Jib has to be let out at the beginning of turning, this exert a moment on the boat allowing for faster turning, 
+//after truned halfway, pull jib in and let main out, again faster turning, speed should not be an issue, not much required in order to turn
+//should still check if in iron, if so let main out, turn rudder to one side, when angle is no longer closehauled
+//try sailing again, 
+void tack(){    
 boolean tackComplete = false;      
 float startingWind_angl = wind_angl;
 int newData = 0;
 int dirn = 0;
+int ironTime =0;
 while(tackComplete == false){      //tacks depending on the side the wind is aproaching from
-  if(wind_angl <180){
-    setSails(0);
-    setrudder(-45);
-    while(wind_angl <180){
+  if(wind_angl < 180){
+    setMain(-30);
+    setJib(30);                    //sets main and jib to allows better turning
+    setrudder(-30);                //rudder angle cannot be to steep, this would stall the boat, rather than turn it
+    while(wind_angl < 180){
       delay(100);
-      newData = sensorData(BUFF_MAX, 'w');    //checks to see if turned far enough
+      newData = sensorData(BUFF_MAX, 'w');  
+      ironTime++;                  //checks to see if turned far enough
+      if(ironTime > 100){            //waits about 10 seconds to before assuming in irons
+        getOutofIrons();
+        }
       }
+      setJib(-30);
+      setMain(30);
     delay(1000);                        //delay to complete turning \
     newData = sensorData(BUFF_MAX, 'w');
     dirn = getCloseHauledDirn();
-   straightSail(dirn);
+   straightSail(dirn);                //straighten out, sail closehauled
+   setSails(-30);
     if(wind_angl >180){            //exits when turned far enough
       tackComplete = 1;
       }  
     }
-      if(wind_angl >180){        //mirror for other side
-    setSails(0);
-    setrudder(-45);
+      if(wind_angl > 180){        //mirror for other side
+    setMain(-30);
+    setJib(30);
+    setrudder(30);
     while(wind_angl > 180){
       delay(100);
       newData = sensorData(BUFF_MAX, 'w');
+      if(ironTime > 100){            //waits about 10 seconds to before assuming in irons
+        getOutofIrons();
+        }
       }
+      setJib(-30);
+      setMain(30);
     delay(1000);
     dirn = getCloseHauledDirn();
     straightSail(dirn);
+    setSails(-30);
     newData = sensorData(BUFF_MAX, 'w');
     if(wind_angl < 180){
       tackComplete = 1;
       }  
     }
   }
-//fill in
-}
+}        //boat should continue closed hauled until it hits the other side of the corridor
 
+//code to get out of irons if boat is stuck
+void getOutofIrons(){
+  int dirn;
+  setMain(30);
+  setrudder(30);        //arbitrary might want to base on direction of travel
+  while(wind_angl < 30 && wind_angl > 330){
+  dirn = sensorData(BUFF_MAX, 'w');
+  delay(100);
+  }
+  setSails(-30);
+  setrudder(0);
+}
 
 double GPSconv(double lat1, double long1, double lat2, double long2) 
 //this is code to calculate the distance between 2 GPS coordinates, written by nader without any comments. Maybe it works. We'll see.
@@ -1179,7 +1229,7 @@ void sailCourse(){
   int error; 
 
   //waypoint variables
-  int numWaypoints = 1;//total number of waypoints
+  int numWaypoints = points;//total number of waypoints
   int waypoint; //waypoint counter, advances when we reach each waypoint
   int distanceToWaypoint;//the boat's distance to the present waypoint
       
@@ -1200,15 +1250,16 @@ void sailCourse(){
   //Global variable setup (put this in setup() function), and as a manu option to input waypoints
 
   //set the waypoint to the south lamp post
-  courseWaypointsLatDeg[0] = 44;//List of waypoint's latitude (x) degrees (north/south, +'ve is north) coordinate
-  courseWaypointsLatMin[0] = 13.6803;//List of waypoint's latitude (x) minutes (north/south, +'ve is north) coordinate
-  courseWaypointsLonDeg[0] = -76;//List of waypoint's longitude (y) degrees (east/west, +'ve is east) coordinate
-  courseWaypointsLonMin[0] = -29.5175;//List of waypoint's longitude (y) minutes (east/west, +'ve is east) coordinate
+  //courseWaypointsLatDeg[0] = 44;//List of waypoint's latitude (x) degrees (north/south, +'ve is north) coordinate
+  //courseWaypointsLatMin[0] = 13.6803;//List of waypoint's latitude (x) minutes (north/south, +'ve is north) coordinate
+  //courseWaypointsLonDeg[0] = -76;//List of waypoint's longitude (y) degrees (east/west, +'ve is east) coordinate
+  //courseWaypointsLonMin[0] = -29.5175;//List of waypoint's longitude (y) minutes (east/west, +'ve is east) coordinate
   //set our initial position to the tree by the door 
-  latitudeDeg = 44;
-  latitudeMin = 13.6927;
-  longitudeDeg = -76;
-  longitudeMin = -29.5351;
+  //**Moved this way can be set from main menu
+//  latitudeDeg = 44;
+//  latitudeMin = 13.6927;
+//  longitudeDeg = -76;
+//  longitudeMin = -29.5351;
  
   
  //get wind and compass data before starting to move
@@ -1233,7 +1284,6 @@ void sailCourse(){
 
     while (distanceToWaypoint > MARK_DISTANCE){
       //sail testing code; this makes the pololu yellow light come on with flashing red
-      
       //update sensor data
        error = sensorData(BUFF_MAX,'c');  
        error = sensorData(BUFF_MAX,'w');  //val and nate is this too often to call wind data? could use a loop counter to only call it every 10 times say. We'll see.
@@ -1255,6 +1305,41 @@ void sailCourse(){
   
   RC(1,1);  //back to RC mode
 }
+//**Alternate sailcourse code by laz, works the same but does not use long loops for waypoint selection, less responsive but allows for menu usage while sailing
+//Instead of looping globals keep track of current waypoint, code updates that waypoint when reached and sets boat in the direction of the next one, this will be slightly less responsive as
+//the time between each adjustment will include checking the menu but it should still be fast enough. Needs to be tested.
+void sailCourse2(){
+  //sail the race course   
+  int error; 
+  int distanceToWaypoint;//the boat's distance to the present waypoint
+      
+  error = sensorData(BUFF_MAX,'c');  
+  error = sensorData(BUFF_MAX,'w');     
+          
+    distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, courseWaypointsLatDeg[currentPoint],
+    courseWaypointsLatMin[currentPoint], courseWaypointsLonDeg[currentPoint], courseWaypointsLonMin[currentPoint]);//returns in meters
+      relayData();
+      Serial.println(distanceToWaypoint);
+      
+      //set rudder and sails    
+      error = sailToWaypoint(courseWaypointsLatDeg[currentPoint], courseWaypointsLatMin[currentPoint], courseWaypointsLonDeg[currentPoint], courseWaypointsLonMin[currentPoint]); //sets the rudder, stays in corridor if sailing upwind       
+      delay(100);//give rudder time to adjust? this might not be necessary
+      error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
+      delay(100); //pololu crashes without this delay; maybe one command gets garbled with the next one?
+      
+       distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, courseWaypointsLatDeg[currentPoint],
+    courseWaypointsLatMin[currentPoint], courseWaypointsLonDeg[currentPoint], courseWaypointsLonMin[currentPoint]);//returns in meters
+
+       if (distanceToWaypoint < MARK_DISTANCE){
+      //sail testing code; this makes the pololu yellow light come on with flashing red
+      currentPoint++;
+       }
+       if (currentPoint > points){
+        RC(1,1); //back to RC mode
+       }     
+  } //end loop through waypoints
+
+
 
 int straightSail(int waypointDirn){
  //this should be the generic straight sailing function; getWaypointDirn should return a desired compass direction, 
@@ -1569,7 +1654,7 @@ void loop()
       {
         CurrentSelection = menuReturn;
       }  
-  
+  }
   switch (CurrentSelection) {
   case 3://Straight Sail towards N,S,E,W as 0, 180, 90, 270. No sail control.
   Serial.print("Sailing towards: ");
@@ -1583,11 +1668,11 @@ void loop()
   break;    
   case 2:
   Serial.println("sailing to waypoint");
-  sailCourse();
+  sailCourse2();
   break;
         default:
   Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
-   } 
+    
  }
  
   
@@ -1639,13 +1724,13 @@ void loop()
 //   delay(250);
      
   
-////wind sample mode testing code, parsed; this is working for the wing angle and speed (tested by blowing on it)
+//wind sensor attempted sample mode testing code, parsed; this is working for the wing angle and speed (tested by blowing on it)
 //      error = sensorData(BUFF_MAX, 'w'); //updates heading_newest
 //      Serial.println("Wind angle is: ");
 //      Serial.println(wind_angl_newest);
 //      Serial3.println("$PAMTC,EN,ALL,0*1D"); //disable all commands; this doesnt seem to have worked
 //      Serial3.println("$PAMTX*50");//temporarily disable commands until power cycles; not working
-//      delay(100);  
+//      delay(1000);  
 
 
 ////wind based sail control testing code
