@@ -52,7 +52,7 @@
 //Boat parameter constants
 #define TACKING_ANGLE 30 //the highest angle we can point
 //Course Navigation constants
-#define MARK_DISTANCE 1 //the distance we have to be to a mark before moving to the next one, in meters
+#define MARK_DISTANCE 1 //the distance we have to be to a mark before moving to the next one, in meters //do we have this kind of accuracy??
 
 //Station keeping navigation constants
 #define STATION_KEEPING_RADIUS 15 //the radius we want to stay around the centre-point of the station-keeping course; full width is 40 meters
