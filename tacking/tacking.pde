@@ -5,6 +5,7 @@
 
 #define MINSPEED 2 //CB the minimum speed that the boat needs to be travelling to tack
 // this will depend on the present wind speed; I made up 2 (is this fast?)
+// nate thinks this is too slow. 2 km/h = 0.5555 knots let's ask cory.
 
 #define ERROR_SPEED 2; //error code 2 means that the boat wasnt going fast enough
 
@@ -24,6 +25,8 @@ void tack(float bspeed, float wind_angl, float speedUpDirection)
                while (bspeed < MINSPEED)
                {
                       //have a timer to fail, this is 5 seconds right now (50); this needs work
+                      //val and nate: maybe try to tack anyways, we'll be no worse off than if we keep going in the same direction and get way off course...
+                      // but we'll get back here anyways if we still need to tack and its unsuccessful.
                        count++;
                        if (count > 50)
                          return ERROR_SPEED;
