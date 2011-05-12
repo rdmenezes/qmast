@@ -78,6 +78,7 @@ int displayMenu()
                 Serial.println("k.      Stationkeeping");
                 Serial.println("l.      View Current waypoints");
                 Serial.println("m.      Clear all waypoints");
+                Serial.println("n.      Toggle Rudder direction");
                 Serial.println("z.     *Clear serial buffer");
 		Serial.println("");
 		Serial.println("Select option:");
@@ -97,7 +98,6 @@ int displayMenu()
 			}	
 		}
 		
-		
 		//calls appropriate function, and returns to the menu after function execution
 		//Serial.println(selection,BYTE);    this prints the input, but the serial input is stored as its ASCII value, (ie 1 = 49, 2 = 50, etc)
 		switch(selection)
@@ -114,10 +114,7 @@ int displayMenu()
                                 Serial.println("Enter Which coordinate to update:  ");
                                 while(Serial.available() == 0);    //wait until serial data is available            
                                 coornum = Serial.read() - '0';
-                                waypoints[coornum].latDeg = 0;
-                                waypoints[coornum].latMin = 0;
-                                waypoints[coornum].lonDeg = 0;
-                                waypoints[coornum].lonMin = 0;
+                                waypoints[coornum] = clearPoints;
                                 /*
                                 BASIC LOGIC TO PARSE COORDINATES
                                 
@@ -266,10 +263,7 @@ int displayMenu()
                                     Serial.println(i);
                                     while(Serial.available() == false);
                                      pointNum = Serial.read();
-                                     courseWaypointsLatDeg[i] = waypoints[pointNum].latDeg;
-                                     courseWaypointsLatMin[i] = waypoints[pointNum].latMin;
-                                     courseWaypointsLonDeg[i] = waypoints[pointNum].lonDeg;
-                                     courseWaypointsLonMin[i] = waypoints[pointNum].lonMin;
+                                     coursePoints[i] = waypoints[i];
                                      Serial.println("added waypoint to course");
                                     }
                                   
@@ -465,8 +459,8 @@ int displayMenu()
                                         case 'k':
                                                 Serial.println("StationKeeping");   //stationkeeping menu item, currently untested
                                                 Serial.println("Using the first 4 coordinates as corners"); //cannot access menu when stationkeeping
-                                                stationWaypointsLatDeg = waypoints[0].latDeg;
-                                                stationWaypointsLonDeg = waypoints[0].lonDeg;                                           
+                                                stationWaypointsLatDeg[0] = waypoints[0].latDeg;
+                                                stationWaypointsLonDeg[0] = waypoints[0].lonDeg;                                           
                                                 for(i = 0; i < 4; i++){                                                  
                                                 stationWaypointsLatMin[i] = waypoints[i].latMin;
                                                 stationWaypointsLonMin[i] = waypoints[i].lonMin;
@@ -482,6 +476,26 @@ int displayMenu()
                                                 Serial.print(" ");
                                                 Serial.print(waypoints[i].lonDeg,0);
                                                 Serial.println(waypoints[i].lonMin,4);
+                                                }
+                                                Serial.println("View Course");
+                                                for(i = 0; i < 10; i++){
+                                                Serial.print( i );
+                                                Serial.print(" ");
+                                                Serial.print(coursePoints[i].latDeg,0);
+                                                Serial.print(coursePoints[i].latMin,4);
+                                                Serial.print(" ");
+                                                Serial.print(coursePoints[i].lonDeg,0);
+                                                Serial.println(coursePoints[i].lonMin,4);
+                                                }
+                                                Serial.println("View Stationkeeping Points");
+                                                for(i = 0; i < 4; i++){
+                                                Serial.print( i );
+                                                Serial.print(" ");
+                                                Serial.print(stationPoints[i].latDeg,0);
+                                                Serial.print(stationPoints[i].latMin,4);
+                                                Serial.print(" ");
+                                                Serial.print(stationPoints[i].lonDeg,0);
+                                                Serial.println(stationPoints[i].lonMin,4);
                                                 } 
                                                 return 0;   
                                                 break;   
@@ -492,10 +506,7 @@ int displayMenu()
                                                 select = Serial.read();
                                                 if(select == 'y'){
                                                 for(i = 0; i < 10; i++){
-                                                   waypoints[i].latDeg = 0;
-                                                   waypoints[i].latMin = 0;
-                                                   waypoints[i].lonDeg = 0;
-                                                   waypoints[i].lonMin = 0;
+                                                   waypoints[i] = clearPoints;
                                                    hasVal = true;
                                                    Serial.println("Cleared");
                                                     }
@@ -509,6 +520,11 @@ int displayMenu()
                                                    }
                                                   }
                                                 }
+                                                return 0;
+                                                break;
+                                        case 'n':
+                                                Serial.println("Toggle rudder direction");
+                                                rudderDir = rudderDir*-1;
                                                 return 0;
                                                 break;
 
