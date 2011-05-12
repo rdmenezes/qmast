@@ -142,9 +142,9 @@ double courseWaypointsLonMin[10];//List of waypoint's longitude (y) minutes (eas
 //Station keeping variables
 
 //Station-keeping waypoints; 4 corners of the square
-double stationCornersLatDeg = 44;
+double stationCornersLatDeg[] = {44, 44, 44, 44};
 double stationCornersLatMin[4] = {13.6803, 13.6927, 13.7067, 13.7139};
-double stationCornersLonDeg = -76;
+double stationCornersLonDeg[] = {-76, -76, -76, -76};
 double stationCornersLonMin[4] = {29.5175, 29.5351, 29.4647, 29.5007};
 
  //GPGLL,4413.6803,N,07629.5175,W,232409,A,A*58 south lamp post
@@ -152,9 +152,9 @@ double stationCornersLonMin[4] = {29.5175, 29.5351, 29.4647, 29.5007};
  //GPGLL,4413.7067,N,07629.4847,W,232037,A,A*53 NW corner of the dirt pit by white house
  //GPGLL,4413.7139,N,07629.5007,W,231721,A,A*57 middle lamp post
  //GPGLL,4413.7207,N,07629.5247,W,231234,A,A*5E at the top of the parking lot/bay ramp, where the edging and sidewalk end
-double stationWaypointsLatDeg = 44;
+double stationWaypointsLatDeg[4];
 double stationWaypointsLatMin[4];
-double stationWaypointsLonDeg = -76;
+double stationWaypointsLonDeg[4];
 double stationWaypointsLonMin[4];
 
 //Sensor data
@@ -187,12 +187,15 @@ SoftwareSerial servo_ser = SoftwareSerial(7, txPin); // for connecting via a non
 //set the reach target flag up
 int finish; //something similar is needed for the actual program
 int rc = 0; 
+int rudderDir = 1; //global for reversing rudder if we are parking lot testing
 //char waypts[] = "$WAYP"; //for arduino, this should be implemented in String class objects (unless the memory use is too high)
 //int waypt[20]; //maximum of 10 waypoints for now 
 //String waypts = String("$WAYP"); //for arduino
 int intCounter =0;  //counter for ISR
 int points;        //max waypoints selected for travel
 int currentPoint = 0;    //current waypoint on course of travel
+double test1;
+double test2;
 
 //**ISR** 
 //ISR(TIMER2_OVF_vect) {
@@ -501,16 +504,15 @@ int stayInDownwindCorridor(int corridorHalfWidth, double waypointLatDeg, double 
 
 void getStationKeepingCentre(double *centreLatMin, double *centreLonMin){
   //this function averages the GPS locations to find the centre point of the rectangle; has to be tested on Arduino
-  
   /*
   double stationLatDeg = 44;
   double stationCornersLatMin[4] = {13.6803, 13.6927, 13.7067, 13.7139};
   double stationLonDeg = -76;
   double stationLonMin[4] = {29.5175,29.5351,29.4647,29.5007};
   */
-
   double sumLatMin = 0;
   double sumLonMin = 0;
+  
   int i;//counter
   
   for (i = 0; i < 4; i++)
@@ -518,8 +520,11 @@ void getStationKeepingCentre(double *centreLatMin, double *centreLonMin){
     sumLatMin+= stationCornersLatMin[i];
     sumLonMin+= stationCornersLonMin[i];
   }
+  
   *centreLatMin = sumLatMin/4;
   *centreLonMin = sumLonMin/4;
+ // *centreLatDeg = 
+ // *centreLonDeg = 
 }
 
 void fillStationKeepingWaypoints(double centreLatMin, double centreLonMin, int windBearing){
@@ -595,8 +600,8 @@ int stationKeep(){
   //sail between waypoints until 5 minute timer is up
 
   //initialize waypoints
-  waypointLatDeg =  stationWaypointsLatDeg;
-  waypointLongDeg = stationWaypointsLonDeg;    
+  waypointLatDeg =  stationWaypointsLatDeg[0];
+  waypointLongDeg = stationWaypointsLonDeg[0];    
   
   waypoint = 2; //start by sailing to the downwind waypoint  
   
@@ -764,19 +769,19 @@ void sailCourse2(){
   error = sensorData(BUFF_MAX,'c');  
   error = sensorData(BUFF_MAX,'w');     
           
-    distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, courseWaypointsLatDeg[currentPoint],
-    courseWaypointsLatMin[currentPoint], courseWaypointsLonDeg[currentPoint], courseWaypointsLonMin[currentPoint]);//returns in meters
+    distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, coursePoints[currentPoint].latDeg,
+    coursePoints[currentPoint].latMin, coursePoints[currentPoint].lonDeg, coursePoints[currentPoint].lonMin);//returns in meters
       relayData();
       Serial.println(distanceToWaypoint);
       
       //set rudder and sails    
-      error = sailToWaypoint(courseWaypointsLatDeg[currentPoint], courseWaypointsLatMin[currentPoint], courseWaypointsLonDeg[currentPoint], courseWaypointsLonMin[currentPoint]); //sets the rudder, stays in corridor if sailing upwind       
+      error = sailToWaypoint(coursePoints[currentPoint].latDeg, coursePoints[currentPoint].latMin, coursePoints[currentPoint].lonDeg, coursePoints[currentPoint].lonMin); //sets the rudder, stays in corridor if sailing upwind       
       delay(100);//give rudder time to adjust? this might not be necessary
       error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
       delay(100); //pololu crashes without this delay; maybe one command gets garbled with the next one?
       
-       distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, courseWaypointsLatDeg[currentPoint],
-    courseWaypointsLatMin[currentPoint], courseWaypointsLonDeg[currentPoint], courseWaypointsLonMin[currentPoint]);//returns in meters
+    distanceToWaypoint = GPSdistance(latitudeDeg, latitudeMin, longitudeDeg, longitudeMin, coursePoints[currentPoint].latDeg,
+    coursePoints[currentPoint].latMin, coursePoints[currentPoint].lonDeg, coursePoints[currentPoint].lonMin);//returns in meters
 
        if (distanceToWaypoint < MARK_DISTANCE){
       //sail testing code; this makes the pololu yellow light come on with flashing red
@@ -786,7 +791,6 @@ void sailCourse2(){
         RC(1,1); //back to RC mode
        }     
   } //end loop through waypoints
-
 
 
 int straightSail(int waypointDirn){
@@ -1089,9 +1093,7 @@ void loop()
   delay(100);//setup delay, avoid spamming the serial port
    
  //  connectSensors(); //waits for sensors to be connected; this isnt working, re-test
- 
 
-    //Sail using Menu
   if(Serial.available())
   {
       menuReturn = displayMenu();
@@ -1119,7 +1121,6 @@ void loop()
   Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
  }
  
-  
   //April 2 sailcode:
 //  sailCourse();
 //  
