@@ -277,8 +277,9 @@ int CurrentSelection;
 
 //early tacking code, simpler than the unimplemented version for testing 
 //Jib has to be let out at the beginning of turning, this exert a moment on the boat allowing for faster turning, 
-//after truned halfway, pull jib in and let main out, again faster turning, speed should not be an issue, not much required in order to turn
-//should still check if in iron, if so let main out, turn rudder to one side, when angle is no longer closehauled
+//after truned halfway, pull jib in and let main out, again faster turning, speed should not be an issue, not much required in order to turn.
+//should still check if in irons, if so let main out, turn rudder to one side, when angle is closehauled.
+// At the end of this function, boat will be sailing close hauled along the new tack
 //try sailing again, 
 void tack(){    
 boolean tackComplete = false;      
@@ -299,7 +300,7 @@ while(tackComplete == false){      //tacks depending on the side the wind is apr
         getOutofIrons();
         }
       }
-      setJib(-30);
+      setJib(-30); // when past halfway in the turn, switch the sails
       setMain(30);
     delay(1000);                        //delay to complete turning \
     newData = sensorData(BUFF_MAX, 'w');

@@ -52,11 +52,7 @@ void ParseGPGLL(char *GPGLL_string, double *degree, double *minute){
     //now there should be 4 decimal points, and 2 integers; this should fit in a float
     smallFraction = atof(smallFractionString);
 
-    //drop the integer part (m.mmmm -> m and 0.mmmm), save the high precision fraction
-    fractionalMinute = modf(smallFraction, &temp); //0.mmmm
-
-
-    //drop the fraction from the low precision minute variable, save the integer part
+    //drop the integer part (precision minute variable, save the integer part
     temp = modf(*minute, &intMinute);//drop the decimal part, we already have it; save the integer part into intMinute
     
     //combine the fraction and integer parts to get a high precision minute variable
