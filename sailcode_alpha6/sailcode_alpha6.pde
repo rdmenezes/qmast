@@ -200,7 +200,7 @@ while(tackComplete == false){      //tacks depending on the side the wind is apr
     delay(1000);                        //delay to complete turning \
     newData = sensorData(BUFF_MAX, 'w');
     dirn = getCloseHauledDirn();
-   straightSail(dirn);                //straighten out, sail closehauled
+   sail(dirn);                //straighten out, sail closehauled
    setSails(-30);
     if(wind_angl >180){            //exits when turned far enough
       tackComplete = 1;
@@ -221,7 +221,7 @@ while(tackComplete == false){      //tacks depending on the side the wind is apr
       setMain(30);
     delay(1000);
     dirn = getCloseHauledDirn();
-    straightSail(dirn);
+    sail(dirn);
     setSails(-30);
     newData = sensorData(BUFF_MAX, 'w');
     if(wind_angl < 180){
@@ -539,7 +539,7 @@ int stationKeep(){
     error = sensorData(BUFF_MAX,'w');
       
     windDirn = getWindDirn();
-    error = straightSail(windDirn+180); //sail based on compass only in downwind direction
+    error = sail(windDirn+180); //sail based on compass only in downwind direction
     delay(100);//give rudder time to adjust? this might not be necessary
     error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
     delay(100); //poolu crashes without this delay; maybe one command gets garbled with the next one?     
