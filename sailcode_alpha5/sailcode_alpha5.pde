@@ -951,9 +951,9 @@ void setup()
 //  RESET_TIMER2;
 //  sei();
 //         
-// Serial2.begin(19200);
-// //Serial2.begin(9600);
-// Serial3.begin(4800);
+ Serial2.begin(19200);
+ //Serial2.begin(9600);
+Serial3.begin(4800);
 
 //for pololu
         pinMode(txPin, OUTPUT);
@@ -1095,32 +1095,32 @@ void loop()
    
  //  connectSensors(); //waits for sensors to be connected; this isnt working, re-test
 
-  if(Serial.available())
-  {
-      menuReturn = displayMenu();
-         if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.g. setting RC mode)
-      {
-        CurrentSelection = menuReturn;
-      }  
-  }
-  switch (CurrentSelection) {
-  case 3://Straight Sail towards N,S,E,W as 0, 180, 90, 270. No sail control.
-  Serial.print("Sailing towards: ");
-  Serial.print(StraightSailDirection, DEC);
-  Serial.println(" degrees.");
-  straightSail(StraightSailDirection);
-  break;
-  case 1:        //this will be station keeping
-  Serial.println("StationKeeping");
-  stationKeep();
-  break;    
-  case 2:
-  Serial.println("sailing to waypoint");
-  sailCourse2();
-  break;
-        default:
-  Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
- }
+//  if(Serial.available())
+//  {
+//      menuReturn = displayMenu();
+//         if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.g. setting RC mode)
+//      {
+//        CurrentSelection = menuReturn;
+//      }  
+//  }
+//  switch (CurrentSelection) {
+//  case 3://Straight Sail towards N,S,E,W as 0, 180, 90, 270. No sail control.
+//  Serial.print("Sailing towards: ");
+//  Serial.print(StraightSailDirection, DEC);
+//  Serial.println(" degrees.");
+//  straightSail(StraightSailDirection);
+//  break;
+//  case 1:        //this will be station keeping
+//  Serial.println("StationKeeping");
+//  stationKeep();
+//  break;    
+//  case 2:
+//  Serial.println("sailing to waypoint");
+//  sailCourse2();
+//  break;
+//        default:
+//  Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
+// }
  
   //April 2 sailcode:
 //  sailCourse();
@@ -1299,16 +1299,16 @@ void loop()
 //resetting the arduino fixed the problem
 
 //Polulu Test Code
-//Serial.print("\n 320 degrees");   
-//setrudder(320);
-//setSails(15);
-////  arduinoServo(30);
-//delay(2000); 
-//  Serial.print("\n10 degrees");   
-//setrudder(10);
-//setSails(-15);
-//
-//delay(2000);
+Serial.print("\n 320 degrees");   
+setrudder(320);
+setSails(15);
+//  arduinoServo(30);
+delay(2000); 
+  Serial.print("\n10 degrees");   
+setrudder(10);
+setSails(-15);
+
+delay(2000);
 
 
 

@@ -123,19 +123,19 @@ int sensorData(int bufferLength, char device)
           if (checksum==endCheckSum){
         //since hex values only take 4 bits, shift the more significant half to the left by 4 bits, the bitwise or it with the least significant half
         //then check if this value matches the calculated checksum (this part has been tested and should work)
-        //  Serial.println("checksum good, parsing.");
+    //      Serial.println("checksum good, parsing.");
 
           //Before parsing the valid string, check to see if the string contains two consecutive commas as indicated by the twoCommasPresent flag
             if (!twoCommasPresent) {
              // Serial.println(array[0]); //print first character (should be $)
               array[j+1] = '\0';//append the end of string character
               digitalWrite(twoCommasLED,LOW);//turn off error indicator LED to warn about old data
-              Serial.println("Good string, about to parse");
+    //          Serial.println("Good string, about to parse");
               error = Parser(array); //checksum was successful, so parse              
               //delay(500);  //trying to add a delay to account for the fact that the code works when print out all the elements of the array, but not when you don't. Seems sketchy.
              } else {
         	  twoCommasPresent = false;
-                  Serial.println("Two commas present, didnt parse");
+            //      Serial.println("Two commas present, didnt parse");
                   
         	  //This will be where we handle the presence of twoCommas, since it means that the boat is doing something strange
         	  //AKA tilted two far, bad compass data
@@ -145,7 +145,7 @@ int sensorData(int bufferLength, char device)
           digitalWrite(checksumBadLED,LOW);//checksum was bad if on, its not bad anymore
           
         } else {
-            Serial.println("checksum not good...");// else statement and this line are only here for testing
+       //     Serial.println("checksum not good...");// else statement and this line are only here for testing
             digitalWrite(checksumBadLED,HIGH);//checksum was bad, turn on indicator
             digitalWrite(goodCompassDataLED, LOW); //data is bad
         }
@@ -167,7 +167,7 @@ int sensorData(int bufferLength, char device)
         twoCommasPresent = false; // there isnt any data, so reset the twoCommasPresent
       } 
       else if (j > LONGEST_NMEA){//if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
-        Serial.println("string too long, clearing some stuff");
+//        Serial.println("string too long, clearing some stuff");
         j = -1;//start at the first byte to fill the array
         // Serial2.flush(); //dont flush because there might be good data at the end
         checksum=0;//set the xor checksum back to zero
@@ -224,7 +224,7 @@ int sensorData(int bufferLength, char device)
 
       
       // twoCommasPresent status isnt saved, since data isnt saved if it has two commas
-      Serial.println("Stored extra data - ");
+ //     Serial.println("Stored extra data - ");
       digitalWrite(rolloverDataLED, HIGH); //indicates data rolled over, not fast enough
       
   //    Serial.print(extraWindData);
