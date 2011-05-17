@@ -177,64 +177,65 @@ int CurrentSelection;
 //should still check if in iron, if so let main out, turn rudder to one side, when angle is no longer closehauled
 //try sailing again, 
 void tack(){    
-boolean tackComplete = false;      
-float startingWind_angl = wind_angl;
-int newData = 0;
-int dirn = 0;
-int ironTime =0;
-while(tackComplete == false){      //tacks depending on the side the wind is aproaching from
-  if(wind_angl < 180){
-    setMain(-30);
-    setJib(30);                    //sets main and jib to allows better turning
-    setrudder(-30);                //rudder angle cannot be to steep, this would stall the boat, rather than turn it
-    while(wind_angl < 180){
-      delay(100);
-      newData = sensorData(BUFF_MAX, 'w');  
-      ironTime++;                  //checks to see if turned far enough
-      if(ironTime > 100){            //waits about 10 seconds to before assuming in irons
-        getOutofIrons();
-        }
-      }
-      setJib(-30);
-      setMain(30);
-    delay(1000);                        //delay to complete turning \
-    newData = sensorData(BUFF_MAX, 'w');
-    dirn = getCloseHauledDirn();
-   sail(dirn);                //straighten out, sail closehauled
-   setSails(-30);
-    if(wind_angl >180){            //exits when turned far enough
-      tackComplete = 1;
-      }  
-    }
-      if(wind_angl > 180){        //mirror for other side
-    setMain(-30);
-    setJib(30);
-    setrudder(30);
-    while(wind_angl > 180){
-      delay(100);
-      newData = sensorData(BUFF_MAX, 'w');
-      if(ironTime > 100){            //waits about 10 seconds to before assuming in irons
-        getOutofIrons();
-        }
-      }
-      setJib(-30);
-      setMain(30);
-    delay(1000);
-    dirn = getCloseHauledDirn();
-    sail(dirn);
-    setSails(-30);
-    newData = sensorData(BUFF_MAX, 'w');
+  boolean tackComplete = false;      
+  float startingWind_angl = wind_angl;
+  int newData = 0;
+  int dirn = 0;
+  int ironTime =0;
+  while(tackComplete == false){      //tacks depending on the side the wind is aproaching from
     if(wind_angl < 180){
-      tackComplete = 1;
-      }  
+      setMain(-30);
+      setJib(30);                    //sets main and jib to allows better turning
+      setrudder(-30);                //rudder angle cannot be to steep, this would stall the boat, rather than turn it
+      while(wind_angl < 180){
+        delay(100);
+        newData = sensorData(BUFF_MAX, 'w');  
+        ironTime++;                  //checks to see if turned far enough
+        if(ironTime > 100){            //waits about 10 seconds to before assuming in irons
+          getOutofIrons();
+          }
+        }
+        setJib(-30);
+        setMain(30);
+      delay(1000);                        //delay to complete turning \
+      newData = sensorData(BUFF_MAX, 'w');
+      dirn = getCloseHauledDirn();
+     sail(dirn);                //straighten out, sail closehauled
+     setSails(-30);
+      if(wind_angl >180){            //exits when turned far enough
+        tackComplete = 1;
+        }  
+      }
+      else if(wind_angl > 180){        //mirror for other side
+      setMain(-30);
+      setJib(30);
+      setrudder(30);
+      while(wind_angl > 180){
+        delay(100);
+        newData = sensorData(BUFF_MAX, 'w');
+        if(ironTime > 100){            //waits about 10 seconds to before assuming in irons
+          getOutofIrons();
+          }
+        }
+        setJib(-30);
+        setMain(30);
+      delay(1000);
+      dirn = getCloseHauledDirn();
+      sail(dirn);
+      setSails(-30);
+      newData = sensorData(BUFF_MAX, 'w');
+      if(wind_angl < 180){
+        tackComplete = 1;
+        }  
+      }
     }
-  }
-}        //boat should continue closed hauled until it hits the other side of the corridor
+  }        //boat should continue closed hauled until it hits the other side of the corridor
 
 //code to get out of irons if boat is stuck
 void getOutofIrons(){
   int dirn;
   setMain(30);
+  setJib(-30);
   setrudder(30);        //arbitrary might want to base on direction of travel
   while(wind_angl < TACKING_ANGLE && wind_angl > 360 -TACKING_ANGLE){
   dirn = sensorData(BUFF_MAX, 'w');
@@ -242,6 +243,7 @@ void getOutofIrons(){
   }
   setSails(-30);
   setrudder(0);
+  delay(1000); //some time to build up speed
 }
 double GPSdistance(struct points location1, struct points location2){
   //finds the distance between two latitude, longitude gps coordinates, in meters
@@ -340,40 +342,40 @@ void relayData(){//sends data to shore
  Serial.println(headingc);//compass heading
 
 }
-int stayInDownwindCorridor(int corridorHalfWidth, struct points waypoint){
-//calculate whether we're still inside the downwind corridor of the mark; if not, tacks if necessary
-// corridorHalfWidth is in meters
-  
-  int theta;
-  float distance, hypotenuse;
-  
-  //do this with trig. It's a right-angled triangle, where opp is the distance perpendicular to the wind angle (the number we're looking for);
- 
-  // and theta is the angle between the wind and the waypoint directions; positive when windDirn > waypointDirn
-  theta = getWaypointDirn(waypoint) - getWindDirn();  
-  
-  // the hypotenuse is as long as the distance between the boat and the waypoint, in meters
-  hypotenuse = GPSdistance(boatLocation, waypoint);//latitude is Y, longitude X for waypoints
-  
-   //opp = hyp * sin(theta)
-  distance = hypotenuse * sin(degreesToRadians(theta));
-  
-  if (abs(distance) > corridorHalfWidth){ //we're outside
-    //can use the sign of distance to determine if we should be on the left or right tack; this works because when we do sin, it takes care of wrapping around 0/360
-    //a negative distance means that we are to the right of the corridor, waypoint is less than wind
-    if ( (distance  < 0 && wind_angl_newest > 180) || (distance > 0 && wind_angl_newest < 180) ){
-      //want newest_wind_angle < 180, ie wind coming from the right to left (starboard to port?) side of the boat when distance is negative; opposite when distance positive
-         tack();     //tack function should not return until successful tack
-         Serial.println("Outside corridor, tacking");
-    }
-   
-    return distance - corridorHalfWidth*(distance/abs(distance)); //this should be positive or negative... depending on left or right side of corridor.
-   // We want this to be how far the boat is outside ie 0 if we're inside and -5 if we're 5 meters to the left, +5 if we're 5 meters to the right
-   //If distance is positive, distance/abs(distance) is +1, therefore we subtract the corridor halfwidth from a positive number, giving 0 at the boundary and +'ve number outside
-   //If distance is negative, distance/abs(distance) is -1, therefore we add the corridor halfwidth to a negative number, giving 0 at the boundary and -'ve number outside
-  }
-  else return 0;
-}
+//int stayInDownwindCorridor(int corridorHalfWidth, struct points waypoint){
+////calculate whether we're still inside the downwind corridor of the mark; if not, tacks if necessary
+//// corridorHalfWidth is in meters
+//  
+//  int theta;
+//  float distance, hypotenuse;
+//  
+//  //do this with trig. It's a right-angled triangle, where opp is the distance perpendicular to the wind angle (the number we're looking for);
+// 
+//  // and theta is the angle between the wind and the waypoint directions; positive when windDirn > waypointDirn
+//  theta = getWaypointDirn(waypoint) - getWindDirn();  
+//  
+//  // the hypotenuse is as long as the distance between the boat and the waypoint, in meters
+//  hypotenuse = GPSdistance(boatLocation, waypoint);//latitude is Y, longitude X for waypoints
+//  
+//   //opp = hyp * sin(theta)
+//  distance = hypotenuse * sin(degreesToRadians(theta));
+//  
+//  if (abs(distance) > corridorHalfWidth){ //we're outside
+//    //can use the sign of distance to determine if we should be on the left or right tack; this works because when we do sin, it takes care of wrapping around 0/360
+//    //a negative distance means that we are to the right of the corridor, waypoint is less than wind
+//    if ( (distance  < 0 && wind_angl_newest > 180) || (distance > 0 && wind_angl_newest < 180) ){
+//      //want newest_wind_angle < 180, ie wind coming from the right to left (starboard to port?) side of the boat when distance is negative; opposite when distance positive
+//         tack();     //tack function should not return until successful tack
+//         Serial.println("Outside corridor, tacking");
+//    }
+//   
+//    return distance - corridorHalfWidth*(distance/abs(distance)); //this should be positive or negative... depending on left or right side of corridor.
+//   // We want this to be how far the boat is outside ie 0 if we're inside and -5 if we're 5 meters to the left, +5 if we're 5 meters to the right
+//   //If distance is positive, distance/abs(distance) is +1, therefore we subtract the corridor halfwidth from a positive number, giving 0 at the boundary and +'ve number outside
+//   //If distance is negative, distance/abs(distance) is -1, therefore we add the corridor halfwidth to a negative number, giving 0 at the boundary and -'ve number outside
+//  }
+//  else return 0;
+//}
 
 void getStationKeepingCentre(double *centreLatMin, double *centreLonMin){
   //this function averages the GPS locations to find the centre point of the rectangle; has to be tested on Arduino
@@ -657,7 +659,8 @@ int sailToWaypoint(struct points waypoint){
 //will allow for the safety of the getOutOfIrons being called during any turn into the wind
 boolean checkTack(int corridorHalfWidth, struct points waypoint){
    int currentHeading;
-   int windDirn;  
+   int windDirn; 
+    int waypointDirn; 
    int theta;
    float distance, hypotenuse;
    int difference;
@@ -668,7 +671,8 @@ boolean checkTack(int corridorHalfWidth, struct points waypoint){
   if(abs(difference) < TACKING_ANGLE +5){            //checks if closehauled first, +5 for good measure
   //do this with trig. It's a right-angled triangle, where opp is the distance perpendicular to the wind angle (the number we're looking for); 
   // and theta is the angle between the wind and the waypoint directions; positive when windDirn > waypointDirn
-  theta = getWaypointDirn(waypoint) - getWindDirn();  
+  waypointDirn = getWaypointDirn(waypoint);
+  theta = waypointDirn - windDirn;  
   
   // the hypotenuse is as long as the distance between the boat and the waypoint, in meters
   hypotenuse = GPSdistance(boatLocation, waypoint);//latitude is Y, longitude X for waypoints
@@ -676,12 +680,17 @@ boolean checkTack(int corridorHalfWidth, struct points waypoint){
    //opp = hyp * sin(theta)
   distance = hypotenuse * sin(degreesToRadians(theta));
   
-  if (abs(distance) > corridorHalfWidth){ //we're outside
-         if ( (distance  < 0 && wind_angl_newest > 180) || (distance > 0 && wind_angl_newest < 180) ) // check the direction of the wind so it doesn't try to tack away from the corridor
-         {
-          return true;
-         }
-     }    
+   if ( (distance  < 0 && wind_angl_newest > 180) || (distance > 0 && wind_angl_newest < 180) ) // check the direction of the wind so we only try to tack towards the mark
+   {
+     if (abs(distance) > corridorHalfWidth){ //we're outside corridor
+          return true; 
+     }  else if(!between(waypointDirn, windDirn + TACKING_ANGLE, windDirn - TACKING_ANGLE)) { //if we're past the layline
+         return true;
+    } 
+     
+   }
+  
+   
   }
   return false;
 }
