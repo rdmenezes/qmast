@@ -66,7 +66,7 @@ void setJib(float ang)
 //yet to be implemented code for 3rd servo
 //currently using setsails to call both main and jib servos
 {
-  int servonum = 0;
+  int servo_num = 0;
   int pos;
   
   if (ang >45)
@@ -75,11 +75,12 @@ void setJib(float ang)
   ang = -45;
 
   pos = JIB_SERVO_RATE*(ang + 45) * 254.0/90.0;
+  servo_command(servo_num,pos,0);
 }
 void setMain(float ang)
 //code for setting main sail only
 {
-  int sernum = 0;
+  int servo_num = 0;
   int pos;
   if (ang > 45)
   ang = 45;
@@ -87,4 +88,5 @@ void setMain(float ang)
   ang = -45;
   
   pos = MAIN_SERVO_RATE* (ang + 45) * 254.0/90.0;
+    servo_command(servo_num,pos,0);
 }
