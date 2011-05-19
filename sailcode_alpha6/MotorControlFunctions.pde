@@ -24,19 +24,16 @@ void servo_command(int whichservo, int position, byte longRange)
 void setrudder(float ang)
 {
 //fill this in with the code to interface with pololu 
- 
+
   int servo_num =1;
   int pos; //position ("position" was highlighted as a special name?)
  // Serial.println("Controlling motors");
   
 //check input, and change is appropriate
-  if (ang > 45)
-    ang = 45;
-  else if (ang < -45)
-    ang = -45;
-  
+constrain(ang,-45,45);
+
   pos = RUDDER_SERVO_RATE*(ang + 45) * 254.0 / 90.0;//convert from 180 degree range, -90 to +90 angle to a 0 to 256 maximum position range
-  
+ // myservo.write((ang+90));
   servo_command(servo_num,pos,0);
   //delay(10);
 }
@@ -52,11 +49,8 @@ void setSails(float ang)
  int posjib; //jib position
   
 //check input, and change is appropriate
-  if (ang > 45)
-    ang = 45;
-  else if (ang < -45)
-    ang = -45;
-  
+  constrain(ang,-45,45);
+
   pos = MAIN_SERVO_RATE*(ang + 45) * 254.0 / 90.0;//convert from 180 (90?) degree range, -90 to +90 (-45 to +45?) angle to a 0 to 256 maximum position range
   posjib = JIB_SERVO_RATE*(ang + 45) * 254.0 / 90.0;        //convert to proper jib position, modify after testing to match ain sail
   servo_command(servo_num,pos,0); //0 tells it to only turn short range
@@ -68,11 +62,7 @@ void setJib(float ang)
 {
   int servo_num = 0;
   int pos;
-  
-  if (ang >45)
-  ang = 45;
-  else if (ang < -45)
-  ang = -45;
+  constrain(ang,-45,45);
 
   pos = JIB_SERVO_RATE*(ang + 45) * 254.0/90.0;
     servo_command(servo_num,pos,0); 
@@ -82,10 +72,7 @@ void setMain(float ang)
 {
   int servo_num = 2;
   int pos;
-  if (ang > 45)
-  ang = 45;
-  else if (ang < -45)
-  ang = -45;
+  constrain(ang,-45,45);
   
   pos = MAIN_SERVO_RATE* (ang + 45) * 254.0/90.0;
   servo_command(servo_num,pos,0); 

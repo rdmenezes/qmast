@@ -1,12 +1,9 @@
 /*
- * Test.c: Sailing algorithm diagnostics program
- *
- *  Ported to Arudino November 2010 by Christine and the supercool software team
-    Revised by Laszlo 2011-05-13
+ *  Revised by Laszlo 2011-05-13
+ *  Ported to Arudino November 2010 by Christine and the supercool software team  
  *  Created on: 2010-05-11
  *      Author: Nader for MAST Software
  */
-//test
 /* ////////////////////////////////////////////////
 // Changelog
 ////////////////////////////////////////////////
@@ -72,7 +69,7 @@
 #define resetPin 8 //Pololu reset (digital pin on arduino)
 #define txPin 9 //Pololu serial pin (with SoftwareSerial library)
 
-#define servoPin 10 //arduino Servo library setup
+#define servoPin 5 //arduino Servo library setup
 
 //led pins
 #define noDataLED  48 // no data, error indicator LED
@@ -766,17 +763,19 @@ void setup()
                             
         servo_ser.begin(2400);
 
+        delay(2000);
         //next NEED to explicitly reset the Pololu board using a separate pin
         //else it times out and reports baud rate is too slow (red LED)
         digitalWrite(resetPin, 0);
         delay(10);
         digitalWrite(resetPin, 1);  
+        
 //for arduino Servo library
- myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object 
+myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object 
 
-// Serial2.begin(19200);
-// //Serial2.begin(9600);
-// Serial3.begin(4800);
+Serial2.begin(19200);
+ //Serial2.begin(9600);
+Serial3.begin(4800);
 // 
  //setup indicator LEDs       
  pinMode(oldDataLED, OUTPUT); //there is data, but buffer is full, error indicator light
@@ -884,49 +883,34 @@ void loop()
    
  //  connectSensors(); //waits for sensors to be connected; this isnt working, re-test
 
-//  if(Serial.available())
-//  {
-//      menuReturn = displayMenu();
-//         if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.g. setting RC mode)
-//      {
-//        CurrentSelection = menuReturn;
-//      }  
-//  }
-//  switch (CurrentSelection) {
-//  case 3://Straight Sail towards N,S,E,W as 0, 180, 90, 270. No sail control.
-//  Serial.print("Sailing towards: ");
-//  Serial.print(StraightSailDirection, DEC);
-//  Serial.println(" degrees.");
-//  sail(StraightSailDirection); //FIXME!!! Straightsail can no longer be called in isolation, needs sailtoWaypoint which keeps track of when tacking is necessary)
-//  break;
-//  case 1:        //this will be station keeping
-//  Serial.println("StationKeeping");
-//  stationKeep();
-//  break;    
-//  case 2:
-//  Serial.println("sailing to waypoint");
-//  sailCourse();
-//  break;
-//        default:
-//  Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
-//  delay(100);
-// }
-
-delay(100);
-//servo_command(1,300,0);
-//delay(2000);
-//servo_command(1,0,0);
-//Serial.println("ahhhhh");
-//delay(2000);
-//Polulu Test Code
-Serial.print("\n 320 degrees");   
-setrudder(320);
-//setSails(15);
-//  arduinoServo(30);
-delay(2000); 
-  Serial.print("\n10 degrees");   
-setrudder(10);
-//setSails(-15);
-
-delay(2000);
+  if(Serial.available())
+  {
+      menuReturn = displayMenu();
+         if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.g. setting RC mode)
+      {
+        CurrentSelection = menuReturn;
+      }  
+  }
+  switch (CurrentSelection) {
+  case 3://Straight Sail towards N,S,E,W as 0, 180, 90, 270. No sail control.
+  Serial.print("Sailing towards: ");
+  Serial.print(StraightSailDirection, DEC);
+  Serial.println(" degrees.");
+  sail(StraightSailDirection); //FIXME!!! Straightsail can no longer be called in isolation, needs sailtoWaypoint which keeps track of when tacking is necessary)
+  break;
+  case 1:        //this will be station keeping
+  Serial.println("StationKeeping");
+  stationKeep();
+  break;    
+  case 2:
+  Serial.println("sailing to waypoint");
+  sailCourse();
+  break;
+        default:
+  Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
+  delay(100);
+ }
 }
+//delay(100);
+
+

@@ -79,6 +79,7 @@ int displayMenu()
                 Serial.println("l.      View Current waypoints");
                 Serial.println("m.      Clear all waypoints");
                 Serial.println("n.      Toggle Rudder direction");
+                Serial.println("o.      perform diagnostics");
                 Serial.println("z.     *Clear serial buffer");
 		Serial.println("");
 		Serial.println("Select option:");
@@ -335,27 +336,18 @@ int displayMenu()
 					
 					//call tack function
 				case 'e':
-                                        Serial.println("Select tack direction. Currently unused in menu");
-					Serial.println("Enter Tack direction: ");
+                                        Serial.println("Please point boat against the wind.");
+					Serial.println("Enter any value to begin");
 					while(hasTackVal == false)
 					{
 						if(Serial.available() > 0)
 						{ 
-							//this will have to be changed to use Serial.readln function
-							tackVal = Serial.read() - '0';     //the " - '0' " converts the ASCII char to its actaul integer value (ex: without this, if the user entered '1' it would store as 49)	
-							if(tackVal >= 0 && tackVal <= 9)	//check for valid tackVal input
-							{
-								hasTackVal = true; 
-								Serial.print("Tack chosen is: ");
-								Serial.println(tackVal);
-							}
-							else
-							{
-								Serial.println("Invalid Tack Direction");
-							}
+							//this will have to be changed to use Serial.readln function							
+							hasTackVal = true;							
 						}	
 					}
-					
+					tack();
+                                        Serial.println("Tack Complete");
                                         return 0;
 					break;
 					
@@ -527,6 +519,58 @@ int displayMenu()
                                                 rudderDir = rudderDir*-1;
                                                 return 0;
                                                 break;
+                                        case 'o':
+                                                Serial.println("Performing Diagnostic and calibration tests");
+                                                Serial.println("Turning Rudder right");
+                                                setrudder(-30);
+                                                delay(1000);
+                                                Serial.println("Turning Rudder left");
+                                                setrudder(30);
+                                                delay(1000);
+                                                Serial.println("Centering rudder");
+                                                setrudder(0);
+                                                delay(1000);
+                                                Serial.println("Setting Jib all out");
+                                                setJib(30);
+                                                delay(3000);
+                                                Serial.println("Setting Jib all in");
+                                                setJib(-30);
+                                                delay(3000);
+                                                Serial.println("Setting main all out");
+                                                setMain(30);
+                                                delay(3000);
+                                                Serial.println("Setting main all in"); 
+                                                delay(3000);
+                                                Serial.println("Setting both all out");
+                                                setSails(30);
+                                                delay(3000);
+                                                Serial.println("Setting both all in");
+                                                setSails(-30);
+                                                delay(3000);
+                                                Serial.println("testing compass");
+                                                   compassData = sensorData(BUFF_MAX,'c');        						
+                                                if(compassData == false){
+                                                  Serial.println("Compass Data: ");
+                                                  Serial.print("  Heading:  ");
+                                                  Serial.println(headingc);
+                                                  Serial.print("  Pitch:   ");
+                                                  Serial.println(pitch);
+                                                  Serial.print("  Roll   ");
+                                                  Serial.println(roll);                                                  
+                                                }
+                                                else{
+                                                  Serial.println("Error fetching compass data");
+                                                }
+                                                Serial.println("testing wind sensor");                                                
+						windData = sensorData(BUFF_MAX,'w');
+                                                if(windData == false){
+                                                  Serial.println("Wind Sensor Data: ");
+                                                  Serial.print("  Wind Angle:  ");
+                                                  Serial.println(wind_angl);
+                                                  Serial.print("  Wind Velocity (knots):   ");
+                                                  Serial.println(wind_velocity);                                                  
+                                                }
+                                                Serial.println("testing complete");
 
                                         case 'z': //If you press z it clears the serial buffer
                                                 Serial.flush();

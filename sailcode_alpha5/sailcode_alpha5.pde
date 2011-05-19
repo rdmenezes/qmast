@@ -951,9 +951,9 @@ void setup()
 //  RESET_TIMER2;
 //  sei();
 //         
- Serial2.begin(19200);
- //Serial2.begin(9600);
-Serial3.begin(4800);
+// Serial2.begin(19200);
+// //Serial2.begin(9600);
+//Serial3.begin(4800);
 
 //for pololu
         pinMode(txPin, OUTPUT);
@@ -968,7 +968,7 @@ Serial3.begin(4800);
         digitalWrite(resetPin, 1);  
         
 //for arduino Servo library
- myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object 
+// myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object 
 
  //setup indicator LEDs       
  pinMode(oldDataLED, OUTPUT); //there is data, but buffer is full, error indicator light
@@ -1070,7 +1070,7 @@ Serial3.begin(4800);
 
 
   RC(0,0);// autonomous sail and rudder control
-  
+  Serial.println("did I move?"); //nope 
   delay(10);
   
   setrudder(0);
@@ -1299,18 +1299,21 @@ void loop()
 //resetting the arduino fixed the problem
 
 //Polulu Test Code
-Serial.print("\n 320 degrees");   
-setrudder(320);
-setSails(15);
-//  arduinoServo(30);
-delay(2000); 
-  Serial.print("\n10 degrees");   
-setrudder(10);
-setSails(-15);
-
-delay(2000);
-
-
+//Serial.print("\n 320 degrees");   
+//setrudder(320);
+//setSails(15);
+////  arduinoServo(30);
+//delay(2000); 
+//  Serial.print("\n10 degrees");   
+//setrudder(10);
+//setSails(-15);
+//
+//delay(2000);
+Serial.println("did I move?");  //nope
+servo_command(1, 100, 0);
+delay(1000);
+servo_command(1, 150, 0);
+delay(1000);
 
 //error-checking navigation code:  
 
@@ -1363,4 +1366,3 @@ delay(2000);
 //  Serial.println(distanceOutsideCorridor);    
     
 }
-
