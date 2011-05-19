@@ -32,7 +32,7 @@ void setrudder(float ang)
 //check input, and change is appropriate
 constrain(ang,-45,45);
 
-  pos = RUDDER_SERVO_RATE*(ang + 45) * 254.0 / 90.0;//convert from 180 degree range, -90 to +90 angle to a 0 to 256 maximum position range
+  pos = RUDDER_SERVO_RATE*(ang + 45) * rudderDir * 254.0 / 90.0;//convert from 180 degree range, -90 to +90 angle to a 0 to 256 maximum position range
  // myservo.write((ang+90));
   servo_command(servo_num,pos,0);
   //delay(10);
