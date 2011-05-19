@@ -80,7 +80,7 @@ void setJib(float ang)
 void setMain(float ang)
 //code for setting main sail only
 {
-  int servo_num = 0;
+  int servo_num = 2;
   int pos;
   if (ang > 45)
   ang = 45;
