@@ -54,6 +54,7 @@ void setSails(float ang)
   pos = MAIN_SERVO_RATE*(ang + 45) * 254.0 / 90.0;//convert from 180 (90?) degree range, -90 to +90 (-45 to +45?) angle to a 0 to 256 maximum position range
   posjib = JIB_SERVO_RATE*(ang + 45) * 254.0 / 90.0;        //convert to proper jib position, modify after testing to match ain sail
   servo_command(servo_num,pos,0); //0 tells it to only turn short range
+  delay(100);
   servo_command(servo_num2,posjib,0);        //turn jib
 }
 void setJib(float ang)
