@@ -150,6 +150,7 @@ int rc = 0;
 int rudderDir = 1; //global for reversing rudder if we are parking lot testing
 int intCounter =0;  //counter for ISR
 int points;        //max waypoints selected for travel
+int point;          //point for sail to waypoint in menu 
 int currentPoint = 0;    //current waypoint on course of travel
 double test1;
 double test2;
@@ -597,8 +598,7 @@ int sail(int waypointDirn){
   int angle = 0; 
   int windDirn;
   //int waypointDirection;
-  
- 
+   
   windDirn = getWindDirn(); 
   error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
     if (error){
@@ -871,6 +871,7 @@ void loop()
 {
   int error;
   int i;
+  int point;
   char input;
   int numWaypoints = 1;
   int waypoint;
@@ -905,6 +906,9 @@ void loop()
   case 2:
   Serial.println("sailing to waypoint");
   sailCourse();
+  break;
+  case 4:
+  sailToWaypoint(waypoints[point]);
   break;
         default:
   Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
