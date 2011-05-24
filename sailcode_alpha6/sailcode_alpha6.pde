@@ -32,7 +32,6 @@
 ////////////////////////////////////////////////
 
 
-
 //Constants
 #define INIT_TIMER_COUNT 0          //setup for timer interrupt
 #define RESET_TIMER2 TCNT2 = INIT_TIMER_COUNT
@@ -152,8 +151,6 @@ int intCounter =0;  //counter for ISR
 int points;        //max waypoints selected for travel
 int point;          //point for sail to waypoint in menu 
 int currentPoint = 0;    //current waypoint on course of travel
-double test1;
-double test2;
 
 //**ISR** 
 //ISR(TIMER2_OVF_vect) {
@@ -168,6 +165,9 @@ double test2;
 //Menu hack globals
 int StraightSailDirection;
 int CurrentSelection;
+//stationkeepig globals
+long startTime;
+int stationCounter;
 
 //early tacking code, simpler than the unimplemented version for testing 
 //Jib has to be let out at the beginning of turning, this exert a moment on the boat allowing for faster turning, 
@@ -343,6 +343,7 @@ void relayData(){//sends data to shore
 //int stayInDownwindCorridor(int corridorHalfWidth, struct points waypoint){
 ////calculate whether we're still inside the downwind corridor of the mark; if not, tacks if necessary
 //// corridorHalfWidth is in meters
+//no longer used as most functionaity has been moved into checktack, here for refereance
 //  
 //  int theta;
 //  float distance, hypotenuse;
@@ -390,14 +391,12 @@ void getStationKeepingCentre(double *centreLatMin, double *centreLonMin){
   
   for (i = 0; i < 4; i++)
   {
-//    sumLatMin+= stationCornersLatMin[i];
-//    sumLonMin+= stationCornersLonMin[i];
+    sumLatMin+= stationPoints[i].latMin;
+    sumLonMin+= stationPoints[i].lonMin;
   }
   
   *centreLatMin = sumLatMin/4;
   *centreLonMin = sumLonMin/4;
- // *centreLatDeg = 
- // *centreLonDeg = 
 }
 
 void fillStationKeepingWaypoints(double centreLatMin, double centreLonMin, int windBearing){
@@ -414,8 +413,11 @@ void fillStationKeepingWaypoints(double centreLatMin, double centreLonMin, int w
   for (i = 0; i < 4; i++){
     deltaLat = STATION_KEEPING_RADIUS*cos(windBearing+90*i)/LATITUDE_TO_METER; //latitude is along the north vector
     deltaLon = STATION_KEEPING_RADIUS*sin(windBearing+90*i)/LONGITUDE_TO_METER; //longitude is perpendicular to the north vector
-//    stationWaypointsLatMin[i] = deltaLat + centreLatMin;
-  }    
+    floatingStationPoints[i].latMin = deltaLat + centreLatMin;
+    floatingStationPoints[i].lonMin = deltaLon + centreLonMin;
+    floatingStationPoints[i].latDeg = stationPoints[i].latDeg;
+    floatingStationPoints[i].latMin = stationPoints[i].latMin;
+  }   
 }
 
 int stationKeep(){
@@ -439,23 +441,16 @@ int stationKeep(){
 //- exit at bottom if theres time to kill before 5 minutes, if short time keep sailing straight to exit faster
 //- sail down edge and check time, leave as 5 minutes hits
 
-
-  // setup waypoints (requires that wayoints are manually entered
+  // setup waypoints (takes first 4 waypoints frm the waypoints struct
   double centreLatMin, centreLonMin;
   int windDirn, waypointWindDirn;
   int error;
-
-  //Present waypoint variables
-  double waypointLatDeg;//Present waypoint's latitude (x) degrees (north/south, +'ve is north) coordinate
-  double waypointLatMin;//Present waypoint's latitude (x) minutes (north/south, +'ve is north) coordinate
-  double waypointLongDeg;//Present waypoint's longitude (y) degrees (east/west, +'ve is east) coordinate
-  double waypointLongMin;//Present waypoint's longitude (y) minutes (east/west, +'ve is east) coordinate
-  struct points staypoint;
-  int waypoint; //waypoint counter
+  
+  static struct points stayPoint;
   int distanceToWaypoint;//the boat's distance to the present waypoint
   
   //Timer variables
-  long startTime, elapsedTime, currentTime, waypointTime;
+  long elapsedTime, currentTime;
   boolean timesUp = false;
   
   //get data from sensors for global variables
@@ -463,33 +458,22 @@ int stationKeep(){
   error = sensorData(BUFF_MAX,'w');  
   
   //set up waypoints
-  getStationKeepingCentre(&centreLatMin, &centreLonMin); //find the centre of the global stationkeeping corner variables
+  getStationKeepingCentre(&centreLatMin, &centreLonMin); //find the centre of the global stationkeeping corner variables maybe move this to menu? only needs to be done once
   windDirn = getWindDirn(); //find the wind direction so we can set out waypoints downwind from it
   waypointWindDirn = windDirn;
   fillStationKeepingWaypoints(centreLatMin, centreLonMin, windDirn);//set global station keeping waypoints  
   
-  //sail between waypoints until 5 minute timer is up
-
-  //initialize waypoints
- // waypointLatDeg =  stationWaypointsLatDeg[0];
- // waypointLongDeg = stationWaypointsLonDeg[0];    
-  
-  waypoint = 2; //start by sailing to the downwind waypoint  
-  
-  startTime = millis();//record the starting clock time
-  waypointTime = startTime;
-  
-  //timed 5 minute loop of going through the waypoints
-  do {
-      //latitude
-  //    waypointLatMin =  stationWaypointsLatMin[waypoint];
-      //longitude
-  //    waypointLongMin =  stationWaypointsLonMin[waypoint];   
-          
-      distanceToWaypoint = GPSdistance(boatLocation, staypoint);//returns in meters
-
-      while (distanceToWaypoint > MARK_DISTANCE && !timesUp)
-      {           
+  //sail between waypoints until 5 minute timer is up      
+  if(timesUp == true){         //leave square; can either calculate the closest place to leave, or just head downwind as we do here:     
+    windDirn = getWindDirn();
+    error = sail(windDirn+180); //sail based on compass only in downwind direction
+    delay(100);//give rudder time to adjust? this might not be necessary 
+    return 0;
+    }
+    else{
+      stayPoint = floatingStationPoints[stationCounter];             
+      distanceToWaypoint = GPSdistance(boatLocation, stayPoint);//returns in meters
+              
         //send data to xbee for reporting purposes
         relayData();
         Serial.println(distanceToWaypoint);
@@ -497,64 +481,36 @@ int stationKeep(){
         //set rudder and sails 
         error = sensorData(BUFF_MAX,'c');     
         error = sensorData(BUFF_MAX,'w');            
-        error = sailToWaypoint(staypoint); //sets the rudder, stays in corridor if sailing upwind       
+        error = sailToWaypoint(stayPoint); //sets the rudder, stays in corridor if sailing upwind       
         delay(100);//give rudder time to adjust? this might not be necessary
-        error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
+       // error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
         delay(100); //pololu crashes without this delay; maybe one command gets garbled with the next one?
       
         //check timer
-        currentTime = millis(); //get the Arduino clock time
-
-        //update waypoints every second
-        if (currentTime - waypointTime > 1000){
-          error = sensorData(BUFF_MAX,'c'); //these might need to be taken out if the sensorData buffer is wrapping around from being called too frequently (wrap-around is broken)
-          error = sensorData(BUFF_MAX,'w');
-          windDirn = getWindDirn(); //find the wind direction so we can set out waypoints downwind from it
-          if (!between(waypointWindDirn, windDirn + WIND_CHANGE_THRESHOLD, windDirn - WIND_CHANGE_THRESHOLD)){ //the present wind direction has changed from the previous waypoint setup
-            fillStationKeepingWaypoints(centreLatMin, centreLonMin, windDirn);//set global station keeping waypoints  
-            waypointWindDirn = windDirn;
-          }
-          waypointTime = currentTime;
-        }        
+        currentTime = millis(); //get the Arduino clock time      
         
         elapsedTime = currentTime - startTime;//calculate elapsed miliseconds since the start of the 5 minute loop
-        if(elapsedTime > 300000) // (5min) * (60s/min) * (1000ms/s)
+        if(elapsedTime > 300000){ // (5min) * (60s/min) * (1000ms/s)
           timesUp = true;
         
-        distanceToWaypoint = GPSdistance(boatLocation, staypoint);//returns in meters
+        distanceToWaypoint = GPSdistance(boatLocation, stayPoint);//returns in meters
       } //end go to waypoint
-      
-      waypoint++;
-      if (waypoint ==5)       
-          waypoint = 0;
-
-   //   turnToWaypoint(); //gybe    
-          
-  } while(!timesUp); //loop the whole go to waypoint, check sensors and go to next waypoint until the time is up
-  
-  //leave square; can either calculate the closest place to leave, or just head downwind as we do here:
-  while (1)
-  {
-    error = sensorData(BUFF_MAX,'c'); //these might need to be taken out if the sensorData buffer is wrapping around from being called too frequently (wrap-around is broken)
-    error = sensorData(BUFF_MAX,'w');
-      
-    windDirn = getWindDirn();
-    error = sail(windDirn+180); //sail based on compass only in downwind direction
-    delay(100);//give rudder time to adjust? this might not be necessary
-    error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
-    delay(100); //poolu crashes without this delay; maybe one command gets garbled with the next one?     
-  }    
-  return 0;
-}
-
+    if (distanceToWaypoint < MARK_DISTANCE){
+      stationCounter++;        //make global
+      if (stationCounter == 5)       
+          stationCounter = 0;
+    }    
+               //loop the whole go to waypoint, check sensors and go to next waypoint until the time is up
+    }
+   }
 //**Alternate sailcourse code by laz, works the same but does not use long loops for waypoint selection, less responsive but allows for menu usage while sailing
 //Instead of looping globals keep track of current waypoint, code updates that waypoint when reached and sets boat in the direction of the next one, this will be slightly less responsive as
 //the time between each adjustment will include checking the menu but it should still be fast enough. Needs to be tested and compared to existing sailcourse function. Original in sailcode5
 void sailCourse(){
   //sail the race course   
   //**declare things static so that they persist after each call, eliminate globals
-  int error; 
-  int distanceToWaypoint;//the boat's distance to the present waypoint
+  static int error; 
+  static int distanceToWaypoint;//the boat's distance to the present waypoint
       
   error = sensorData(BUFF_MAX,'c');  
   error = sensorData(BUFF_MAX,'w');     
@@ -802,8 +758,7 @@ Serial3.begin(4800);
  delay(10);          
   
   //initialize all counters/variables
-  
-  //current position from sensors
+    //current position from sensors
   boatLocation = clearPoints;    //sets initial location of the boat to 0;
   //Heading angle using wind sensor
   heading=0;//heading relative to true north
@@ -904,10 +859,11 @@ void loop()
   stationKeep();
   break;    
   case 2:
-  Serial.println("sailing to waypoint");
+  Serial.println("sailing course");
   sailCourse();
   break;
   case 4:
+  Serial.println("sail to Waypoint");
   sailToWaypoint(waypoints[point]);
   break;
         default:
@@ -915,6 +871,5 @@ void loop()
   delay(100);
  }
 }
-//delay(100);
 
 

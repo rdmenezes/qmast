@@ -74,16 +74,16 @@ int displayMenu()
 		Serial.println("c.     *Straight sail");
 		Serial.println("d.	Sail to waypoint");
 		Serial.println("e.	Tack");
-		Serial.println("f.	Get Wind Sensor Data");
-		Serial.println("g.      Get Compass Data");
+		Serial.println("f.	*Get Wind Sensor Data");
+		Serial.println("g.      *Get Compass Data");
                 Serial.println("h.      Get Speed Data");
                 Serial.println("i.     *Toggle RC");
 		Serial.println("j.     *Exit Menu");
                 Serial.println("k.      Stationkeeping");
-                Serial.println("l.      View Current waypoints");
-                Serial.println("m.      Clear all waypoints");
-                Serial.println("n.      Toggle Rudder direction");
-                Serial.println("o.      perform diagnostics");
+                Serial.println("l.     *View Current waypoints");
+                Serial.println("m.     *Clear all waypoints");
+                Serial.println("n.     *Toggle Rudder direction");
+                Serial.println("o.     *perform diagnostics");
                 Serial.println("z.     *Clear serial buffer");
 		Serial.println("");
 		Serial.println("Select option:");
@@ -334,12 +334,14 @@ int displayMenu()
 				//call sailside function
 				case 'd':
 					Serial.println("Selected Sail To Waypoint. Please choose a waypoint.");	
+                                        
                                         hasPoint = false;
                                         while(hasPoint == false){
-                                          while(Serial.available() ==false);
-                                          point = Serial.read() - '0';                                          
+                                          while(Serial.available() == false);
+                                          point = Serial.read() - '0'; 
+                                          hasPoint = true;                                         
                                         }                                    
-                                        return 0;
+                                        return 4;
   					break;
 					
 					//call tack function
@@ -461,6 +463,8 @@ int displayMenu()
                                                 stationPoints[i] = waypoints[i];
                                                 stationPoints[i] = waypoints[i];
                                                 }
+                                                stationCounter = 2;
+                                                startTime = millis();//record the starting clock time
                                                 return 1;
                                         case 'l':
                                                 Serial.println("View Waypoints"); //shows all waypoints that have been entered
@@ -524,10 +528,10 @@ int displayMenu()
                                                 break;
                                         case 'o':
                                                 Serial.println("Performing Diagnostic and calibration tests");
-                                                Serial.println("Turning Rudder right");
+                                                Serial.println("Turning Rudder right 30");
                                                 setrudder(-30);
                                                 delay(1000);
-                                                Serial.println("Turning Rudder left");
+                                                Serial.println("Turning Rudder left 30");
                                                 setrudder(30);
                                                 delay(1000);
                                                 Serial.println("Centering rudder");
@@ -535,21 +539,28 @@ int displayMenu()
                                                 delay(1000);
                                                 Serial.println("Setting Jib all out");
                                                 setJib(30);
-                                                delay(3000);
+                                                delay(7000);
                                                 Serial.println("Setting Jib all in");
                                                 setJib(-30);
-                                                delay(3000);
+                                                delay(7000);
                                                 Serial.println("Setting main all out");
                                                 setMain(30);
-                                                delay(3000);
-                                                Serial.println("Setting main all in"); 
-                                                delay(3000);
+                                                delay(5000);
+                                                Serial.println("Setting main all in");
+                                                setMain(-30); 
+                                                delay(5000);
                                                 Serial.println("Setting both all out");
                                                 setSails(30);
-                                                delay(3000);
+                                                delay(7000);
                                                 Serial.println("Setting both all in");
                                                 setSails(-30);
-                                                delay(3000);
+                                                delay(7000);
+                                              //  myservo.writeMicroseconds(2100);
+                                              // delay(7000);
+                                                myservo.write(0); 
+                                                delay(5000);
+                                                myservo.write(180);
+                                                delay(5000);
                                                 Serial.println("testing compass");
                                                    compassData = sensorData(BUFF_MAX,'c');        						
                                                 if(compassData == false){
