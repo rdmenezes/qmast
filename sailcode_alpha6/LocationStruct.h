@@ -17,9 +17,10 @@ points waypoints[10] ={        //optional preset values for registers
   
 points stationPoints[4];      //possible additional structures for stationkeeping and 
                               //course plotting
+points floatingStationPoints[4];  //plot for points within the stationkeeping square                              
 points coursePoints[10];  
 
 points clearPoints = {        //generic empty struct, use for clearing other structs
   0,0,0,0};
 
-points boatLocation;        //future use for boat the boats current location, 
+points boatLocation;        // boats current location, 
