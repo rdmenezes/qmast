@@ -263,15 +263,15 @@ double GPSdistance(struct points location1, struct points location2){
 int getWaypointDirn(struct points waypoint){
 // computes the compass heading to the waypoint based on the latest known position of the boat and the present waypoint, both in global variables
 // first converting minutes to meters
-  int waypointHeading;//the heading to the waypoint from where we are
+  float waypointHeading;//the heading to the waypoint from where we are
   float deltaX, deltaY; //the difference between the boats location and the waypoint in x and y
+  int integerHeading;
   
   // there are (approximately) 1855 meters in a minute of latitude; this isn't true for longitude, as it depends on the latitude
   //there are approximately 1314 m in a minute of longitude at 45 degrees north; this difference will mean that if we just use deltax over deltay in minutes to find an angle it will be wrong
 
   deltaX = (waypoint.latDeg - boatLocation.latDeg)*DEGREE_TO_MINUTE + (waypoint.latMin - boatLocation.latMin); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
-  deltaY = (waypoint.lonDeg - boatLocation.lonMin)*DEGREE_TO_MINUTE + (waypoint.lonMin - boatLocation.lonMin); //y is the east/west coordinate, + in the east direction
-   
+  deltaY = (waypoint.lonDeg - boatLocation.lonDeg)*DEGREE_TO_MINUTE + (waypoint.lonMin - boatLocation.lonMin); //y is the east/west coordinate, + in the east direction  
   waypointHeading = radiansToDegrees(atan2(deltaY*LONGITUDE_TO_METER, deltaX*LATITUDE_TO_METER)); // atan2 returns -pi to pi, taking account of which variables are positive to put in proper quadrant 
         
   //normalize direction
@@ -279,8 +279,8 @@ int getWaypointDirn(struct points waypoint){
     waypointHeading += 360;
   else if (waypointHeading > 360)
     waypointHeading -= 360;
-    
-  return waypointHeading;
+    integerHeading = waypointHeading;
+  return integerHeading;
 }
 
 int getCloseHauledDirn(){
@@ -871,5 +871,6 @@ void loop()
   delay(100);
  }
 }
+
 
 

@@ -10,7 +10,7 @@ struct points{
  //struct for holding course waypoints 
  
 points waypoints[10] ={        //optional preset values for registers
-  {44.0,13.6927,-76.0,29.5175}, 
+  {44.0,13.6927,-76.0,-29.5175},       //note both degrees and minutes must have the right sign in order for manipulation of gps data to work
   {0,0,0,0}, 
   {0,0,0,0}};
   //initialization of struct, put default coordinates here

@@ -55,6 +55,8 @@ int displayMenu()
         int negateY = 1;
 	float temp;
         boolean validData;
+        
+        char gpsData;
 	
 	//GAELFORCE!
 		
@@ -84,6 +86,7 @@ int displayMenu()
                 Serial.println("m.     *Clear all waypoints");
                 Serial.println("n.     *Toggle Rudder direction");
                 Serial.println("o.     *perform diagnostics");
+                Serial.println("p.      get gps coordinate");
                 Serial.println("z.     *Clear serial buffer");
 		Serial.println("");
 		Serial.println("Select option:");
@@ -180,6 +183,7 @@ int displayMenu()
                                     hasX = true;
                                     Serial.println(waypoints[coornum].latDeg,0);
                                     Serial.println(waypoints[coornum].latMin,4);
+                                    waypoints[coornum].latMin *= negateX;
                                   }                                                                 
                                 
                                 }
@@ -211,8 +215,7 @@ int displayMenu()
                                        while(Serial.available() == 0);    //wait until serial data is available
                                       gpsDigit = Serial.read() - '0';
                                       if(gpsDigit >=0){
-                                      waypoints[coornum].lonMin =  waypoints[coornum].lonMin + (gpsDigit*pow(10,power));
-                                            
+                                      waypoints[coornum].lonMin =  waypoints[coornum].lonMin + (gpsDigit*pow(10,power));                                         
                                       Serial.println(power);
                                       Serial.println(gpsDigit*pow(10,power));
                                       power--;                
@@ -233,6 +236,7 @@ int displayMenu()
                                     hasY = true;
                                     Serial.println(waypoints[coornum].lonDeg,0);
                                     Serial.println(waypoints[coornum].lonMin,4);
+                                    waypoints[coornum].lonMin *= negateY; 
                                   }                                                                 
                                 
                                 }
@@ -371,10 +375,8 @@ int displayMenu()
                                                   Serial.print("  Wind Angle:  ");
                                                   Serial.println(wind_angl);
                                                   Serial.print("  Wind Velocity (knots):   ");
-                                                  Serial.println(wind_velocity);
-                                                  
+                                                  Serial.println(wind_velocity);                                                  
                                                 }
-
 						break;
 						//exits the menu
 					case 'g':
@@ -388,8 +390,7 @@ int displayMenu()
                                                   Serial.print("  Pitch:   ");
                                                   Serial.println(pitch);
                                                   Serial.print("  Roll   ");
-                                                  Serial.println(roll);
-                                                  
+                                                  Serial.println(roll);                                                  
                                                 }
                                                 else{
                                                   Serial.println("Error fetching compass data");
@@ -399,8 +400,7 @@ int displayMenu()
 						break;
 
                                         case 'h':
-						Serial.println("Selected Speed");
-        						                         
+						Serial.println("Selected Speed");        						                         
                                                   Serial.println("Speed Data: ");
                                                   Serial.print("  Boat's speed (km/h):  ");
                                                   Serial.println(bspeed);
@@ -542,25 +542,13 @@ int displayMenu()
                                                 delay(7000);
                                                 Serial.println("Setting Jib all in");
                                                 setJib(-30);
-                                                delay(7000);
+                                                delay(7000);                                           
                                                 Serial.println("Setting main all out");
-                                                setMain(30);
-                                                delay(5000);
-                                                Serial.println("Setting main all in");
-                                                setMain(-30); 
-                                                delay(5000);
-                                                Serial.println("Setting both all out");
-                                                setSails(30);
-                                                delay(7000);
-                                                Serial.println("Setting both all in");
-                                                setSails(-30);
-                                                delay(7000);
-                                              //  myservo.writeMicroseconds(2100);
-                                              // delay(7000);
-                                                myservo.write(0); 
-                                                delay(5000);
-                                                myservo.write(180);
-                                                delay(5000);
+                                                setMain(30);       
+                                                delay(5000);                                        
+                                                Serial.println("Setting main all out");
+                                                setMain(-30);
+                                                delay(5000);                                               
                                                 Serial.println("testing compass");
                                                    compassData = sensorData(BUFF_MAX,'c');        						
                                                 if(compassData == false){
@@ -585,7 +573,47 @@ int displayMenu()
                                                   Serial.println(wind_velocity);                                                  
                                                 }
                                                 Serial.println("testing complete");
-
+                                                break;
+                                        case 'p':  //returns your current position
+                                                Serial3.flush();
+                                                delay(200);
+                                                windData = sensorData(BUFF_MAX,'w');
+                                                delay(100);
+                                                Serial.print(boatLocation.latDeg,0);
+                                                Serial.print(boatLocation.latMin,4);
+                                                Serial.print(" ");
+                                                Serial.print(boatLocation.lonDeg,0);
+                                                Serial.println(boatLocation.lonMin,4);
+                                                Serial.println("");
+                                                hasVal = false;
+                                                Serial.println("Would you like to save point? (y/n)");
+                                                while(hasVal == false){
+                                                if(Serial.available() > 0){
+                                                select = Serial.read();
+                                                if(select == 'y'){                                                
+                                                Serial.println("enter a number for the point"); 
+                                                gpsData = false;
+                                                while(gpsData == false){                                              
+                                                       while(Serial.available() == false);
+                                                       pointNum = Serial.read()-'0';
+                                                       waypoints[pointNum] = boatLocation;
+                                                       Serial.println("added waypoint");
+                                                       Serial.println(pointNum);
+                                                       gpsData = true;
+                                                       hasVal = true;
+                                                   }
+                                                }
+                                                else if(select == 'n'){
+                                                  Serial.println("no changes made");
+                                                  hasVal = true;
+                                                  break;
+                                                  }  
+                                                else{ 
+                                                  Serial.println("invalid input");
+                                                     }
+                                                  }
+                                                }                                                
+                                                break;
                                         case 'z': //If you press z it clears the serial buffer
                                                 Serial.flush();
                                                 Serial.println("Serial Buffer Cleared");
