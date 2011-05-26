@@ -130,7 +130,7 @@ int sensorData(int bufferLength, char device)
              // Serial.println(array[0]); //print first character (should be $)
               array[j+1] = '\0';//append the end of string character
               digitalWrite(twoCommasLED,LOW);//turn off error indicator LED to warn about old data
-    //          Serial.println("Good string, about to parse");
+              Serial.println("Good string, about to parse");    
               error = Parser(array); //checksum was successful, so parse              
               //delay(500);  //trying to add a delay to account for the fact that the code works when print out all the elements of the array, but not when you don't. Seems sketchy.
              } else {
@@ -290,7 +290,7 @@ void connectSensors(){
 }
 
 
-int Wind() 
+int getGpsData() 
 {	//fill in code to get data from the serial port if availabile
 //wind connects to serial1
 //replace this with finished compass code

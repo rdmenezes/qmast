@@ -37,7 +37,7 @@ void ParseGPGLL(char *GPGLL_string, double *degree, double *minute){
     // this should work for 3 digit degrees though (ie dddmm.mmmm -> ddd and mm.mmmm)
     *minute = 100*modf(lowPrecisionGPS / 100.0, degree); //processes ddmm.mm into dd (latDegrees) and mm.mm (latMinutes), low precision minute
     //degree stores the integer, minute the fractional part (with low accuracy, ie mm.mm)      
-    
+    Serial.println(*minute);
   //now find high precision minutes
   
     //find the precise decimal portion (ie the 0.mmmm part), store in fractionalMinute
@@ -51,16 +51,19 @@ void ParseGPGLL(char *GPGLL_string, double *degree, double *minute){
     
     //now there should be 4 decimal points, and 2 integers; this should fit in a float
     smallFraction = atof(smallFractionString);
+    Serial.println(smallFraction);
 
     //drop the integer part (m.mmmm -> m and 0.mmmm), save the high precision fraction
     fractionalMinute = modf(smallFraction, &temp); //0.mmmm
+    Serial.println(fractionalMinute);
 
 
     //drop the fraction from the low precision minute variable, save the integer part
     temp = modf(*minute, &intMinute);//drop the decimal part, we already have it; save the integer part into intMinute
     
     //combine the fraction and integer parts to get a high precision minute variable
-    *minute = intMinute + fractionalMinute;//combine the decimal and integer halfs of the minutes into one number        
+    *minute = intMinute + fractionalMinute;//combine the decimal and integer halfs of the minutes into one number    
+    *minute = *minute;    
 }
 
 int Parser(char *val) 
@@ -72,7 +75,6 @@ int Parser(char *val)
 // presently, the changes to global variables are not conducive to a moving average; they CAN be used for an average, which could perhaps go into a moving average
 
 // This parser breaks when there are blanks in the data ie $PTNTHTM,,N,-2.4,N,10.7,N,59.1,3844*27
-
 
   char *str; //dummy string to absorb the type of data, as %5s, value not used; I guess strtok automatically calls realloc?
   char cp[100]; //temporary array for parsing, a copy of val
@@ -122,16 +124,14 @@ int Parser(char *val)
   }
   else { Serial.println("Datavalid fail"); digitalWrite(twoCommasLED, HIGH); return 1; } // if data isnt valid, dont try to parse it and throw error code
 
- // Serial.println(val);//echo what we're about to parse
+  Serial.println(val);//echo what we're about to parse
 
   strcpy(cp, val); //make a backup copy of the data to parse; if not copied val gets corrupted when tokenized
   str = strtok(cp, ","); //find location of first ',', and copy everything before it into str1; returns a pointer to a character array. this will be the type of command, should return $xxxxx identifier
-
- // Serial.print("command portion from cp strtok is: ");
- // Serial.println(str);
+ Serial.print("command portion from cp strtok is: ");
+ Serial.println(str);
   
   //now we know what type of command we're dealing with and can parse it - wooooo
-  
   
   //GPS String
   if (strcmp(str, "$GPGLL") == 0) 

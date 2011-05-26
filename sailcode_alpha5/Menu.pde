@@ -79,6 +79,7 @@ int displayMenu()
                 Serial.println("l.      View Current waypoints");
                 Serial.println("m.      Clear all waypoints");
                 Serial.println("n.      Toggle Rudder direction");
+                
                 Serial.println("z.     *Clear serial buffer");
 		Serial.println("");
 		Serial.println("Select option:");

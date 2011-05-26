@@ -951,9 +951,9 @@ void setup()
 //  RESET_TIMER2;
 //  sei();
 //         
-// Serial2.begin(19200);
-// //Serial2.begin(9600);
-//Serial3.begin(4800);
+ Serial2.begin(19200);
+ //Serial2.begin(9600);
+Serial3.begin(4800);
 
 //for pololu
         pinMode(txPin, OUTPUT);
@@ -1309,12 +1309,16 @@ void loop()
 //setSails(-15);
 //
 //delay(2000);
-Serial.println("did I move?");  //nope
-servo_command(1, 100, 0);
+//Serial.println("did I move?");  //nope
+//servo_command(1, 100, 0);
+//delay(1000);
+//servo_command(1, 150, 0);
+//delay(1000);
+Serial.println(longitudeDeg);
+Serial.println(longitudeMin);
 delay(1000);
-servo_command(1, 150, 0);
-delay(1000);
-
+Serial3.flush();
+sensorData(BUFF_MAX,'w');
 //error-checking navigation code:  
 
 //  //set present latitude and longitude to the middle tree
