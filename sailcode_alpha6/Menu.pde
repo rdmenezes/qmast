@@ -375,7 +375,9 @@ int displayMenu()
                                                   Serial.print("  Wind Angle:  ");
                                                   Serial.println(wind_angl);
                                                   Serial.print("  Wind Velocity (knots):   ");
-                                                  Serial.println(wind_velocity);                                                  
+                                                  Serial.println(wind_velocity);  
+                                                  Serial.println("TEMPORARY wind sensor heading");
+                                                  Serial.println(heading);                                               
                                                 }
 						break;
 						//exits the menu
@@ -412,6 +414,7 @@ int displayMenu()
                                         case 'i':
                                             Serial.println("Selected Toggle RC");
                                             Serial.println("Enter desired RUDDER control value (1 for RC, 0 for autonomous)");
+                                            hasRudderRCvalue = false; 
                                             while (!hasRudderRCvalue) {
                                               if(Serial.available())
                                               {
@@ -576,7 +579,7 @@ int displayMenu()
                                                 break;
                                         case 'p':  //returns your current position
                                                 Serial3.flush();
-                                                delay(200);
+                                                delay(1100);
                                                 windData = sensorData(BUFF_MAX,'w');
                                                 delay(100);
                                                 Serial.print(boatLocation.latDeg,0);

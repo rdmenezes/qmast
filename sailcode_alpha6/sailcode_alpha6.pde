@@ -79,7 +79,7 @@
 #define goodCompassDataLED 53 // indicates that strtok returned PTNTHTM, so we probably got good data
 
 //MUX pins
-#define RCsteeringSelect 12 //control pin for RC vs autonomous steering
+#define RCsteeringSelect 11 //control pin for RC vs autonomous steering
 #define RCsailsSelect 13 //control pin for RC vs autonomous sails
 
 //for serial data aquisition
@@ -292,11 +292,17 @@ int getCloseHauledDirn(){
   windHeading = getWindDirn(); //compass bearing for the wind
 
   //determine which tack we're on 
-  if (wind_angl_newest > 180) //wind from left side of boat first
+  if (wind_angl_newest > 180){ //wind from left side of boat first
     desiredDirection = windHeading + TACKING_ANGLE; //bear off to the right
-  else 
-    desiredDirection = windHeading - TACKING_ANGLE; //bear off to the left
-  
+  }
+    else
+    desiredDirection = windHeading - TACKING_ANGLE; //bear off to the left  
+    if (desiredDirection < 0){
+      desiredDirection = -desiredDirection;
+    }
+    if(desiredDirection > 360){
+     desiredDirection = desiredDirection + (-desiredDirection +360);  
+    }
   return desiredDirection;
 }
 
@@ -343,7 +349,7 @@ void relayData(){//sends data to shore
 //int stayInDownwindCorridor(int corridorHalfWidth, struct points waypoint){
 ////calculate whether we're still inside the downwind corridor of the mark; if not, tacks if necessary
 //// corridorHalfWidth is in meters
-//no longer used as most functionaity has been moved into checktack, here for refereance
+//no longer used as most functionaity has been moved into checktack, here for reference
 //  
 //  int theta;
 //  float distance, hypotenuse;
@@ -542,7 +548,7 @@ int sail(int waypointDirn){
   
   //This function replaces straightsail which originally only controlled rudder
   
-  
+  int i;
   /* old description of Straightsail (deprecated)
          //this should be the generic straight sailing function; getWaypointDirn should return a desired compass direction, 
          //taking into account wind direction (not necc just the wayoint dirn); (or make another function to do this)
@@ -553,8 +559,16 @@ int sail(int waypointDirn){
   int directionError = 0;
   int angle = 0; 
   int windDirn;
+//  int j;
+//  static int i;
+//  static int[5] previousError;    //for averaging errors to give smoother rudder control
   //int waypointDirection;
-   
+//  if(i == 4){
+//     i = 0;
+//  }
+//  else{
+//  i++;
+//  } 
   windDirn = getWindDirn(); 
   error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
     if (error){
@@ -574,9 +588,15 @@ int sail(int waypointDirn){
     else{
     directionError = waypointDirn - heading_newest;//the roller-skate-boat turns opposite to it's angle
     }
+
     if (directionError < 0)
       directionError += 360;
-      
+      //    previousError[i] = directionError;    //code for averaging errors, 
+//    directionError = 0;
+//    for(j = 0; j < 5; j++){
+//     directionError += prevousError[i];
+//    }
+//    directionError /= 5;
     if  (directionError > 10 && directionError < 350) { //rudder deadzone to avoid constant adjustments and oscillating, only change the rudder if there's a big error
         if (directionError > 180) //turn left, so send a negative to setrudder function
           setrudder((directionError-360)/4);  //adjust rudder proportional; setrudder accepts -45 to +45
@@ -658,8 +678,8 @@ void RC(int steering, int sails)
     digitalWrite(RCsteeringSelect, LOW);
   }
   
-    //Serial.print("Set rudder control to value: ");
-   // Serial.println(steering);
+    Serial.print("Set rudder control to value: ");
+    Serial.println(steering);
     
   if (sails){
     digitalWrite(RCsailsSelect, HIGH);
@@ -668,8 +688,8 @@ void RC(int steering, int sails)
     digitalWrite(RCsailsSelect, LOW);
   }
   
-   // Serial.print("Set sails control to value: ");
-    //Serial.println(sails);
+    Serial.print("Set sails control to value: ");
+    Serial.println(sails);
  
   delayMicroseconds(100); //0.1ms delay to allow select signals time to propogate and settle (this is maybe overkill?)
 }
@@ -718,7 +738,6 @@ void setup()
         pinMode(resetPin, OUTPUT);
                             
         servo_ser.begin(2400);
-
         delay(2000);
         //next NEED to explicitly reset the Pololu board using a separate pin
         //else it times out and reports baud rate is too slow (red LED)
@@ -835,7 +854,7 @@ void loop()
   int GPSerrors = 0;
   int compassErrors = 0;
 
-  delay(100);//setup delay, avoid spamming the serial port
+  //delay(1000);//setup delay, avoid spamming the serial port
    
  //  connectSensors(); //waits for sensors to be connected; this isnt working, re-test
 
