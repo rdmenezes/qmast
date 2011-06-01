@@ -241,4 +241,20 @@
 //  distanceOutsideCorridor = stayInDownwindCorridor(10);
 //  Serial.print("Corridor distance: ");
 //  Serial.println(distanceOutsideCorridor);    
-    
+//  int windData;
+//       if(windData == false){
+//                                                  Serial.println("Wind Sensor Data: ");
+//                                                  Serial.print("  Wind Angle:  ");
+//                                                  Serial.println(wind_angl);
+//                                                  Serial.print("  Wind Velocity (knots):   ");
+//                                                  Serial.println(wind_velocity);  
+//                                                  Serial.println("TEMPORARY wind sensor heading");
+//                                                  Serial.println(heading);                                               
+//                                                }
+//  Serial.println("Selected Wind");
+//	windData = sensorData(BUFF_MAX,'w');
+//        error = getCloseHauledDirn();
+//        Serial.println("Testing closehaul");
+//        Serial.println(error);
+//        delay(1000);
+//    

@@ -62,8 +62,7 @@ void ParseGPGLL(char *GPGLL_string, double *degree, double *minute){
     temp = modf(*minute, &intMinute);//drop the decimal part, we already have it; save the integer part into intMinute
     
     //combine the fraction and integer parts to get a high precision minute variable
-    *minute = intMinute + fractionalMinute;//combine the decimal and integer halfs of the minutes into one number    
-    *minute = *minute;    
+    *minute = intMinute + fractionalMinute;//combine the decimal and integer halfs of the minutes into one number     
 }
 
 int Parser(char *val) 
@@ -124,12 +123,12 @@ int Parser(char *val)
   }
   else { Serial.println("Datavalid fail"); digitalWrite(twoCommasLED, HIGH); return 1; } // if data isnt valid, dont try to parse it and throw error code
 
-  Serial.println(val);//echo what we're about to parse
+  //Serial.println(val);//echo what we're about to parse
 
   strcpy(cp, val); //make a backup copy of the data to parse; if not copied val gets corrupted when tokenized
   str = strtok(cp, ","); //find location of first ',', and copy everything before it into str1; returns a pointer to a character array. this will be the type of command, should return $xxxxx identifier
- Serial.print("command portion from cp strtok is: ");
- Serial.println(str);
+// Serial.print("command portion from cp strtok is: ");
+ //Serial.println(str);
   
   //now we know what type of command we're dealing with and can parse it - wooooo
   
@@ -223,9 +222,10 @@ int Parser(char *val)
 
     //wind_ref for the PB100 is always R? (relative to boat)
     //speed unit for the PB100 is always N? (knots)
+//    if(wind_ang != 270.0){
     wind_angl = wind_ang; //cb! dont we want a moving average?
+//    }
     wind_velocity = wind_vel;
-    
     wind_angl_newest = wind_ang; //for testing purposes, save the newest wind angle
   }
 
