@@ -57,7 +57,13 @@ int displayMenu()
         boolean validData;
         
         char gpsData;
-	
+        
+        //rc mode values
+        
+       boolean hasQ;
+       int rudderVal;
+       int sailsVal;
+       char rcVal; 
 	//GAELFORCE!
 		
 	
@@ -87,6 +93,7 @@ int displayMenu()
                 Serial.println("n.     *Toggle Rudder direction");
                 Serial.println("o.     *perform diagnostics");
                 Serial.println("p.      get gps coordinate");
+                Serial.println("r.      super Zigbee RC mode");
                 Serial.println("z.     *Clear serial buffer");
 		Serial.println("");
 		Serial.println("Select option:");
@@ -434,6 +441,7 @@ int displayMenu()
                                               
                                             }//end rudder rc value
                                             Serial.println("Enter desired SAILS control value (1 for RC, 0 for autonomous)");
+                                            hasSailsRCvalue = false;
                                             while (!hasSailsRCvalue) {
                                                if(Serial.available())
                                               {
@@ -616,6 +624,47 @@ int displayMenu()
                                                      }
                                                   }
                                                 }                                                
+                                                break;
+                                                
+                                        case 'r':  //Direct rudder and sail control
+                                                Serial.println("RC mode, use a/d for rudder control, w/s for sails");
+                                                Serial.println(" 'q' exist back to menu");
+                                                hasQ = false;
+                                                sailsVal = 0;
+                                                rudderVal = 0;
+                                                while (hasQ == false){
+                                                  while(Serial.available() == false);
+                                                  rcVal = Serial.read();
+                                                      switch(rcVal)
+                                                      {  //the input char sailDirection
+                                                        case 'a':
+                                                          rudderVal++;
+                                                          Serial.print("rudder Set to : ");
+                                                          Serial.println(rudderVal);
+                                                        break;
+                                                        case 'd':
+                                                          rudderVal--;
+                                                          Serial.print("rudder Set to : ");
+                                                          Serial.println(rudderVal);
+                                                        break;
+                                                        case 'w':
+                                                          sailsVal++;
+                                                          Serial.print("Sails Set to : ");
+                                                          Serial.println(sailsVal);
+                                                        break;
+                                                        case 's':
+                                                          sailsVal--;
+                                                          Serial.print("Sails Set to : ");
+                                                          Serial.println(sailsVal);
+                                                        break;
+                                                        case 'q':
+                                                          hasQ = true;
+                                                          Serial.println("exiting RC mode");
+                                                        break;
+                                                      }
+                                                      setrudder(rudderVal);
+                                                      setSails(sailsVal);
+                                                } 
                                                 break;
                                         case 'z': //If you press z it clears the serial buffer
                                                 Serial.flush();

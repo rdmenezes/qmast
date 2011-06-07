@@ -25,7 +25,7 @@ void setrudder(float ang)
 {
 //fill this in with the code to interface with pololu 
 
-  int servo_num = 1;
+  int servo_num = 2;
   int pos; //position ("position" was highlighted as a special name?)
   
  // Serial.println("Controlling motors");
@@ -43,8 +43,8 @@ void setSails(float ang)
 //this could make more sense conceptually for sails if it mapped 0 to 90 rather than -45 to +45
 // presently the working range on the smartwinch (april 3) only respoings to -30 to +30 angles
 {
-  int servo_num = 2;
-  int servo_num2 = 0;    //to be second servo for jib
+  int servo_num = 3;
+  int servo_num2 = 1;    //to be second servo for jib
   int pos; //position ("position" was highlighted as a special name?)
  // Serial.println("Controlling motors");
  int posjib; //jib position
@@ -62,7 +62,7 @@ void setJib(float ang)
 //yet to be implemented code for 3rd servo
 //currently using setsails to call both main and jib servos
 {
-  int servo_num = 0;
+  int servo_num = 3;
   int pos;
   constrain(ang,-45,45);
 
