@@ -94,6 +94,7 @@ int displayMenu()
                 Serial.println("o.     *perform diagnostics");
                 Serial.println("p.      get gps coordinate");
                 Serial.println("r.      super Zigbee RC mode");
+                Serial.println("s.      keyboard Zigbee RC mode");
                 Serial.println("z.     *Clear serial buffer");
 		Serial.println("");
 		Serial.println("Select option:");
@@ -627,6 +628,62 @@ int displayMenu()
                                                 break;
                                                 
                                         case 'r':  //Direct rudder and sail control
+                                        
+                                                Serial.println("RC mode, receives inputs from other arduino and hacked old transmitter");
+                                                Serial.println(" 'q' exits back to menu, you might need to press it up to 3 times.");
+                                                hasQ = false;
+                                                sailsVal = 0;
+                                                rudderVal = 0;
+                                                char temprudder;
+                                                char tempsails;
+                                                while (hasQ == false){
+                                                  while(Serial.available() == false);
+                                                  rcVal = Serial.read();
+                                                      switch(rcVal)
+                                                      {  
+                                                        case '1'://rudder values are from 120 to 180, ignore the 1 then subtract 50 to get actual -30 to 30 value
+                                                          while(!Serial.available());
+                                                          rudderVal = Serial.read() - '0';
+                                                          while(!Serial.available());
+                                                          rudderVal = rudderVal*10 + Serial.read() - '0';
+                                                          rudderVal -= 50;
+                                                          Serial.print("rudder set to : ");
+                                                          Serial.println(rudderVal);
+                                                          setrudder(rudderVal);
+                                                        break;
+                                                        case '2'://sails values are from 220 to 280, ignore the 2 then subtract 50 to get actual -30 to 30 value
+                                                          while(!Serial.available());
+                                                           sailsVal = Serial.read() - '0';
+                                                          while(!Serial.available());
+                                                          sailsVal = sailsVal*10 + Serial.read() - '0';
+                                                          sailsVal -= 50;
+                                                          Serial.print("Sails set to : ");
+                                                          Serial.println(sailsVal);
+                                                          setSails(sailsVal);
+                                                        break;
+                                                       
+                                                        case 'q':
+                                                          hasQ = true;
+                                                          Serial.println("exiting RC mode");
+                                                        break;
+                                                      }
+                                                      
+                                                      
+                                                } 
+                                                break;
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        case 's':
                                                 Serial.println("RC mode, use a/d for rudder control, w/s for sails");
                                                 Serial.println(" 'q' exist back to menu");
                                                 hasQ = false;
