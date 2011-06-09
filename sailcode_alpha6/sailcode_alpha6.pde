@@ -35,8 +35,8 @@
 //Constants
 #define INIT_TIMER_COUNT 0          //setup for timer interrupt
 #define RESET_TIMER2 TCNT2 = INIT_TIMER_COUNT
-#define MAIN_SERVO_RATE 1   //constants for porting to new boat
-#define JIB_SERVO_RATE 1
+#define MAIN_SERVO_RATE 0.6666   //constants for porting to new boat
+#define JIB_SERVO_RATE 0.6666
 #define RUDDER_SERVO_RATE 1
 //Boat parameter constants
 #define TACKING_ANGLE 30 //the highest angle we can point
