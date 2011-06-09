@@ -5,7 +5,7 @@ June 2011
 Valerie and Laszlo  
 
 
-Rudder sends values from 125 to 175 (centered at 150), sails sends value from 225 to 275 (centered at 250). This is so that all values sent are 3 characters, and not negative.
+Rudder sends values from 120 to 180 (centered at 150), sails sends value from 225 to 275 (centered at 250). This is so that all values sent are 3 characters, and not negative.
 This is taken into account in super xbee RC mode in the actual menu code.
 
 */
@@ -46,7 +46,7 @@ void loop()
   Serial.println(normalized1);
   Serial.print(normalized2);
   
-  delay(500);
+  delay(100);
 }
 
 
@@ -56,7 +56,7 @@ int analogToRudder(int analog)
 {
   float temp;
   temp = analog - 512; //see comment
-  temp = temp/133.0 * 25; //normalize to -25 to 25 to get a 50 degree range that will be changed to 0-100 at the other end
+  temp = temp/133.0 * 30; //normalize to -25 to 25 to get a 50 degree range that will be changed to 0-100 at the other end
   
   temp += 150; //scale for transmission
   

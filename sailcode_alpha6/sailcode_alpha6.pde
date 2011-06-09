@@ -753,7 +753,7 @@ void setup()
 myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object 
 
  
- //Serial2.begin(9600);
+ Serial2.begin(19200);
 Serial3.begin(4800);
 // 
  //setup indicator LEDs       
