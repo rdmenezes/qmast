@@ -25,13 +25,13 @@ void setrudder(float ang)
 {
 //fill this in with the code to interface with pololu 
 
-  int servo_num = 2;
+  int servo_num = 1;
   int pos; //position ("position" was highlighted as a special name?)
   
  // Serial.println("Controlling motors");
   
 //check input, and change is appropriate
-constrain(ang,-45,45);
+constrain(ang,-30,30);
 
   pos = RUDDER_SERVO_RATE*(ang + 45) * rudderDir * 254.0 / 90.0;//convert from 180 degree range, -90 to +90 angle to a 0 to 256 maximum position range
 //  myservo.write((ang+90));
@@ -43,20 +43,10 @@ void setSails(float ang)
 //this could make more sense conceptually for sails if it mapped 0 to 90 rather than -45 to +45
 // presently the working range on the smartwinch (april 3) only respoings to -30 to +30 angles
 {
-  int servo_num = 3;
-  int servo_num2 = 1;    //to be second servo for jib
-  int pos; //position ("position" was highlighted as a special name?)
- // Serial.println("Controlling motors");
- int posjib; //jib position
-  
-//check input, and change is appropriate
-  constrain(ang,-45,45);
+  setJib(ang);
+  setMain(ang);
 
-  pos = MAIN_SERVO_RATE*(ang + 45) * 254.0 / 90.0;//convert from 180 (90?) degree range, -90 to +90 (-45 to +45?) angle to a 0 to 256 maximum position range
-  posjib = JIB_SERVO_RATE*(ang + 45) * 254.0 / 90.0;        //convert to proper jib position, modify after testing to match ain sail
-  servo_command(servo_num,pos,1); //0 tells it to only turn short range
-  delay(100);
-  servo_command(servo_num2,posjib,0);        //turn jib
+ 
 }
 void setJib(float ang)
 //yet to be implemented code for 3rd servo
@@ -64,9 +54,9 @@ void setJib(float ang)
 {
   int servo_num = 3;
   int pos;
-  constrain(ang,-45,45);
+  constrain(ang, 0,100);
 
-  pos = JIB_SERVO_RATE*(ang + 45) * 254.0/90.0;
+  pos = ang*110.0/100.0;
     servo_command(servo_num,pos,0); 
 }
 void setMain(float ang)
@@ -74,10 +64,10 @@ void setMain(float ang)
 {
   int servo_num = 2;
   int pos;
-  constrain(ang,-45,45);
+  constrain(ang,0,100);
   
-  pos = MAIN_SERVO_RATE* (ang + 45) * 254.0/90.0;
-  servo_command(servo_num,pos,1); 
+  pos = (ang + 50)*104.0/100.0;
+  servo_command(servo_num,pos,0); 
 }
 int pid(int err)
 //experimental code for a possible future pid control of rudder and sails

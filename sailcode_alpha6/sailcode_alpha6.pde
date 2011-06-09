@@ -748,7 +748,7 @@ void setup()
 //for arduino Servo library
 myservo.attach(servoPin);  // attaches the servo on pin 9 to the servo object 
 
-Serial2.begin(19200);
+ 
  //Serial2.begin(9600);
 Serial3.begin(4800);
 // 
