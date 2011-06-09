@@ -63,6 +63,9 @@
 #define NRUDDER 210  //Neutral position
 #define MAXSAIL 180 //Neutral position
 
+#define ALL_IN 0
+#define ALL_OUT 100
+
 //Pins
 //pololu pins
 #define resetPin 8 //Pololu reset (digital pin on arduino)
@@ -182,8 +185,8 @@ void tack(){
   int ironTime =0;
   while(tackComplete == false){      //tacks depending on the side the wind is aproaching from
     if(wind_angl < 180){
-      setMain(-30);
-      setJib(30);                    //sets main and jib to allows better turning
+      setMain(ALL_IN);
+      setJib(ALL_OUT);                    //sets main and jib to allows better turning
       setrudder(-30);                //rudder angle cannot be to steep, this would stall the boat, rather than turn it
       while(wind_angl < 180){
         delay(100);
@@ -193,20 +196,20 @@ void tack(){
           getOutofIrons();
           }
         }
-        setJib(-30);
-        setMain(30);
+        setJib(ALL_IN);
+        setMain(ALL_OUT);
       delay(1000);                        //delay to complete turning \
       newData = sensorData(BUFF_MAX, 'w');
       dirn = getCloseHauledDirn();
      sail(dirn);                //straighten out, sail closehauled
-     setSails(-30);
+     setSails(ALL_IN);
       if(wind_angl >180){            //exits when turned far enough
         tackComplete = 1;
         }  
       }
       else if(wind_angl > 180){        //mirror for other side
-      setMain(-30);
-      setJib(30);
+      setMain(ALL_IN);
+      setJib(ALL_OUT);
       setrudder(30);
       while(wind_angl > 180){
         delay(100);
@@ -215,12 +218,12 @@ void tack(){
           getOutofIrons();
           }
         }
-        setJib(-30);
-        setMain(30);
+        setJib(ALL_IN);
+        setMain(ALL_OUT);
       delay(1000);
       dirn = getCloseHauledDirn();
       sail(dirn);
-      setSails(-30);
+      setSails(ALL_IN);
       newData = sensorData(BUFF_MAX, 'w');
       if(wind_angl < 180){
         tackComplete = 1;
@@ -232,14 +235,14 @@ void tack(){
 //code to get out of irons if boat is stuck
 void getOutofIrons(){
   int dirn;
-  setMain(30);
-  setJib(-30);
+  setMain(ALL_OUT);
+  setJib(ALL_IN);
   setrudder(30);        //arbitrary might want to base on direction of travel
   while(wind_angl < TACKING_ANGLE && wind_angl > 360 -TACKING_ANGLE){
   dirn = sensorData(BUFF_MAX, 'w');
   delay(100);
   }
-  setSails(-30);
+  setSails(ALL_IN);
   setrudder(0);
   delay(1000); //some time to build up speed
 }
@@ -700,7 +703,7 @@ int sailControl(){
   int windAngle;
   
   if (abs(roll) > 30){ //if heeled over a lot
-   setSails(30); //set sails all the way out
+   setSails(ALL_OUT); //set sails all the way out
    return (1); //return 1 to indicate heel
   }
    
@@ -712,9 +715,10 @@ int sailControl(){
     windAngle = wind_angl_newest;
     
   if (windAngle > TACKING_ANGLE) //not in irons
-    setSails(windAngle*60/(180 - TACKING_ANGLE) - TACKING_ANGLE - TACKING_ANGLE*60/150);//scale the range of winds from 30->180 (150 degree range) onto -30 to +30 controls (60 degree range); -30 means all the way in
+    setSails( (windAngle-TACKING_ANGLE)*100/(180 - TACKING_ANGLE) );//scale the range of winds from 30->180 (150 degree range) onto 0 to 100 controls (60 degree range); 0 means all the way in
   else
-    setSails(-30);// set sails all the way in, in irons
+    setSails(ALL_IN);// set sails all the way in, in irons
+    //call get out of irons routine?
            
   return error;
 }
