@@ -646,8 +646,7 @@ int displayMenu()
                                                           rudderVal = Serial.read() - '0';
                                                           while(!Serial.available());
                                                           rudderVal = rudderVal*10 + Serial.read() - '0';
-                                                          rudderVal -= 25;
-                                                          rudderVal *= 2;
+                                                          rudderVal -= 50;
                                                           Serial.print("rudder set to : ");
                                                           Serial.println(rudderVal);
                                                           setrudder(rudderVal);
@@ -678,8 +677,9 @@ int displayMenu()
                                       
                                         
                                         case 's':
+                                        int rudcount;
                                                 Serial.println("RC mode, use a/d for rudder control, w/s for sails");
-                                                Serial.println(" 'q' exist back to menu");
+                                                Serial.println(" 'y' exist back to menu");
                                                 hasQ = false;
                                                 sailsVal = 0;
                                                 rudderVal = 0;
@@ -688,29 +688,37 @@ int displayMenu()
                                                   rcVal = Serial.read();
                                                       switch(rcVal)
                                                       {  //the input char sailDirection
+                                                        
                                                         case 'a':
+                                                          rudcount =0;
                                                           if(rudderVal < 30){
                                                           rudderVal += 2;
                                                           }
                                                           else{
                                                             rudderVal = 30;
                                                           }
+                                                   
                                                           Serial.print("rudder Set to : ");
                                                           Serial.println(rudderVal);
                                                         break;
-                                                        case 'd': 
+                                                        case 'd':
+                                                          rudcount = 0;
                                                           if(rudderVal > -30){
                                                             rudderVal -= 2;
                                                           }
                                                           else{
                                                             rudderVal = -30;
                                                           }
+                                                       
                                                           Serial.print("rudder Set to : ");
                                                           Serial.println(rudderVal);
                                                         break;
+                                                        case 's':
+                                                            rudderVal = 0;\
+                                                            break;
                                                         case 'w':                                           
                                                             if(sailsVal < 100){
-                                                             sailsVal += 2;
+                                                             sailsVal += 5;
                                                             }
                                                             else{
                                                               sailsVal = 100;
@@ -718,9 +726,29 @@ int displayMenu()
                                                           Serial.print("Sails Set to : ");
                                                           Serial.println(sailsVal);
                                                         break;
-                                                        case 's':
+                                                        case 'e':
                                                           if(sailsVal > 0){
-                                                             sailsVal -= 2;
+                                                             sailsVal -= 5;
+                                                            }
+                                                            else{
+                                                              sailsVal = 0;
+                                                            }
+                                                            Serial.print("Sails Set to : ");
+                                                          Serial.println(sailsVal);
+                                                        break;
+                                                         case 'q':                                           
+                                                            if(sailsVal < 100){
+                                                             sailsVal += 20;
+                                                            }
+                                                            else{
+                                                              sailsVal = 100;
+                                                            }
+                                                            Serial.print("Sails Set to : ");
+                                                          Serial.println(sailsVal);
+                                                         break;
+                                                         case 'r':
+                                                         if(sailsVal > 0){
+                                                             sailsVal -= 20;
                                                             }
                                                             else{
                                                               sailsVal = 0;
@@ -728,10 +756,14 @@ int displayMenu()
                                                           Serial.print("Sails Set to : ");
                                                           Serial.println(sailsVal);
                                                         break;
-                                                        case 'q':
+                                                        case 'y':
                                                           hasQ = true;
                                                           Serial.println("exiting RC mode");
                                                         break;
+                                                      }
+                                                      rudcount++;            //loop for resetting rudder to 0
+                                                      if(rudcount > 10){
+                                                       rudderVal = 0; 
                                                       }
                                                       setrudder(rudderVal);
                                                       setSails(sailsVal);
