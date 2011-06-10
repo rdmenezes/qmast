@@ -10,27 +10,28 @@ This is taken into account in super xbee RC mode in the actual menu code.
 
 */
 
-#define POT1 A0 //the one without the spring is to be used for sails since the exact middle value is much less relevant
-#define POT2 A1 //the one with the spring, to be used for rudder
+#define SAILSPIN A0 //the one without the spring is to be used for sails since the exact middle value is much less relevant
+#define RUDDERPIN A1 //the one with the spring, to be used for rudder
 
 void setup()
 {
-  pinMode(POT1, INPUT);
+  pinMode(SAILSPIN, INPUT);
+  pinMode(RUDDERPIN, INPUT);
   Serial.begin(9600);
   
 }
 
 void loop()
 {
-  int pot1val;
-  int pot2val;
-  int normalized1;
-  int normalized2;
-  pot1val = analogRead(POT1);
-  normalized1 = analogToSails(pot1val);
+  int rudderval;
+  int sailsval;
+  int normalizedrudder;
+  int normalizedsails;
+  sailsval = analogRead(SAILSPIN);
+  normalizedsails = analogToSails(sailsval);
   
-  pot2val = analogRead(POT2);
-  normalized2 = analogToRudder(pot2val);
+  rudderval = analogRead(RUDDERPIN);
+  normalizedrudder = analogToRudder(rudderval);
   
   //Serial.print("pot 1 val: ");
  // Serial.println(pot1val);
@@ -43,8 +44,8 @@ void loop()
 //  Serial.println(normalized2);
 //  Serial.println();
   
-  Serial.println(normalized1);
-  Serial.print(normalized2);
+  Serial.println(normalizedsails);
+  Serial.print(normalizedrudder);
   
   delay(100);
 }
