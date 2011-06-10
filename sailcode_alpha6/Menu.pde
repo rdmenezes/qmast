@@ -73,7 +73,7 @@ int displayMenu()
 	while(true)//stayInMenu == true)
 	{
 		//menu options
-		Serial.println("");
+		Serial.println("|");
 		Serial.println("___________________  MENU  ______________________");
 		Serial.println("");
 		Serial.println("");
@@ -96,7 +96,7 @@ int displayMenu()
                 Serial.println("r.      super Zigbee RC mode");
                 Serial.println("s.      keyboard Zigbee RC mode");
                 Serial.println("z.     *Clear serial buffer");
-		Serial.println("");
+		Serial.println("|");
 		Serial.println("Select option:");
 		
 		//clears values from previous menu selection
@@ -631,6 +631,7 @@ int displayMenu()
                                         
                                                 Serial.println("RC mode, receives inputs from other arduino and hacked old transmitter");
                                                 Serial.println(" 'q' exits back to menu, you might need to press it up to 3 times.");
+                                                Serial.println("~");
                                                 hasQ = false;
                                                 sailsVal = 0;
                                                 rudderVal = 0;
@@ -647,8 +648,8 @@ int displayMenu()
                                                           while(!Serial.available());
                                                           rudderVal = rudderVal*10 + Serial.read() - '0';
                                                           rudderVal -= 50;
-                                                          Serial.print("rudder set to : ");
-                                                          Serial.println(rudderVal);
+                                                       //   Serial.print("rudder set to : ");
+                                                       //   Serial.println(rudderVal);
                                                           setrudder(rudderVal);
                                                         break; 
                                                         case '2'://sails values are from 220 to 280, ignore the 2 then subtract 50 to get actual -30 to 30 value
@@ -658,8 +659,8 @@ int displayMenu()
                                                           sailsVal = sailsVal*10 + Serial.read() - '0';
                                                           sailsVal -= 25;
                                                           sailsVal *= 2; 
-                                                          Serial.print("Sails set to : ");
-                                                          Serial.println(sailsVal);
+                                                        //  Serial.print("Sails set to : ");
+                                                       //   Serial.println(sailsVal);
                                                           setSails(sailsVal);
                                                           
                                                         break;
@@ -667,6 +668,9 @@ int displayMenu()
                                                         case 'q':
                                                           hasQ = true;
                                                           Serial.println("exiting RC mode");
+                                                          delay(2000);
+                                                          Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
+                                                          Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
                                                         break;
                                                       }
                                                       
