@@ -54,7 +54,7 @@ void setJib(float ang)
 {
   int servo_num = 3;
   int pos;
-  constrain(ang, 0,100);
+  constrain(ang, 1,100);
 
   pos = ang*110.0/100.0;
     servo_command(servo_num,pos,0); 
@@ -64,7 +64,7 @@ void setMain(float ang)
 {
   int servo_num = 2;
   int pos;
-  constrain(ang,0,100);
+  constrain(ang,1,100);
   
   pos = (ang + 50)*104.0/100.0;
   servo_command(servo_num,pos,0); 
