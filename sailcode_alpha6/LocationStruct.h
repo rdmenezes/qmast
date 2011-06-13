@@ -24,3 +24,5 @@ points clearPoints = {        //generic empty struct, use for clearing other str
   0,0,0,0};
 
 points boatLocation;        // boats current location, 
+
+points stayPoint; //used in stationkeeping

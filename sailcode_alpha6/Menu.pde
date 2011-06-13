@@ -85,7 +85,7 @@ int displayMenu()
 		Serial.println("f.	*Get Wind Sensor Data");
 		Serial.println("g.      *Get Compass Data");
                 Serial.println("h.      Get Speed Data");
-                Serial.println("i.     *Toggle RC");
+                Serial.println("i.      Fleet Racing mode");
 		Serial.println("j.     *Exit Menu");
                 Serial.println("k.      Stationkeeping");
                 Serial.println("l.     *View Current waypoints");
@@ -95,6 +95,7 @@ int displayMenu()
                 Serial.println("p.      get gps coordinate");
                 Serial.println("r.      super Zigbee RC mode");
                 Serial.println("s.      keyboard Zigbee RC mode");
+                Serial.println("t.      Single point stationkeeping");
                 Serial.println("z.     *Clear serial buffer");
 		Serial.println("|");
 		Serial.println("Select option:");
@@ -280,7 +281,7 @@ int displayMenu()
                                     Serial.println(i);
                                     while(Serial.available() == false);
                                      pointNum = Serial.read();
-                                     coursePoints[i] = waypoints[i];
+                                     coursePoints[i] = waypoints[pointNum];
                                      Serial.println("added waypoint to course");
                                     }
                                   
@@ -420,49 +421,48 @@ int displayMenu()
 						break;
 					
                                         case 'i':
-                                            Serial.println("Selected Toggle RC");
-                                            Serial.println("Enter desired RUDDER control value (1 for RC, 0 for autonomous)");
-                                            hasRudderRCvalue = false; 
-                                            while (!hasRudderRCvalue) {
-                                              if(Serial.available())
-                                              {
-                                                rudderRCvalue = Serial.read() - '0';
-                                                if(rudderRCvalue == 0 || rudderRCvalue == 1)
-                                                {
-                                                 hasRudderRCvalue = true;
-                                                }
-                                                else
-                                                {
-                                                  Serial.print("read value: ");
-                                                  Serial.println(rudderRCvalue, DEC);
-                                                  Serial.println("Invalid value, please enter 0 or 1");
-                                                  
-                                                }
-                                              }
-                                              
-                                            }//end rudder rc value
-                                            Serial.println("Enter desired SAILS control value (1 for RC, 0 for autonomous)");
-                                            hasSailsRCvalue = false;
-                                            while (!hasSailsRCvalue) {
-                                               if(Serial.available())
-                                              {
-                                                sailsRCvalue = Serial.read() - '0';
-                                                if(sailsRCvalue == 0 || sailsRCvalue == 1)
-                                                {
-                                                  hasSailsRCvalue = true;
-                                                  
-                                                }
-                                                else
-                                                {
-                                                  Serial.println("Invalid value, please enter 0 or 1");
-                                                }
-                                              }
-                                              
-                                            }// end sails rc value
-                                            
-                                            RC(rudderRCvalue, sailsRCvalue);      
-           
-                                        break;
+                                            Serial.println("Selected Fleet Racing Mode (autonomous sails, RC rudder.");
+                                            Serial.println("Press q to return to menu.");
+
+                                       
+                                                Serial.println("~");
+                                                hasQ = false;
+                                                sailsVal = 0;
+                                                rudderVal = 0;
+                                       
+                                                while (hasQ == false){
+                                                  while(Serial.available() == false);
+                                                  rcVal = Serial.read();
+                                                      switch(rcVal)
+                                                      {  
+                                                        
+                                                        case '1'://rudder values are from 120 to 180, ignore the 1 then subtract 50 to get actual -30 to 30 value
+                                                          while(!Serial.available());
+                                                          rudderVal = Serial.read() - '0';
+                                                          while(!Serial.available());
+                                                          rudderVal = rudderVal*10 + Serial.read() - '0';
+                                                          rudderVal -= 50;
+                                                       //   Serial.print("rudder set to : ");
+                                                       //   Serial.println(rudderVal);
+                                                          setrudder(rudderVal);
+                                                        break; 
+                                                       
+                                                        case 'q':
+                                                          hasQ = true;
+                                                          Serial.println("exiting RC mode");
+                                                          delay(2000);
+                                                          Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
+                                                          Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
+                                                        break;
+                                                      }
+                                                 sailControl();     
+                                                 delay(100);    
+                                                      
+                                                } 
+                                                break;
+                                        
+                                      
+                                        
 					case 'j':
 						Serial.println("Exiting Menu");
                                                 return 0;
@@ -472,10 +472,10 @@ int displayMenu()
                                                 Serial.println("StationKeeping");   //stationkeeping menu item, currently untested
                                                 Serial.println("Using the first 4 coordinates as corners"); //cannot access menu when stationkeeping                                          
                                                 for(i = 0; i < 4; i++){                                                  
-                                                stationPoints[i] = waypoints[i];
-                                                stationPoints[i] = waypoints[i];
+                                                stationPoints[i] = waypoints[i];                                          
                                                 }
                                                 stationCounter = 2;
+                                                timesUp = false;
                                                 startTime = millis();//record the starting clock time
                                                 return 1;
                                         case 'l':
@@ -635,8 +635,6 @@ int displayMenu()
                                                 hasQ = false;
                                                 sailsVal = 0;
                                                 rudderVal = 0;
-                                                char temprudder;
-                                                char tempsails;
                                                 while (hasQ == false){
                                                   while(Serial.available() == false);
                                                   rcVal = Serial.read();
@@ -682,7 +680,7 @@ int displayMenu()
                                         
                                         case 's':
                                         int rudcount;
-                                                Serial.println("RC mode, use a/d for rudder control, w/s for sails");
+                                                Serial.println("RC mode, use a/d for rudder control with s to center, w/e for fine sails, q/r for coarse sails");
                                                 Serial.println(" 'y' exist back to menu");
                                                 hasQ = false;
                                                 sailsVal = 0;
@@ -773,6 +771,15 @@ int displayMenu()
                                                       setSails(sailsVal);
                                                 } 
                                                 break;
+                                        case 't': 
+                                                Serial.println("StationKeeping");   //stationkeeping menu item, currently untested
+                                                Serial.println("Using the first 4 coordinates as corners"); //cannot access menu when stationkeeping                                          
+                                                for(i = 0; i < 4; i++){                                                  
+                                                stationPoints[i] = waypoints[i];                                          
+                                                }                                                
+                                                timesUp = false;
+                                                startTime = millis();//record the starting clock time
+                                                return 5;        
                                         case 'z': //If you press z it clears the serial buffer
                                                 Serial.flush();
                                                 Serial.println("Serial Buffer Cleared");
