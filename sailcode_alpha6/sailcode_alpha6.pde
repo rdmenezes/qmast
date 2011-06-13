@@ -54,9 +54,9 @@
 #define d2r (PI / 180.0)
 #define EARTHRAD 6367515 // for long trips only
 #define DEGREE_TO_MINUTE 60 //there are 60 minutes in one degree
-#define LATITUDE_TO_METER 1855 // there are (approximately) 1855 meters in a minute of latitude everywhere; this isn't true for longitude, as it depends on the latitude
+#define LATITUDE_TO_METER 1850 // there are (approximately) 1855 meters in a minute of latitude everywhere; this isn't true for longitude, as it depends on the latitude
 //there are approximately 1314 m in a minute of longitude at 45 degrees north (Kingston); this difference will mean that if we just use deltax over deltay in minutes to find an angle it will be wrong
-#define LONGITUDE_TO_METER 1314 //for kingston; change for Annapolis
+#define LONGITUDE_TO_METER 1464 //for kingston; change for Annapolis 1314 was kingston value
 //motor control constants (deprecated, these need updating)
 #define MAXRUDDER 210  //Maximum rudder angle
 #define MINRUDDER 210   //Minimum rudder angle
@@ -68,6 +68,7 @@
 
 //Pins
 //pololu pins
+
 #define resetPin 8 //Pololu reset (digital pin on arduino)
 #define txPin 9 //Pololu serial pin (with SoftwareSerial library)
 
@@ -171,6 +172,7 @@ int CurrentSelection;
 //stationkeepig globals
 long startTime;
 int stationCounter;
+boolean timesUp;
 
 //early tacking code, simpler than the unimplemented version for testing 
 //Jib has to be let out at the beginning of turning, this exert a moment on the boat allowing for faster turning, 
@@ -429,6 +431,8 @@ void fillStationKeepingWaypoints(double centreLatMin, double centreLonMin, int w
   }   
 }
 
+
+//before calling this, need to set startTime global to millis() and timesUp global to false
 int stationKeep(){
   //update the waypoints every bit to make sure we're compensating for the wind correctly
   //straightsail to the waypoints
@@ -455,12 +459,11 @@ int stationKeep(){
   int windDirn, waypointWindDirn;
   int error;
   
-  static struct points stayPoint;
+  
   int distanceToWaypoint;//the boat's distance to the present waypoint
   
   //Timer variables
   long elapsedTime, currentTime;
-  boolean timesUp = false;
   
   //get data from sensors for global variables
   error = sensorData(BUFF_MAX,'c');  
@@ -475,7 +478,7 @@ int stationKeep(){
   //sail between waypoints until 5 minute timer is up      
   if(timesUp == true){         //leave square; can either calculate the closest place to leave, or just head downwind as we do here:     
     windDirn = getWindDirn();
-    error = sail(windDirn+180); //sail based on compass only in downwind direction
+    error = sail(windDirn+90); //sail out of box in beam reach
     delay(100);//give rudder time to adjust? this might not be necessary 
     return 0;
     }
@@ -484,7 +487,7 @@ int stationKeep(){
       distanceToWaypoint = GPSdistance(boatLocation, stayPoint);//returns in meters
               
         //send data to xbee for reporting purposes
-        relayData();
+       // relayData();
         Serial.println(distanceToWaypoint);
         
         //set rudder and sails 
@@ -505,13 +508,61 @@ int stationKeep(){
         distanceToWaypoint = GPSdistance(boatLocation, stayPoint);//returns in meters
       } //end go to waypoint
     if (distanceToWaypoint < MARK_DISTANCE){
-      stationCounter++;        //make global
+      stationCounter+=2;        //make global
       if (stationCounter == 5)       
           stationCounter = 0;
     }    
                //loop the whole go to waypoint, check sensors and go to next waypoint until the time is up
     }
+    
+    return 0;
    }
+   
+//need to set same timesUp and startTime as above and also stayPoint   
+void stationKeepSinglePoint(){
+  double centreLatMin, centreLonMin;
+  static struct points stayPoint;
+  int error;
+  int windDirn;
+  
+  getStationKeepingCentre(&centreLatMin, &centreLonMin); //find the centre of the global stationkeeping corner variables
+  stayPoint.latDeg = 38;
+  stayPoint.latMin = centreLatMin;
+  stayPoint.lonDeg = -76;
+  stayPoint.lonMin = centreLonMin;
+  long currentTime = millis();
+  long elapsedTime = currentTime - startTime;
+  
+  if (elapsedTime > 270000) // if 4.5 minutes has passed
+  {
+    timesUp = true;
+  }
+  
+  if(timesUp == true){         //leave square; can either calculate the closest place to leave, or just head in beam reach as we do here:  
+    error = sensorData(BUFF_MAX,'w');    
+    windDirn = getWindDirn();
+    error = sail(windDirn+90); //sail out of box in beam reach
+    delay(100);//give rudder time to adjust? this might not be necessary 
+    }
+    else{ 
+        
+        //set rudder and sails 
+        error = sensorData(BUFF_MAX,'c');     
+        error = sensorData(BUFF_MAX,'w');            
+        error = sailToWaypoint(stayPoint); //sets the rudder, stays in corridor if sailing upwind       
+        delay(100);//give rudder time to adjust? this might not be necessary
+       // error = sailControl(); //sets the sails proprtional to wind direction only; should also check latest heel angle from compass; this isnt turning a motor    
+        delay(100); //pololu crashes without this delay; maybe one command gets garbled with the next one?
+      
+        //check timer
+        currentTime = millis(); //get the Arduino clock time     
+       
+      } //end go to waypoint
+     
+              
+    }
+   
+   
 //**Alternate sailcourse code by laz, works the same but does not use long loops for waypoint selection, less responsive but allows for menu usage while sailing
 //Instead of looping globals keep track of current waypoint, code updates that waypoint when reached and sets boat in the direction of the next one, this will be slightly less responsive as
 //the time between each adjustment will include checking the menu but it should still be fast enough. Needs to be tested and compared to existing sailcourse function. Original in sailcode5
@@ -889,6 +940,8 @@ void loop()
   Serial.println("sail to Waypoint");
   sailToWaypoint(waypoints[point]);
   break;
+  case 5:
+  stationKeepSinglePoint();
         default:
   Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
   delay(100);
