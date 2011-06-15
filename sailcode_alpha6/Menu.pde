@@ -96,6 +96,8 @@ int displayMenu()
                 Serial.println("r.      super Zigbee RC mode");
                 Serial.println("s.      keyboard Zigbee RC mode");
                 Serial.println("t.      Single point stationkeeping");
+                Serial.println("u.      Change Station Keeping time before exit");
+                Serial.println("v.      Hack Stationkeeping");
                 Serial.println("z.     *Clear serial buffer");
 		Serial.println("|");
 		Serial.println("Select option:");
@@ -394,7 +396,7 @@ int displayMenu()
 						Serial.println("Selected Compass");
 						compassData = sensorData(BUFF_MAX,'c');
         						
-                                                if(compassData == false){
+                                                //if(compassData == false){
                                                   Serial.println("Compass Data: ");
                                                   Serial.print("  Heading:  ");
                                                   Serial.println(headingc);
@@ -402,10 +404,10 @@ int displayMenu()
                                                   Serial.println(pitch);
                                                   Serial.print("  Roll   ");
                                                   Serial.println(roll);                                                  
-                                                }
-                                                else{
-                                                  Serial.println("Error fetching compass data");
-                                                }
+                                               // }
+                                                //else{
+                                                //  Serial.println("Error fetching compass data");
+                                                //}
                                                 
                                             //    return 0;
 						break;
@@ -423,8 +425,7 @@ int displayMenu()
                                         case 'i':
                                             Serial.println("Selected Fleet Racing Mode (autonomous sails, RC rudder.");
                                             Serial.println("Press q to return to menu.");
-
-                                       
+                                       rudderDir *= -1;
                                                 Serial.println("~");
                                                 hasQ = false;
                                                 sailsVal = 0;
@@ -453,15 +454,16 @@ int displayMenu()
                                                           delay(2000);
                                                           Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
                                                           Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
+                                                          rudderDir *= -1;
                                                         break;
                                                       }
                                                  sailControl();     
-                                                 delay(100);    
-                                                      
+                                                 //delay(100);    
+                                                   
+                                                   if (Serial.available() > 20)
+                                                    Serial.flush();   
                                                 } 
-                                                break;
-                                        
-                                      
+                                                break;                                      
                                         
 					case 'j':
 						Serial.println("Exiting Menu");
@@ -531,12 +533,12 @@ int displayMenu()
                                                    }
                                                   }
                                                 }
-                                                return 0;
+                                                //return 0;
                                                 break;
                                         case 'n':
                                                 Serial.println("Toggle rudder direction");
                                                 rudderDir = rudderDir*-1;
-                                                return 0;
+                                            //    return 0;
                                                 break;
                                         case 'o':
                                                 Serial.println("Performing Diagnostic and calibration tests");
@@ -588,9 +590,9 @@ int displayMenu()
                                                 break;
                                         case 'p':  //returns your current position
                                                 Serial3.flush();
-                                                delay(1100);
+                                                delay(1400);
                                                 windData = sensorData(BUFF_MAX,'w');
-                                                delay(100);
+                                                delay(300);
                                                 Serial.print(boatLocation.latDeg,0);
                                                 Serial.print(boatLocation.latMin,4);
                                                 Serial.print(" ");
@@ -632,6 +634,7 @@ int displayMenu()
                                                 Serial.println("RC mode, receives inputs from other arduino and hacked old transmitter");
                                                 Serial.println(" 'q' exits back to menu, you might need to press it up to 3 times.");
                                                 Serial.println("~");
+                                                rudderDir *= -1;
                                                 hasQ = false;
                                                 sailsVal = 0;
                                                 rudderVal = 0;
@@ -669,6 +672,7 @@ int displayMenu()
                                                           delay(2000);
                                                           Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
                                                           Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
+                                                         rudderDir *= -1;
                                                         break;
                                                       }
                                                       
@@ -679,6 +683,7 @@ int displayMenu()
                                       
                                         
                                         case 's':
+                                        rudderDir *= -1;
                                         int rudcount;
                                                 Serial.println("RC mode, use a/d for rudder control with s to center, w/e for fine sails, q/r for coarse sails");
                                                 Serial.println(" 'y' exist back to menu");
@@ -761,6 +766,7 @@ int displayMenu()
                                                         case 'y':
                                                           hasQ = true;
                                                           Serial.println("exiting RC mode");
+                                                          rudderDir *= -1;
                                                         break;
                                                       }
                                                       rudcount++;            //loop for resetting rudder to 0
@@ -780,6 +786,29 @@ int displayMenu()
                                                 timesUp = false;
                                                 startTime = millis();//record the starting clock time
                                                 return 5;        
+                                                break;
+                                        case 'u':
+                                                Serial.println("Change station keeping time in box.");
+                                                Serial.println("Please enter time in seconds (must have 3 digits)");
+                                                int timeFudge;
+                                                while(!Serial.available());
+                                                timeFudge = Serial.read() - '0';
+                                                while(!Serial.available());
+                                                timeFudge = timeFudge*10 + Serial.read() - '0';
+                                                while(!Serial.available());
+                                                timeFudge = timeFudge*10 + Serial.read() - '0';
+                                                Serial.print("entered:    ");
+                                                Serial.println(timeFudge);
+                                                StationKeepingTimeInBox = timeFudge;
+                                                break;
+                                                
+                                        
+                                        break;
+                                        case 'v':
+                                                Serial.println("hack swtationkeeping");
+                                                startTime = millis();
+                                                return 6;
+                                                break;
                                         case 'z': //If you press z it clears the serial buffer
                                                 Serial.flush();
                                                 Serial.println("Serial Buffer Cleared");

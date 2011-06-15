@@ -6,7 +6,7 @@ int DataValid(char *val)
 {
 	if (val[0] != '$') 
 	{
-		Serial.println("wrong data\n");
+		//Serial.println("wrong data\n");
 		return 1;
 	}
 	return 0;
@@ -29,7 +29,7 @@ void ParseGPGLL(char *GPGLL_string, double *degree, double *minute){
     int i; //counter
     double temp; //garbage
     
-   
+    Serial.println("GPGLL r");   
     //find degrees and low precision minutes      
     lowPrecisionGPS = atof(GPGLL_string);
       //get the degrees part, and the integer minutes part
@@ -121,7 +121,9 @@ int Parser(char *val)
   if (DataValid(val) == 0){ //check if the data is valid - ideally we'd do this by checking the checksum
     //Serial.print("Parses says: valid string, val (full string) is:\n");
   }
-  else { Serial.println("Datavalid fail"); digitalWrite(twoCommasLED, HIGH); return 1; } // if data isnt valid, dont try to parse it and throw error code
+  else { Serial.println("Datavalid fail"); digitalWrite(twoCommasLED, HIGH); 
+
+; } // if data isnt valid, dont try to parse it and throw error code
 
   //Serial.println(val);//echo what we're about to parse
 
@@ -143,7 +145,7 @@ int Parser(char *val)
     
     lat_deg_nmea_string = strtok(NULL, ","); // this will use the cp copied string, since strtok magically remembers which string it was initially referenced to if NULL if used instead of a string
     lat_dir = (char) * strtok(NULL, ","); // only a (char) not a array of chars. Hence, = typecast(char) dereferenced strtok. 
-          // strtok returns a point to a character array; we only want the value at the pointer's address (first value)
+          // strtok s a point to a character array; we only want the value at the pointer's address (first value)
     lon_deg_nmea_string = strtok(NULL, ",");
     lon_dir = (char) * strtok(NULL, ",");
     hms_string = strtok(NULL, ",");    
@@ -194,7 +196,9 @@ int Parser(char *val)
     var_deg = atof(var_deg_string); 
 
     //process
-    heading = head_deg; //cb! dont we want a moving average?
+    heading = (head_deg + 25); //cb! dont we want a moving average? FIXME later
+    if (heading > 360)
+      heading -= 360;
     deviation = dev_deg; //what is this in compass terminology? I think we should be taking dev_dir into account
     variance = var_deg; //what is this in compass terminology? I think we should be taking var_dir into account
   }
