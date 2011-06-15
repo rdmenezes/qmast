@@ -37,7 +37,7 @@
 #define RESET_TIMER2 TCNT2 = INIT_TIMER_COUNT
 #define MAIN_SERVO_RATE 0.6666   //constants for porting to new boat
 #define JIB_SERVO_RATE 0.6666
-#define RUDDER_SERVO_RATE 1
+#define RUDDER_SERVO_RATE -1
 //Boat parameter constants
 #define TACKING_ANGLE 30 //the highest angle we can point
 //Course Navigation constants
@@ -91,7 +91,7 @@
 #define SHORTEST_NMEA 5
 #define LONGEST_NMEA 120
 
-//!!!!when testing by sending strings through the serial monitor, you need to select "newline" ending from the dropdown beside the baud rate
+//!when testing by sending strings through the serial monitor, you need to select "newline" ending from the dropdown beside the baud rate
 
 // what's the shortest possible serial data string?
 // for reliable serial data
@@ -173,7 +173,7 @@ int CurrentSelection;
 long startTime;
 int stationCounter;
 boolean timesUp;
-
+int StationKeepingTimeInBox = 270000;//The amount of time the boat should stay in the box before leaving (in millis), to be adjusted based on intuition day of..
 //early tacking code, simpler than the unimplemented version for testing 
 //Jib has to be let out at the beginning of turning, this exert a moment on the boat allowing for faster turning, 
 //after truned halfway, pull jib in and let main out, again faster turning, speed should not be an issue, not much required in order to turn
@@ -187,6 +187,7 @@ void tack(){
   int ironTime =0;
   while(tackComplete == false){      //tacks depending on the side the wind is aproaching from
     if(wind_angl < 180){
+      Serial.println("trying to tack towards starboard, adjusting sails");
       setMain(ALL_IN);
       setJib(ALL_OUT);                    //sets main and jib to allows better turning
       setrudder(-30);                //rudder angle cannot be to steep, this would stall the boat, rather than turn it
@@ -194,8 +195,9 @@ void tack(){
         delay(100);
         newData = sensorData(BUFF_MAX, 'w');  
         ironTime++;                  //checks to see if turned far enough
-        if(ironTime > 100){            //waits about 10 seconds to before assuming in irons
-          getOutofIrons();
+        if(ironTime > 100){           //waits about 10 seconds to before assuming in irons
+        Serial.println("It has been 10 seconds and I haven't crossed over, so I am trying to get out of irons)");
+        getOutofIrons();
           }
         }
         setJib(ALL_IN);
@@ -204,12 +206,14 @@ void tack(){
       newData = sensorData(BUFF_MAX, 'w');
       dirn = getCloseHauledDirn();
      sail(dirn);                //straighten out, sail closehauled
-     setSails(ALL_IN);
+     Serial.println("I am now trying to sail closehauled");
+     //setSails(ALL_IN);
       if(wind_angl >180){            //exits when turned far enough
         tackComplete = 1;
         }  
       }
       else if(wind_angl > 180){        //mirror for other side
+      Serial.println("trying to tack towards port");
       setMain(ALL_IN);
       setJib(ALL_OUT);
       setrudder(30);
@@ -217,6 +221,7 @@ void tack(){
         delay(100);
         newData = sensorData(BUFF_MAX, 'w');
         if(ironTime > 100){            //waits about 10 seconds to before assuming in irons
+        Serial.println("It has been 10 seconds and I haven't crossed over, so I am trying to get out of irons)");
           getOutofIrons();
           }
         }
@@ -225,7 +230,8 @@ void tack(){
       delay(1000);
       dirn = getCloseHauledDirn();
       sail(dirn);
-      setSails(ALL_IN);
+      Serial.println("I am now trying to sail closehauled");
+      //setSails(ALL_IN);
       newData = sensorData(BUFF_MAX, 'w');
       if(wind_angl < 180){
         tackComplete = 1;
@@ -236,6 +242,7 @@ void tack(){
 
 //code to get out of irons if boat is stuck
 void getOutofIrons(){
+  Serial.println("trying to get out of irons. Main out, jib in, rudder cranked");
   int dirn;
   setMain(ALL_OUT);
   setJib(ALL_IN);
@@ -243,7 +250,9 @@ void getOutofIrons(){
   while(wind_angl < TACKING_ANGLE && wind_angl > 360 -TACKING_ANGLE){
   dirn = sensorData(BUFF_MAX, 'w');
   delay(100);
+  Serial.println("hanging out until I am out of irons");
   }
+  Serial.println("I think I am out of irons, pulling sails all in");
   setSails(ALL_IN);
   setrudder(0);
   delay(1000); //some time to build up speed
@@ -253,8 +262,8 @@ double GPSdistance(struct points location1, struct points location2){
     double deltaLat, deltaLong; //distance in x and y directions
     double distance;
     
-    deltaLong = (location2.lonDeg - location1.lonDeg)*DEGREE_TO_MINUTE + (location2.lonMin - location2.lonMin); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
-    deltaLat = (location2.latDeg - location1.latDeg)*DEGREE_TO_MINUTE + (location2.latMin - location2.latMin); //y is the east/west coordinate, + in the east direction
+    deltaLong = (location2.lonDeg - location1.lonDeg)*DEGREE_TO_MINUTE + (location2.lonMin - location1.lonMin); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
+    deltaLat = (location2.latDeg - location1.latDeg)*DEGREE_TO_MINUTE + (location2.latMin - location1.latMin); //y is the east/west coordinate, + in the east direction
     
     //convert to meters, based on the number of meters in a minute, looked up for the given latitude
     deltaLat = deltaLat*LATITUDE_TO_METER; 
@@ -277,7 +286,9 @@ int getWaypointDirn(struct points waypoint){
 
   deltaX = (waypoint.latDeg - boatLocation.latDeg)*DEGREE_TO_MINUTE + (waypoint.latMin - boatLocation.latMin); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
   deltaY = (waypoint.lonDeg - boatLocation.lonDeg)*DEGREE_TO_MINUTE + (waypoint.lonMin - boatLocation.lonMin); //y is the east/west coordinate, + in the east direction  
-  waypointHeading = radiansToDegrees(atan2(deltaY*LONGITUDE_TO_METER, deltaX*LATITUDE_TO_METER)); // atan2 returns -pi to pi, taking account of which variables are positive to put in proper quadrant 
+  deltaX *=LATITUDE_TO_METER;
+  deltaY *= LONGITUDE_TO_METER;
+  waypointHeading = radiansToDegrees(atan2(deltaY, deltaX)); // atan2 returns -pi to pi, taking account of which variables are positive to put in proper quadrant 
         
   //normalize direction
   if (waypointHeading < 0)
@@ -318,7 +329,7 @@ int getWindDirn(){
   //be careful that we dont update the wind direction bearing based on new compass data and old wind data
   int windHeading = 0; //compass bearing that the wind is coming from
   
-  windHeading = wind_angl_newest + headingc; // calculate the compass heading that the wind is coming from; wind_angle_newest is relative to the boat's bow  
+  windHeading = wind_angl_newest + headingc; //FIXME bak to heading c lculate the compass heading that the wind is coming from; wind_angle_newest is relative to the boat's bow  
 
   if (windHeading < 0) //normalize to 360
     windHeading += 360;
@@ -408,6 +419,12 @@ void getStationKeepingCentre(double *centreLatMin, double *centreLonMin){
   
   *centreLatMin = sumLatMin/4;
   *centreLonMin = sumLonMin/4;
+  
+  Serial.print("Station keeping centre (minutes only): ");
+  Serial.print(*centreLatMin);
+  Serial.print(", ");
+  Serial.println(*centreLonMin);
+  
 }
 
 void fillStationKeepingWaypoints(double centreLatMin, double centreLonMin, int windBearing){
@@ -502,7 +519,7 @@ int stationKeep(){
         currentTime = millis(); //get the Arduino clock time      
         
         elapsedTime = currentTime - startTime;//calculate elapsed miliseconds since the start of the 5 minute loop
-        if(elapsedTime > 300000){ // (5min) * (60s/min) * (1000ms/s)
+        if(elapsedTime > StationKeepingTimeInBox){ // (5min) * (60s/min) * (1000ms/s)
           timesUp = true;
         
         distanceToWaypoint = GPSdistance(boatLocation, stayPoint);//returns in meters
@@ -533,7 +550,7 @@ void stationKeepSinglePoint(){
   long currentTime = millis();
   long elapsedTime = currentTime - startTime;
   
-  if (elapsedTime > 270000) // if 4.5 minutes has passed
+  if (elapsedTime > StationKeepingTimeInBox) // if the specified time has passed (4.5 minutes by default), start to exit
   {
     timesUp = true;
   }
@@ -563,6 +580,170 @@ void stationKeepSinglePoint(){
     }
    
    
+void stationKeepHack(){
+  int error;
+  int windDirn;
+ 
+  long currentTime = millis();
+  long elapsedTime = currentTime - startTime;
+  
+  sensorData(BUFF_MAX, 'w');
+  sensorData(BUFF_MAX, 'c');  
+  windDirn = getWindDirn();
+  
+ if (elapsedTime < 30000)
+  {
+    if(windDirn + 180 > 360)
+    windDirn -= 360;
+    sail((windDirn+180)  );
+    Serial.println("<30 dw");
+  }
+else if (elapsedTime < 45000)
+{
+  if(windDirn - 80 < 0)
+    windDirn += 360;
+ sail((windDirn-80)  );
+        Serial.println("<45  - 80 ");
+
+} else if (elapsedTime < 60000)
+  {
+    if(windDirn + 80 > 360)
+    windDirn -= 360;
+    sail((windDirn+80)  );
+        Serial.println("<60 + 80 ");
+  // beam + 80 from wind (modded)
+  }
+else if (elapsedTime < 75000)
+{
+  if(windDirn - 80 < 0)
+    windDirn += 360;
+ sail((windDirn-80)  );
+        Serial.println("<75  - 80 ");
+
+} else if (elapsedTime < 90000)
+  {
+    if(windDirn + 80 > 360)
+    windDirn -= 360;
+    sail((windDirn+80)  );
+        Serial.println("<90  + 80 ");
+  // beam + 80 from wind (modded)
+  }
+else if (elapsedTime < 105000)
+{
+  if(windDirn - 80 < 0)
+    windDirn += 360;
+ sail((windDirn-80)  );
+        Serial.println("<105  - 80 ");
+
+} else if (elapsedTime < 120000)
+  {
+    if(windDirn + 80 > 360)
+    windDirn -= 360;
+    sail((windDirn+80)  );
+        Serial.println("<120  + 80 ");
+  // beam + 80 from wind (modded)
+  }
+else if (elapsedTime < 135000)
+{
+  if(windDirn - 80 < 0)
+    windDirn += 360;
+ sail((windDirn-80)  );
+        Serial.println("<135  - 80 ");
+
+} else if (elapsedTime < 150000)
+  {
+    if(windDirn + 80 > 360)
+    windDirn -= 360;
+    sail((windDirn+80)  );
+        Serial.println("<150  + 80 ");
+  // beam + 80 from wind (modded)
+  }
+else if (elapsedTime < 165000)
+{
+  if(windDirn - 80 < 0)
+    windDirn += 360;
+ sail((windDirn-80)  );
+        Serial.println("<165  - 80 ");
+
+} else if (elapsedTime < 180000)
+  {
+    if(windDirn + 80 > 360)
+    windDirn -= 360;
+    sail((windDirn+80)  );
+        Serial.println("<180 + 80 ");
+  // beam + 80 from wind (modded)
+  }
+else if (elapsedTime < 195000)
+{
+  if(windDirn - 80 < 0)
+    windDirn += 360;
+ sail((windDirn-88)  );
+        Serial.println("<195 - 80 ");
+
+} else if (elapsedTime < 210000)
+  {
+    if(windDirn + 80 > 360)
+    windDirn -= 360;
+    sail((windDirn+80)  );
+        Serial.println("<210  + 80 ");
+  // beam + 80 from wind (modded)
+  }
+else if (elapsedTime < 225000)
+{
+  if(windDirn - 80 < 0)
+    windDirn += 360;
+ sail((windDirn-80)  );
+        Serial.println("<225  - 80 ");
+
+} else if (elapsedTime < 240000)
+  {
+    if(windDirn + 80 > 360)
+    windDirn -= 360;
+    sail((windDirn+80)  );
+        Serial.println("<240  + 80 ");
+  // beam + 80 from wind (modded)
+  }
+else if (elapsedTime < 255000)
+{
+  if(windDirn - 80 < 0)
+    windDirn += 360;
+ sail((windDirn-80)  );
+        Serial.println("<255  - 80 ");
+
+} else if (elapsedTime < 270000)
+  {
+    if(windDirn + 80 > 360)
+    windDirn -= 360;
+    sail((windDirn+88)  );
+        Serial.println("<270  + 80 ");
+  // beam + 80 from wind (modded)
+  }
+else if (elapsedTime < 285000)
+{
+  if(windDirn - 80 < 0)
+    windDirn += 360;
+ sail((windDirn-80)  );
+        Serial.println("<285  - 80 ");
+}
+else if (elapsedTime < 300000)
+{
+  if(windDirn + 80 > 360)
+    windDirn -= 360;
+ sail((windDirn+80)  );
+         Serial.println("<300  + 80 ");
+}
+else 
+{
+  if(windDirn - 90 < 0)
+    windDirn += 360;
+ sail((windDirn-90)  ); 
+}
+  
+
+  
+  
+              
+}
 //**Alternate sailcourse code by laz, works the same but does not use long loops for waypoint selection, less responsive but allows for menu usage while sailing
 //Instead of looping globals keep track of current waypoint, code updates that waypoint when reached and sets boat in the direction of the next one, this will be slightly less responsive as
 //the time between each adjustment will include checking the menu but it should still be fast enough. Needs to be tested and compared to existing sailcourse function. Original in sailcode5
@@ -586,7 +767,7 @@ void sailCourse(){
       delay(100); //pololu crashes without this delay; maybe one command gets garbled with the next one?
       
       distanceToWaypoint = GPSdistance(boatLocation, coursePoints[currentPoint]);//returns in meters
-
+       
        if (distanceToWaypoint < MARK_DISTANCE){
       //sail testing code; this makes the pololu yellow light come on with flashing red
       currentPoint++;
@@ -637,10 +818,10 @@ int sail(int waypointDirn){
      // return (error);
     //not used yet, but update whether closehauled or not from wind direction
     if(between(waypointDirn, windDirn - TACKING_ANGLE, windDirn + TACKING_ANGLE)){ //check if the waypoint's direction is between the wind and closehauled on either side (ie are we downwind?)
-        directionError = getCloseHauledDirn() - heading_newest;      //*should* prevent boat from ever trying to sail upwind
+        directionError = getCloseHauledDirn() - headingc;      //*should* prevent boat from ever trying to sail upwind FIXME
     }
     else{
-    directionError = waypointDirn - heading_newest;//the roller-skate-boat turns opposite to it's angle
+    directionError = waypointDirn - headingc;//the roller-skate-boat turns opposite to it's angle FIXME
     }
 
     if (directionError < 0)
@@ -671,8 +852,10 @@ int sailToWaypoint(struct points waypoint){
     int distanceOutsideCorridor;
     int error = 0;
      waypointDirn = getWaypointDirn(waypoint); //get the next waypoint's compass bearing; must be positive 0-360 heading;
-    
-    if(checkTack(10, waypoint) == true){                  //checks if outside corridor and sailing into the wind 
+    Serial.print("waypoint direction is :");
+    Serial.println(waypointDirn);
+    if(checkTack(10, waypoint) == true){          //checks if outside corridor and sailing into the wind 
+     Serial.println("Tacking");
      tack(); 
     }
     else{                        //not facing upwind or inside corridor
@@ -753,8 +936,8 @@ int sailControl(){
   int error =0;
   int windAngle;
   
-  if (abs(roll) > 30){ //if heeled over a lot
-   setSails(ALL_OUT); //set sails all the way out
+  if (abs(roll) > 40){ //if heeled over a lot (experimentally found that 40 was appropriate according to cory)
+   setMain(ALL_OUT); //set sails all the way out, keep jibaX 
    return (1); //return 1 to indicate heel
   }
    
@@ -942,7 +1125,11 @@ void loop()
   break;
   case 5:
   stationKeepSinglePoint();
-        default:
+  break;
+  case 6:
+  stationKeepHack();
+  break;
+  default:
   Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
   delay(100);
  }

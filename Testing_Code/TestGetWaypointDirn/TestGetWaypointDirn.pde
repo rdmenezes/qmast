@@ -2,8 +2,10 @@
 
 
 #define DEGREE_TO_MINUTE 60 //there are 60 minutes in one degree
-#define LATITUDE_TO_METER 1855 // there a
-#define LONGITUDE_TO_METER 1314 //for 
+#define LATITUDE_TO_METER 1850 // there are (approximately) 1855 meters in a minute of latitude everywhere; this isn't true for longitude, as it depends on the latitude
+//there are approximately 1314 m in a minute of longitude at 45 degrees north (Kingston); this difference will mean that if we just use deltax over deltay in minutes to find an angle it will be wrong
+#define LONGITUDE_TO_METER 1464 //for kingston; change for Annapolis 1314 was kingston value
+//motor control constants (deprecated, these need updating)
 
 int radiansToDegrees(float angle){
   return 180*angle/PI;

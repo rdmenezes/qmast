@@ -7,7 +7,7 @@ struct points{
  //struct for holding course waypoints 
  
 points waypoints[10] ={        //optional preset values for registers
-  {44.0, 13.6803, -76.0, -29.5175}, //south lampost
+  {38.0, 58.9515, -76.0, -28.7127}, //south lampost
   {44.0, 13.6927, -76.0, -29.5351}, //middle tree
   {44.0, 13.7067, -76.0, -29.4847}, // dirt pit
   {44.0, 22.8678, -76.0, -49.2078}}; // top of parking lot
@@ -25,7 +25,7 @@ points coursePoints[10]={        //optional preset values for registers
 points clearPoints = {        //generic empty struct, use for clearing other structs
   0,0,0,0};
 
-points boatLocation = {44.0, 22.8638, -76.0, -49.1657};        // boats current location, 
+points boatLocation = {38.0, 58.9503, -76.0, -28.7159};        // boats current location, 
 //middle lamp post
 
 //GPGLL,4413.6803,N,07629.5175,W,232409,A,A*58 south lamp post

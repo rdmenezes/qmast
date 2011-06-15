@@ -17,7 +17,7 @@ int sensorData(int bufferLength, char device)
   bool twoCommasPresent = false; //Alright, this flag will be set if the data being read in has two commas in a row. This is needed since
   	  	  	  	  	  	  	  	 //it will crash the program as strtok will have trouble with the delimiters later.
 
-  Serial.println(device); //display that data is being gathered from a device
+  //Serial.println(device); //display that data is being gathered from a device
 
    // delay(5000);
    if(device == 'c')
@@ -28,7 +28,7 @@ int sensorData(int bufferLength, char device)
  if(!dataAvailable)
  {
     noData = 1;//set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
-    Serial.println("No data available. ");
+    //Serial.println("No data available. ");
     digitalWrite(noDataLED,HIGH);//turn on error indicator LED to warn about no data present
     digitalWrite(goodCompassDataLED, LOW); //data isnt good if it isnt there
   } 
@@ -47,7 +47,7 @@ int sensorData(int bufferLength, char device)
 //    savedXorState=0;//clear the saved XORstate value
 //    lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
 
-        Serial.println("You filled the buffer, data old. ");
+        //Serial.println("You filled the buffer, data old. ");
         digitalWrite(oldDataLED,HIGH);//turn on error indicator LED to warn about old data
         digitalWrite(goodCompassDataLED, LOW); //data is old, so not so goood
        }
