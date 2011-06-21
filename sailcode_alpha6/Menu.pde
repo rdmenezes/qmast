@@ -383,8 +383,10 @@ int displayMenu()
 
                                                 if(windData == false){
                                                   Serial.println("Wind Sensor Data: ");
-                                                  Serial.print("  Wind Angle:  ");
+                                                  Serial.print("  Averaged wind Angle:  ");
                                                   Serial.println(wind_angl);
+                                                   Serial.print(" Fresh wind Angle:  ");
+                                                  Serial.println(wind_angl_newest);
                                                   Serial.print("  Wind Velocity (knots):   ");
                                                   Serial.println(wind_velocity);  
                                                   Serial.println("TEMPORARY wind sensor heading");

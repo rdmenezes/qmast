@@ -37,7 +37,7 @@ void ParseGPGLL(char *GPGLL_string, double *degree, double *minute){
     // this should work for 3 digit degrees though (ie dddmm.mmmm -> ddd and mm.mmmm)
     *minute = 100*modf(lowPrecisionGPS / 100.0, degree); //processes ddmm.mm into dd (latDegrees) and mm.mm (latMinutes), low precision minute
     //degree stores the integer, minute the fractional part (with low accuracy, ie mm.mm)      
-    Serial.println(*minute);
+    //Serial.println(*minute);
   //now find high precision minutes
   
     //find the precise decimal portion (ie the 0.mmmm part), store in fractionalMinute
@@ -51,11 +51,11 @@ void ParseGPGLL(char *GPGLL_string, double *degree, double *minute){
     
     //now there should be 4 decimal points, and 2 integers; this should fit in a float
     smallFraction = atof(smallFractionString);
-    Serial.println(smallFraction);
+    //Serial.println(smallFraction);
 
     //drop the integer part (m.mmmm -> m and 0.mmmm), save the high precision fraction
     fractionalMinute = modf(smallFraction, &temp); //0.mmmm
-    Serial.println(fractionalMinute);
+    //Serial.println(fractionalMinute);
 
 
     //drop the fraction from the low precision minute variable, save the integer part
@@ -117,6 +117,12 @@ int Parser(char *val)
   char *head2_string; //sscanf, strtok doesnt support directly scanning into floats; hence we are scanning into strings and then using atof to convert to float
   char *roll_string;
   char *pitch_string;
+     int j;
+  static int webmail;    //random name by kevin
+  static int windDataArray[2] ;
+
+  //for averaging errors to give smoother rudder control
+
     
   if (DataValid(val) == 0){ //check if the data is valid - ideally we'd do this by checking the checksum
     //Serial.print("Parses says: valid string, val (full string) is:\n");
@@ -227,12 +233,26 @@ int Parser(char *val)
     //wind_ref for the PB100 is always R? (relative to boat)
     //speed unit for the PB100 is always N? (knots)
 //    if(wind_ang != 270.0){
-    wind_angl = wind_ang; //cb! dont we want a moving average?
-//    }
+    //wind_angl = wind_ang; //cb! dont we want a moving average?\
     wind_velocity = wind_vel;
     wind_angl_newest = wind_ang; //for testing purposes, save the newest wind angle
+    
+    
+   if(webmail == 2){
+     webmail = 0;
   }
-
+  else{
+  webmail++;
+  } 
+    windDataArray[webmail] = wind_angl_newest;    //code for averaging errors, 
+    wind_angl =0;
+    for(j = 0; j < 3; j++){
+     wind_angl += windDataArray[webmail];
+    }
+    wind_angl /= 3;
+    }
+    
+  
   //Boat's speed
   if (strcmp(str, "$GPVTG") == 0) 
   {

@@ -11,8 +11,8 @@ struct points{
  
 points waypoints[10] ={        //optional preset values for registers
   {44.0,13.6927,-76.0,-29.5175},       //note both degrees and minutes must have the right sign in order for manipulation of gps data to work
-  {0,0,0,0}, 
-  {0,0,0,0}};
+  {38.0,58.9443,-76.0,-28.7383}, 
+  {38.0,58.9515,-76.0,-28.7127}};
   //initialization of struct, put default coordinates here
   
 points stationPoints[4];      //possible additional structures for stationkeeping and 

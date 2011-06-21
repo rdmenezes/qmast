@@ -39,7 +39,7 @@
 #define JIB_SERVO_RATE 0.6666
 #define RUDDER_SERVO_RATE -1
 //Boat parameter constants
-#define TACKING_ANGLE 30 //the highest angle we can point
+#define TACKING_ANGLE 40 //the highest angle we can point
 //Course Navigation constants
 #define MARK_DISTANCE 1 //the distance we have to be to a mark before moving to the next one, in meters //do we have this kind of accuracy??
 
@@ -180,81 +180,116 @@ int StationKeepingTimeInBox = 270000;//The amount of time the boat should stay i
 //should still check if in iron, if so let main out, turn rudder to one side, when angle is no longer closehauled
 //try sailing again, 
 void tack(){    
+  
+  
+  
+  
+  
   boolean tackComplete = false;      
   float startingWind_angl = wind_angl;
   int newData = 0;
   int dirn = 0;
   int ironTime =0;
+  int turnTo;
   while(tackComplete == false){      //tacks depending on the side the wind is aproaching from
+  if(Serial.available())
+  return;
     if(wind_angl < 180){
       Serial.println("trying to tack towards starboard, adjusting sails");
       setMain(ALL_IN);
       setJib(ALL_OUT);                    //sets main and jib to allows better turning
       setrudder(-30);                //rudder angle cannot be to steep, this would stall the boat, rather than turn it
       while(wind_angl < 180){
+        setMain(ALL_IN);
+      setJib(ALL_OUT);                    //sets main and jib to allows better turning
+      setrudder(-30); 
+       Serial.println("main in, jib out, rudder -30");
+        
+        if(Serial.available())
+        return;
         delay(100);
         newData = sensorData(BUFF_MAX, 'w');  
         ironTime++;                  //checks to see if turned far enough
-        if(ironTime > 100){           //waits about 10 seconds to before assuming in irons
+        if(ironTime == 100){           //waits about 10 seconds to before assuming in irons
         Serial.println("It has been 10 seconds and I haven't crossed over, so I am trying to get out of irons)");
-        getOutofIrons();
+        
+        getOutofIrons(1);
+        ironTime = 0;
           }
         }
+        Serial.println("main out, jib in");
         setJib(ALL_IN);
         setMain(ALL_OUT);
       delay(1000);                        //delay to complete turning \
       newData = sensorData(BUFF_MAX, 'w');
+      Serial.println("sail closehauled");
       dirn = getCloseHauledDirn();
+      delay(100);
      sail(dirn);                //straighten out, sail closehauled
-     Serial.println("I am now trying to sail closehauled");
      //setSails(ALL_IN);
       if(wind_angl >180){            //exits when turned far enough
         tackComplete = 1;
+        Serial.println("tack incomplete");
         }  
       }
       else if(wind_angl > 180){        //mirror for other side
       Serial.println("trying to tack towards port");
-      setMain(ALL_IN);
+      
+      while(wind_angl > 180){
+        Serial.println("main in, jib out, rudder +30");
+        setMain(ALL_IN);
       setJib(ALL_OUT);
       setrudder(30);
-      while(wind_angl > 180){
+      
+        if(Serial.available())
+        return;
         delay(100);
         newData = sensorData(BUFF_MAX, 'w');
-        if(ironTime > 100){            //waits about 10 seconds to before assuming in irons
+        if(ironTime == 100){            //waits about 10 seconds to before assuming in irons
         Serial.println("It has been 10 seconds and I haven't crossed over, so I am trying to get out of irons)");
-          getOutofIrons();
+        
+          getOutofIrons(-1);
+          ironTime = 0;
           }
         }
+        Serial.println("main out, jib in");
         setJib(ALL_IN);
         setMain(ALL_OUT);
       delay(1000);
+      Serial.println("trying to sail closehauled");
       dirn = getCloseHauledDirn();
       sail(dirn);
-      Serial.println("I am now trying to sail closehauled");
+      delay(1000);
       //setSails(ALL_IN);
       newData = sensorData(BUFF_MAX, 'w');
       if(wind_angl < 180){
         tackComplete = 1;
+        Serial.println("tack complete");
         }  
       }
     }
+    
+  
   }        //boat should continue closed hauled until it hits the other side of the corridor
 
 //code to get out of irons if boat is stuck
-void getOutofIrons(){
+void getOutofIrons(int tackside){
   Serial.println("trying to get out of irons. Main out, jib in, rudder cranked");
   int dirn;
   setMain(ALL_OUT);
   setJib(ALL_IN);
-  setrudder(30);        //arbitrary might want to base on direction of travel
-  while(wind_angl < TACKING_ANGLE && wind_angl > 360 -TACKING_ANGLE){
+  setrudder(30*tackside);        //arbitrary might want to base on direction of travel
+  while(wind_angl < TACKING_ANGLE || wind_angl > 360 -TACKING_ANGLE){
+    if(Serial.available())
+    return;
   dirn = sensorData(BUFF_MAX, 'w');
   delay(100);
   Serial.println("hanging out until I am out of irons");
   }
   Serial.println("I think I am out of irons, pulling sails all in");
-  setSails(ALL_IN);
-  setrudder(0);
+  //setSails(ALL_IN);
+  //setrudder(0);
+  sail(getCloseHauledDirn());
   delay(1000); //some time to build up speed
 }
 double GPSdistance(struct points location1, struct points location2){
@@ -308,11 +343,34 @@ int getCloseHauledDirn(){
   windHeading = getWindDirn(); //compass bearing for the wind
 
   //determine which tack we're on 
-  if (wind_angl_newest > 180){ //wind from left side of boat first
+  if (wind_angl > 180){ //wind from left side of boat first
     desiredDirection = windHeading + TACKING_ANGLE; //bear off to the right
   }
     else
     desiredDirection = windHeading - TACKING_ANGLE; //bear off to the left  
+    if (desiredDirection < 0){
+      desiredDirection = -desiredDirection;
+    }
+    if(desiredDirection > 360){
+     desiredDirection = desiredDirection + (-desiredDirection +360);  
+    }
+  return desiredDirection;
+}
+
+int getOppositeCloseHauledDirn(){
+  //find the compass heading that is close-hauled on the present tack
+  
+  int desiredDirection=0; //closehauled direction
+  int windHeading = 0; //compass bearing that the wind is coming from
+  
+  windHeading = getWindDirn(); //compass bearing for the wind
+
+  //determine which tack we're on 
+  if (wind_angl > 180){ //wind from left side of boat first
+    desiredDirection = windHeading - TACKING_ANGLE; //bear off to the right
+  }
+    else
+    desiredDirection = windHeading + TACKING_ANGLE; //bear off to the left  
     if (desiredDirection < 0){
       desiredDirection = -desiredDirection;
     }
@@ -329,7 +387,7 @@ int getWindDirn(){
   //be careful that we dont update the wind direction bearing based on new compass data and old wind data
   int windHeading = 0; //compass bearing that the wind is coming from
   
-  windHeading = wind_angl_newest + headingc; //FIXME bak to heading c lculate the compass heading that the wind is coming from; wind_angle_newest is relative to the boat's bow  
+  windHeading = wind_angl + heading; //FIXME bak to heading c lculate the compass heading that the wind is coming from; wind_angle_newest is relative to the boat's bow  
 
   if (windHeading < 0) //normalize to 360
     windHeading += 360;
@@ -774,6 +832,7 @@ void sailCourse(){
        }
        if (currentPoint > points){
         RC(1,1); //back to RC mode
+        return;
        }     
   } //end loop through waypoints
 
@@ -818,10 +877,10 @@ int sail(int waypointDirn){
      // return (error);
     //not used yet, but update whether closehauled or not from wind direction
     if(between(waypointDirn, windDirn - TACKING_ANGLE, windDirn + TACKING_ANGLE)){ //check if the waypoint's direction is between the wind and closehauled on either side (ie are we downwind?)
-        directionError = getCloseHauledDirn() - headingc;      //*should* prevent boat from ever trying to sail upwind FIXME
+        directionError = getCloseHauledDirn() - heading;      //*should* prevent boat from ever trying to sail upwind FIXME
     }
     else{
-    directionError = waypointDirn - headingc;//the roller-skate-boat turns opposite to it's angle FIXME
+    directionError = waypointDirn - heading;//the roller-skate-boat turns opposite to it's angle FIXME
     }
 
     if (directionError < 0)
@@ -843,6 +902,7 @@ int sail(int waypointDirn){
        
     delay(10);     //wait to allow rudder signal to be sent to pololu
   directionError = sailControl();
+  Serial.println("setting sails");
   return 0;
 }
 
@@ -859,13 +919,15 @@ int sailToWaypoint(struct points waypoint){
      tack(); 
     }
     else{                        //not facing upwind or inside corridor
-     error = sail(waypointDirn); //get the next waypoint's compass bearing; must be positive 0-360 heading;); 
+       sail(waypointDirn); //get the next waypoint's compass bearing; must be positive 0-360 heading;); 
     }
+    delay(300);
+    return error;
 }
 
 //Checks if tacking is neccessary,returns true if it is false if not.
 //looks to see if boat is in the downwind corridor and if its angle to the wind is closehauled.
-//if the boat is out the corridor and sailing closehauled then it will tack. This results in better turning and 
+//if the boat is pout the corridor and sailing closehauled then it will tack. This results in better turning and 
 //will allow for the safety of the getOutOfIrons being called during any turn into the wind
 boolean checkTack(int corridorHalfWidth, struct points waypoint){
    int currentHeading;
@@ -877,7 +939,19 @@ boolean checkTack(int corridorHalfWidth, struct points waypoint){
    
    windDirn = getWindDirn();
    currentHeading = heading;
-   difference = currentHeading - windDirn;          //call between fix later
+   //difference = currentHeading - windDirn;          //call between fix later
+   if(currentHeading > windDirn){ 
+   difference = currentHeading - windDirn;
+    if(currentHeading > 360 - TACKING_ANGLE){
+     difference -= 360;
+    } 
+   }
+   else{
+     difference = windDirn- currentHeading - windDirn;
+     if(currentHeading >360 - TACKING_ANGLE){
+      difference-=360; 
+     }
+   }
   if(abs(difference) < TACKING_ANGLE +5){            //checks if closehauled first, +5 for good measure
   //do this with trig. It's a right-angled triangle, where opp is the distance perpendicular to the wind angle (the number we're looking for); 
   // and theta is the angle between the wind and the waypoint directions; positive when windDirn > waypointDirn
@@ -889,12 +963,15 @@ boolean checkTack(int corridorHalfWidth, struct points waypoint){
   
    //opp = hyp * sin(theta)
   distance = hypotenuse * sin(degreesToRadians(theta));
-  
-   if ( (distance  < 0 && wind_angl_newest > 180) || (distance > 0 && wind_angl_newest < 180) ) // check the direction of the wind so we only try to tack towards the mark
+  Serial.println("The distance from the corridor is:  ");
+  Serial.println(distance);
+   if ( (distance  < 0 && wind_angl> 180) || (distance > 0 && wind_angl < 180) ) // check the direction of the wind so we only try to tack towards the mark
    {
      if (abs(distance) > corridorHalfWidth){ //we're outside corridor
+           Serial.println("I want to tack because I'm outside the 10m corridor");
           return true; 
      }  else if(!between(waypointDirn, windDirn + TACKING_ANGLE, windDirn - TACKING_ANGLE)) { //if we're past the layline
+         Serial.println("I want to tack because I'm past the layline");
          return true;
     } 
      
@@ -943,10 +1020,10 @@ int sailControl(){
    
   error = sensorData(BUFF_MAX, 'w'); //updates wind_angl_newest
   
-  if (wind_angl_newest > 180) //wind is from port side, but we dont care
-    windAngle = 360 - wind_angl_newest; //set to 180 scale, dont care if it's on port or starboard right now, though we will for steering and will in future set a flag here
+  if (wind_angl > 180) //wind is from port side, but we dont care
+    windAngle = 360 - wind_angl; //set to 180 scale, dont care if it's on port or starboard right now, though we will for steering and will in future set a flag here
   else
-    windAngle = wind_angl_newest;
+    windAngle = wind_angl;
     
   if (windAngle > TACKING_ANGLE) //not in irons
     setSails( (windAngle-TACKING_ANGLE)*100/(180 - TACKING_ANGLE) );//scale the range of winds from 30->180 (150 degree range) onto 0 to 100 controls (60 degree range); 0 means all the way in
@@ -1083,7 +1160,7 @@ void loop()
 {
   int error;
   int i;
-  int point;
+  //int point;
   char input;
   int numWaypoints = 1;
   int waypoint;
