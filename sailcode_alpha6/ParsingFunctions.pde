@@ -247,7 +247,7 @@ int Parser(char *val)
     windDataArray[webmail] = wind_angl_newest;    //code for averaging errors, 
     wind_angl =0;
     for(j = 0; j < 3; j++){
-     wind_angl += windDataArray[webmail];
+     wind_angl += windDataArray[j];
     }
     wind_angl /= 3;
     }

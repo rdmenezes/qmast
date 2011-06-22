@@ -69,11 +69,8 @@ int analogToRudder(int analog)
 {
   float temp;
   temp = analog - 512; //see comment
-  temp = temp/133.0 * 30; //normalize to -25 to 25 to get a 50 degree range that will be changed to 0-100 at the other end
-  
+  temp = temp/133.0 * 30; //normalize to -25 to 25 to get a 50 degree range that will be changed to 0-100 at the other end  
   temp += 150; //scale for transmission
-  
- 
   return temp;  
 }
 

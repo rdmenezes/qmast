@@ -26,3 +26,10 @@ points clearPoints = {        //generic empty struct, use for clearing other str
 points boatLocation;        // boats current location, 
 
 points stayPoint; //used in stationkeeping
+
+ //GPGLL,4413.6803,N,07629.5175,W,232409,A,A*58 south lamp post
+ //GPGLL,4413.6927,N,07629.5351,W,230533,A,A*51 middle tree by door
+ //GPGLL,4413.7067,N,07629.4847,W,232037,A,A*53 NW corner of the dirt pit by white house
+ //GPGLL,4413.7139,N,07629.5007,W,231721,A,A*57 middle lamp post
+ //GPGLL,4413.7207,N,07629.5247,W,231234,A,A*5E at the top of the parking lot/bay ramp, where the edging and sidewalk end
+
