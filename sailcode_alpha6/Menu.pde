@@ -42,8 +42,7 @@ int displayMenu()
         char wayNum;        
         char select;        //select for clearing data
         boolean hasVal = false;
-        
-	char sailDirection;
+        char sailDirection;
         byte rudderRCvalue;
         byte sailsRCvalue;
 	byte tackVal;
@@ -73,17 +72,17 @@ int displayMenu()
 	while(true)//stayInMenu == true)
 	{
 		//menu options
-		Serial.println("|");
+		Serial.println("|");        //symbol for stopping RC mode
 		Serial.println("___________________  MENU  ______________________");
 		Serial.println("");
 		Serial.println("");
-		Serial.println("a.	Input Waypoints");
+		Serial.println("a.     *Input Waypoints");
 		Serial.println("b.	Begin course sailing");
 		Serial.println("c.     *Straight sail");
 		Serial.println("d.	Sail to waypoint");
 		Serial.println("e.	Tack");
-		Serial.println("f.	*Get Wind Sensor Data");
-		Serial.println("g.      *Get Compass Data");
+		Serial.println("f.     *Get Wind Sensor Data");
+		Serial.println("g.     *Get Compass Data");
                 Serial.println("h.      Get Speed Data");
                 Serial.println("i.      Fleet Racing mode");
 		Serial.println("j.     *Exit Menu");
@@ -93,13 +92,12 @@ int displayMenu()
                 Serial.println("n.     *Toggle Rudder direction");
                 Serial.println("o.     *perform diagnostics");
                 Serial.println("p.      get gps coordinate");
-                Serial.println("r.      super Zigbee RC mode");
-                Serial.println("s.      keyboard Zigbee RC mode");
+                Serial.println("r.     *super Zigbee RC mode");
+                Serial.println("s.     *keyboard Zigbee RC mode");
                 Serial.println("t.      Single point stationkeeping");
                 Serial.println("u.      Change Station Keeping time before exit");
-                Serial.println("v.      Hack Stationkeeping");
                 Serial.println("z.     *Clear serial buffer");
-		Serial.println("|");
+		Serial.println("|");      // symbol for stopping RC mode 
 		Serial.println("Select option:");
 		
 		//clears values from previous menu selection
@@ -172,8 +170,7 @@ int displayMenu()
                                        while(Serial.available() == 0);    //wait until serial data is available
                                       gpsDigit = Serial.read() - '0';
                                       if(gpsDigit >=0){
-                                      waypoints[coornum].latMin =  waypoints[coornum].latMin + (gpsDigit*pow(10,power));
-                                            
+                                      waypoints[coornum].latMin =  waypoints[coornum].latMin + (gpsDigit*pow(10,power));                                            
                                       Serial.println(power);
                                       Serial.println(gpsDigit*pow(10,power));
                                       power--;                
@@ -181,9 +178,7 @@ int displayMenu()
                                  }while(gpsDigit != (46-'0'));  
                                
                                    // if(badGPS = true)
-                                   //   break;
-                              //     gpsDigit = Serial.read() ; //Just reading the '.' to get rid of it and get too the stuff after the decimal
-                                    //power--;                  
+                                   //   break;                
                                     while(power > -5){
                                       gpsDigit = Serial.read() - '0';  
                                      waypoints[coornum].latMin =  waypoints[coornum].latMin + gpsDigit*pow(10.0,power);
@@ -234,9 +229,7 @@ int displayMenu()
                                  }while(gpsDigit != (46-'0'));  
                                
                                    // if(badGPS = true)
-                                   //   break;
-                              //     gpsDigit = Serial.read() ; //Just reading the '.' to get rid of it and get too the stuff after the decimal
-                                    //power--;                  
+                                   //   break;               
                                     while(power > -5){
                                       gpsDigit = Serial.read() - '0';  
                                      waypoints[coornum].lonMin =  waypoints[coornum].lonMin + gpsDigit*pow(10.0,power);
@@ -270,9 +263,11 @@ int displayMenu()
 				break;
 				
 				//start automated sailing	
+                                //
 			case 'b':
-				Serial.println("Selected course sailing. Currently testing in menu.");
-				//Sail();      calls functions to begin automated sailing currently calls sailCourse, but cannot break out of loop
+                                //      calls functions to begin automated sailing currently calls sailCourse, 
+                                //      asks how many waypoints you need and allows you to select the waypoint you want for each location
+				Serial.println("Selected course sailing. Currently testing in menu.");				
                                 Serial.println("Enter number of waypoints");
                                 hasCourse = false;
                                 while(hasCourse == false){
@@ -289,33 +284,20 @@ int displayMenu()
                                   
                                   hasCourse = true;
                                 }
-                                return 2;//update this when it does something :)
+                                return 2;
 				break;
 				
-				//call rudder angle set function
+				//sets sails and rudder to go in a direction
+                                 //if upwind the boat will try to sail closehauled direction
 			case 'c':
 				Serial.println("Enter desired compass direction (n, s, e, w): ");
-                                //april 8th 2011 in process of being hacked from set rudder angle to set sail angle, Valerie is being really lazy and keeping the name rudderAngle for now
+             
 				while(hasSailDirection == false)
 				{
 					if(Serial.available() > 0)
 					{ 
 						//this will have to be changed to use Serial.readln function
 						sailDirection = Serial.read(); //- '0'; now reading a char    //the " - '0' " converts the ASCII char to its actaul integer value (ex: without this, if the user entered '1' it would store as 49)	
-//						if(rudderAngle >= 0 && rudderAngle <= 360)	//check for valid rudder angle input
-//						{
-//							hasRudderAngle = true;
-//							//setRudder(float(rudderAngle)); 
-//                                                        StraightSailDirection = rudderAngle;
-//							Serial.print("Compass bearing set to: ");
-//							temp = float(rudderAngle);
-//							Serial.println(temp);
-//						}
-//						else
-//						{
-//							Serial.println("Invalid Angle");
-//						}
-
                                                 switch(sailDirection)
                                               {  //the input char sailDirection
                                                 case 'n':
@@ -346,7 +328,7 @@ int displayMenu()
 				//hasSailDirection = false; // Val: why set this local variable back to false? Can probably delete this.
 				break;
 				
-				//call sailside function
+				//call sail to waypoint from the waypoint of your choosing
 				case 'd':
 					Serial.println("Selected Sail To Waypoint. Please choose a waypoint.");	
                                         
@@ -359,7 +341,7 @@ int displayMenu()
                                         return 4;
   					break;
 					
-					//call tack function
+					//call tack function for testing
 				case 'e':
                                         Serial.println("Please point boat against the wind.");
 					Serial.println("Enter any value to begin");
@@ -393,7 +375,7 @@ int displayMenu()
                                                   Serial.println(heading);                                               
                                                 }
 						break;
-						//exits the menu
+						//call compass
 					case 'g':
 						Serial.println("Selected Compass");
 						compassData = sensorData(BUFF_MAX,'c');
@@ -413,7 +395,7 @@ int displayMenu()
                                                 
                                             //    return 0;
 						break;
-
+                                                  //returns speed
                                         case 'h':
 						Serial.println("Selected Speed");        						                         
                                                   Serial.println("Speed Data: ");
@@ -423,7 +405,7 @@ int displayMenu()
                                                   Serial.println(bspeedk);
                                                 return 0;
 						break;
-					
+					    //puts boat in fleet racing mode, where rudder is manual but sails are autonomous
                                         case 'i':
                                             Serial.println("Selected Fleet Racing Mode (autonomous sails, RC rudder.");
                                             Serial.println("Press q to return to menu.");
@@ -454,12 +436,13 @@ int displayMenu()
                                                           hasQ = true;
                                                           Serial.println("exiting RC mode");
                                                           delay(2000);
+                                                          Serial.flush();
                                                           Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
-                                                          Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
+                                                          Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");                  //ending symbol, lots so that the boat does not miss it
                                                           rudderDir *= -1;
                                                         break;
                                                       }
-                                                 sailControl();     
+                                                 sailControl();     //calling this will cause a spamming of the Serial port, will have lag exiting
                                                  //delay(100);    
                                                    
                                                    if (Serial.available() > 20)
@@ -470,8 +453,10 @@ int displayMenu()
 					case 'j':
 						Serial.println("Exiting Menu");
                                                 return 0;
+                                                break;
 					//	stayInMenu = false;
 						//does nothing
+                                                //attempts to stationkeep by creating a box within the stationkeeping box and sailing on a bream reach between 2
                                         case 'k':
                                                 Serial.println("StationKeeping");   //stationkeeping menu item, currently untested
                                                 Serial.println("Using the first 4 coordinates as corners"); //cannot access menu when stationkeeping                                          
@@ -482,6 +467,8 @@ int displayMenu()
                                                 timesUp = false;
                                                 startTime = millis();//record the starting clock time
                                                 return 1;
+                                                break;
+                                                //shows all the waypoints currently entered
                                         case 'l':
                                                 Serial.println("View Waypoints"); //shows all waypoints that have been entered
                                                 for(i = 0; i < 10; i++){
@@ -513,7 +500,14 @@ int displayMenu()
                                                 Serial.print(stationPoints[i].lonDeg,0);
                                                 Serial.println(stationPoints[i].lonMin,4);
                                                 }    
+                                                Serial.println("View boat location");
+                                                Serial.print(boatLocation[i].latDeg,0);
+                                                Serial.print(boatLocation[i].latMin,4);
+                                                Serial.print(" ");
+                                                Serial.print(boatLocation[i].lonDeg,0);
+                                                Serial.println(boatLocation[i].lonMin,4);
                                                 break;   
+                                                //clears all wayooints in the waypoints array
                                         case 'm':
                                                 Serial.println("Clear all waypoints? (y/n)");
                                                 while(hasVal == false){
@@ -537,11 +531,13 @@ int displayMenu()
                                                 }
                                                 //return 0;
                                                 break;
+                                                //changes rudder direction
                                         case 'n':
                                                 Serial.println("Toggle rudder direction");
                                                 rudderDir = rudderDir*-1;
                                             //    return 0;
                                                 break;
+                                                //basic diagnostic to see if everything is turning properly and all sensors are working
                                         case 'o':
                                                 Serial.println("Performing Diagnostic and calibration tests");
                                                 Serial.println("Turning Rudder right 30");
@@ -673,7 +669,7 @@ int displayMenu()
                                                           Serial.println("exiting RC mode");
                                                           delay(2000);
                                                           Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
-                                                          Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
+                                                          Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");            //ending symbol, lots so that it is not missed
                                                          rudderDir *= -1;
                                                         break;
                                                       }
@@ -681,9 +677,7 @@ int displayMenu()
                                                       
                                                 } 
                                                 break;
-                                        
-                                      
-                                        
+                                                               //keyboard based RC mode,                 
                                         case 's':
                                         rudderDir *= -1;
                                         int rudcount;
@@ -779,6 +773,7 @@ int displayMenu()
                                                       setSails(sailsVal);
                                                 } 
                                                 break;
+                                                //station keeping makes a single point inthe centre of the box and tries to stay there
                                         case 't': 
                                                 Serial.println("StationKeeping");   //stationkeeping menu item, currently untested
                                                 Serial.println("Using the first 4 coordinates as corners"); //cannot access menu when stationkeeping                                          
@@ -789,6 +784,7 @@ int displayMenu()
                                                 startTime = millis();//record the starting clock time
                                                 return 5;        
                                                 break;
+                                                //changes how long to stay in box
                                         case 'u':
                                                 Serial.println("Change station keeping time in box.");
                                                 Serial.println("Please enter time in seconds (must have 3 digits)");
@@ -802,15 +798,8 @@ int displayMenu()
                                                 Serial.print("entered:    ");
                                                 Serial.println(timeFudge);
                                                 StationKeepingTimeInBox = timeFudge;
-                                                break;
-                                                
-                                        
+                                                break;                                       
                                         break;
-                                        case 'v':
-                                                Serial.println("hack swtationkeeping");
-                                                startTime = millis();
-                                                return 6;
-                                                break;
                                         case 'z': //If you press z it clears the serial buffer
                                                 Serial.flush();
                                                 Serial.println("Serial Buffer Cleared");
