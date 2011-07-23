@@ -501,11 +501,11 @@ int displayMenu()
                                                 Serial.println(stationPoints[i].lonMin,4);
                                                 }    
                                                 Serial.println("View boat location");
-                                                Serial.print(boatLocation[i].latDeg,0);
-                                                Serial.print(boatLocation[i].latMin,4);
+                                                Serial.print(boatLocation.latDeg,0);
+                                                Serial.print(boatLocation.latMin,4);
                                                 Serial.print(" ");
-                                                Serial.print(boatLocation[i].lonDeg,0);
-                                                Serial.println(boatLocation[i].lonMin,4);
+                                                Serial.print(boatLocation.lonDeg,0);
+                                                Serial.println(boatLocation.lonMin,4);
                                                 break;   
                                                 //clears all wayooints in the waypoints array
                                         case 'm':

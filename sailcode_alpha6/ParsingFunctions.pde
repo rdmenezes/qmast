@@ -120,6 +120,8 @@ int Parser(char *val)
      int j;
   static int webmail;    //random name by kevin
   static int windDataArray[2] ;
+  int diff;
+  int calcAng;    //variables for computing average angle
 
   //for averaging errors to give smoother rudder control
 
@@ -238,18 +240,32 @@ int Parser(char *val)
     wind_angl_newest = wind_ang; //for testing purposes, save the newest wind angle
     
     
-   if(webmail == 2){
+   if(webmail == 1){
      webmail = 0;
   }
   else{
   webmail++;
   } 
-    windDataArray[webmail] = wind_angl_newest;    //code for averaging errors, 
+    windDataArray[webmail] = wind_angl_newest;    //code for averaging errors, needs to be fixed for smallest angle
     wind_angl =0;
-    for(j = 0; j < 3; j++){
-     wind_angl += windDataArray[j];
+    for(j = 1; j < 2; j++){
+        diff =   windDataArray[j] - windDataArray[j-1] + 180 + 360 ;
+        if(diff > 360){
+         diff -= 360;
+        }
+        else if(diff < 0){
+          diff += 360;
+        }
+        diff -= 180;
+        calcAng = (360 + windDataArray[j-1] + ( diff / 2 ) );
+                if(calcAng > 360){
+         calcAng -= 360;
+                }
+        else if(calcAng < 0){
+          calcAng += 360;
+        }
+     wind_angl =calcAng;
     }
-    wind_angl /= 3;
     }
     
   
