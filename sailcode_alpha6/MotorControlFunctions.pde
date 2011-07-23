@@ -36,6 +36,7 @@ constrain(ang,-30,30);
   pos = RUDDER_SERVO_RATE*(ang + 45) * rudderDir * 254.0 / 90.0;//convert from 180 degree range, -90 to +90 angle to a 0 to 256 maximum position range
 //  myservo.write((ang+90));
   servo_command(servo_num,pos,0);
+  rudderVal = ang;
   //delay(10);
 }
 
@@ -58,6 +59,7 @@ void setJib(float ang)
 
   pos = ang*110.0/100.0;
     servo_command(servo_num,pos,0); 
+    jibVal = ang;
 }
 void setMain(float ang)
 //code for setting main sail only
@@ -68,6 +70,7 @@ void setMain(float ang)
   
   pos = (ang + 50)*104.0/100.0;
   servo_command(servo_num,pos,0); 
+  mainVal = ang;
 }
 int pid(int err)
 //experimental code for a possible future pid control of rudder and sails
