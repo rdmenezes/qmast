@@ -64,8 +64,8 @@
 //Pins
 //pololu pins
 
-#define resetPin 8 //Pololu reset (digital pin on arduino)
-#define txPin 9 //Pololu serial pin (with SoftwareSerial library)
+#define resetPin 6 //Pololu reset (digital pin on arduino)
+#define txPin 7 //Pololu serial pin (with SoftwareSerial library)
 
 //#define servoPin 5 //arduino Servo library setup
 
@@ -387,7 +387,7 @@ void setup()
         pinMode(txPin, OUTPUT);
         pinMode(resetPin, OUTPUT);
                             
-      //  servo_ser.begin(2400);
+        servo_ser.begin(2400);
         delay(2000);
         //next NEED to explicitly reset the Pololu board using a separate pin
         //else it times out and reports baud rate is too slow (red LED)
@@ -402,19 +402,19 @@ void setup()
 Serial3.begin(4800);
 // 
  //setup indicator LEDs       
- pinMode(oldDataLED, OUTPUT); //there is data, but buffer is full, error indicator light
- pinMode(noDataLED, OUTPUT);  // no data, error indicator LED
- pinMode(twoCommasLED, OUTPUT); // indicates that there were two commas in the data, and it has been discarded and not parsed
- pinMode(checksumBadLED, OUTPUT);// indicates checksum fail on data
- pinMode(goodCompassDataLED, OUTPUT); // indicates that strtok returned PTNTHTM, so we probably got good data
- pinMode(rolloverDataLED, OUTPUT); //indicates data rolled over, not fast enough
-            
- digitalWrite(oldDataLED, LOW); //there is data, but buffer is full, error indicator light
- digitalWrite(noDataLED, LOW);  // no data, error indicator LED
- digitalWrite(twoCommasLED, LOW); // indicates that there were two commas in the data, and it has been discarded and not parsed
- digitalWrite(checksumBadLED, LOW);// indicates checksum fail on data
- digitalWrite(goodCompassDataLED, LOW); // indicates that strtok returned PTNTHTM, so we probably got good data
- digitalWrite(rolloverDataLED, LOW); //indicates data rolled over, not fast enough
+// pinMode(oldDataLED, OUTPUT); //there is data, but buffer is full, error indicator light
+// pinMode(noDataLED, OUTPUT);  // no data, error indicator LED
+// pinMode(twoCommasLED, OUTPUT); // indicates that there were two commas in the data, and it has been discarded and not parsed
+// pinMode(checksumBadLED, OUTPUT);// indicates checksum fail on data
+// pinMode(goodCompassDataLED, OUTPUT); // indicates that strtok returned PTNTHTM, so we probably got good data
+// pinMode(rolloverDataLED, OUTPUT); //indicates data rolled over, not fast enough
+//            
+// digitalWrite(oldDataLED, LOW); //there is data, but buffer is full, error indicator light
+// digitalWrite(noDataLED, LOW);  // no data, error indicator LED
+// digitalWrite(twoCommasLED, LOW); // indicates that there were two commas in the data, and it has been discarded and not parsed
+// digitalWrite(checksumBadLED, LOW);// indicates checksum fail on data
+// digitalWrite(goodCompassDataLED, LOW); // indicates that strtok returned PTNTHTM, so we probably got good data
+// digitalWrite(rolloverDataLED, LOW); //indicates data rolled over, not fast enough
 
  delay(10);          
   
@@ -486,7 +486,7 @@ void loop()
   int compassErrors = 0;
 
   //delay(1000);//setup delay, avoid spamming the serial port
-
+  transmit();
   if(Serial.available())
   {
       menuReturn = displayMenu();
@@ -511,7 +511,7 @@ void loop()
   sailCourse();
   break;
   case 4:
-  Serial.println("sail to Waypoint");
+//  Serial.println("sail to Waypoint");
   sailToWaypoint(waypoints[point]);
   break;
   case 5:
@@ -520,5 +520,6 @@ void loop()
   default:
   Serial.println("Invalid menu return. Press any key and enter to open the menu."); 
   delay(100);
+
  }
 }
