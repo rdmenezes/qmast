@@ -60,7 +60,6 @@ int displayMenu()
         //rc mode values
         
        boolean hasQ;
-       int rudderVal;
        int sailsVal;
        char rcVal; 
 	//GAELFORCE!
@@ -700,9 +699,7 @@ int displayMenu()
                                                           else{
                                                             rudderVal = 30;
                                                           }
-                                                   
-                                                          Serial.print("rudder Set to : ");
-                                                          Serial.println(rudderVal);
+                                                      
                                                         break;
                                                         case 'd':
                                                           rudcount = 0;
@@ -713,8 +710,7 @@ int displayMenu()
                                                             rudderVal = -30;
                                                           }
                                                        
-                                                          Serial.print("rudder Set to : ");
-                                                          Serial.println(rudderVal);
+                                                        
                                                         break;
                                                         case 's':
                                                             rudderVal = 0;\
@@ -726,8 +722,7 @@ int displayMenu()
                                                             else{
                                                               sailsVal = 100;
                                                             }
-                                                          Serial.print("Sails Set to : ");
-                                                          Serial.println(sailsVal);
+                                                        
                                                         break;
                                                         case 'e':
                                                           if(sailsVal > 0){
@@ -736,8 +731,7 @@ int displayMenu()
                                                             else{
                                                               sailsVal = 0;
                                                             }
-                                                            Serial.print("Sails Set to : ");
-                                                          Serial.println(sailsVal);
+                                                          
                                                         break;
                                                          case 'q':                                           
                                                             if(sailsVal < 100){
@@ -746,8 +740,7 @@ int displayMenu()
                                                             else{
                                                               sailsVal = 100;
                                                             }
-                                                            Serial.print("Sails Set to : ");
-                                                          Serial.println(sailsVal);
+                                                           
                                                          break;
                                                          case 'r':
                                                          if(sailsVal > 0){
@@ -756,8 +749,7 @@ int displayMenu()
                                                             else{
                                                               sailsVal = 0;
                                                             }
-                                                          Serial.print("Sails Set to : ");
-                                                          Serial.println(sailsVal);
+                                                         
                                                         break;
                                                         case 'y':
                                                           hasQ = true;
@@ -771,6 +763,14 @@ int displayMenu()
                                                       }
                                                       setrudder(rudderVal);
                                                       setSails(sailsVal);
+                                               Serial.print("###");
+                                               Serial.print("RUD:");
+                                               Serial.print(rudderVal,DEC);
+                                               Serial.print("MAIN:");
+                                               Serial.print(mainVal,DEC);
+                                               Serial.print("JIB:");
+                                               Serial.print(jibVal,DEC);
+                                               Serial.print("***");
                                                 } 
                                                 break;
                                                 //station keeping makes a single point inthe centre of the box and tries to stay there

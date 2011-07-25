@@ -5,7 +5,7 @@
 
 
 //Pololu servo board test in Mini SSC II mode
-//(mode jumper innplace on Pololu board)
+//(mode jumper inplace on Pololu board)
 
 //Servo_command receieves a servo number (acceptable range: 00-FE) and a position (acceptable range: 00-FE)
 void servo_command(int whichservo, int position, byte longRange)
