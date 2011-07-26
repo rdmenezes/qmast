@@ -14,7 +14,6 @@
 //All bearing calculations in this code assume that the compass returns True North readings. ie it is adjusted for declination.
 //If this is not true: adjust for declination in the Parse() function, as compass data is decoded add or subtract the declination
 
-
 //#include <math.h> doesnt work
 #include "LocationStruct.h"
 #include <SoftwareSerial.h> 
@@ -153,8 +152,10 @@ int tackingSide;    //1 for left -1 for right
 int ironTime;
 
 
+
 void relayData(){//sends data to shore
 
+  Serial.println(millis());
  //send data to zigbee
  Serial.println();
  Serial.print(boatLocation.latDeg);
@@ -173,7 +174,8 @@ void relayData(){//sends data to shore
  Serial.print(",");
  Serial.print(wind_velocity);//wind velocity in knots
  Serial.print(",");
- Serial.println(headingc);//compass heading
+ Serial.println(headingc);//compass 
+
 
 }
 
@@ -209,8 +211,14 @@ void sailCourse(){
         currentPoint = points;
         return;
        }     
-  } //end loop through waypoints
+ } 
 
+
+/* old description of Straightsail (deprecated)
+         //this should be the generic straight sailing function; getWaypointDirn should return a desired compass direction, 
+         //taking into account wind direction (not necc just the wayoint dirn); (or make another function to do this)
+          //needs to set rudder to not try and head directly into the wind
+   */
 int sail(int waypointDirn){
   //sails towards the waypointDirn passed in, unless this is upwind, in which case it sails closehauled.
   //sailToWaypoint will take care of when tacking is necessary 
@@ -218,25 +226,11 @@ int sail(int waypointDirn){
   //This function replaces straightsail which originally only controlled rudder
   
   int i;
-  /* old description of Straightsail (deprecated)
-         //this should be the generic straight sailing function; getWaypointDirn should return a desired compass direction, 
-         //taking into account wind direction (not necc just the wayoint dirn); (or make another function to do this)
-          //needs to set rudder to not try and head directly into the wind
-   */
+  
   static int error = 0; //error flag
   int directionError = 0;
   int angle = 0; 
   static int windDirn;
-//  int j;
-//  static int i;
-//  static int[5] previousError;    //for averaging errors to give smoother rudder control
-  //int waypointDirection;
-//  if(i == 4){
-//     i = 0;
-//  }
-//  else{
-//  i++;
-//  } 
   windDirn = getWindDirn(); 
   error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
     if (error){
@@ -259,12 +253,6 @@ int sail(int waypointDirn){
 
     if (directionError < 0)
       directionError += 360;
-      //    previousError[i] = directionError;    //code for averaging errors, 
-//    directionError = 0;
-//    for(j = 0; j < 5; j++){
-//     directionError += prevousError[i];
-//    }
-//    directionError /= 5;
     if  (directionError > 10 && directionError < 350) { //rudder deadzone to avoid constant adjustments and oscillating, only change the rudder if there's a big error
         if (directionError > 180) //turn left, so send a negative to setrudder function
           setrudder((directionError-360)/4);  //adjust rudder proportional; setrudder accepts -45 to +45
@@ -293,7 +281,7 @@ int sailToWaypoint(struct points waypoint){
      tack(); 
     }
     else{                        //not facing upwind or inside corridor
-       sail(waypointDirn); //get the next waypoint's compass bearing; must be positive 0-360 heading;); 
+       sail(waypointDirn); //get the next waypoint's compass bearing; must be positive 0-360 heading; 
     }
     delay(300);
     return error;
@@ -344,7 +332,8 @@ boolean checkTack(int corridorHalfWidth, struct points waypoint){
      if (abs(distance) > corridorHalfWidth){ //we're outside corridor
            Serial.println("I want to tack because I'm outside the 10m corridor");
           return true; 
-     }  else if(!between(waypointDirn, windDirn + TACKING_ANGLE, windDirn - TACKING_ANGLE)) { //if we're past the layline
+     } 
+     else if(!between(waypointDirn, windDirn + TACKING_ANGLE, windDirn - TACKING_ANGLE)) { //if we're past the layline
          Serial.println("I want to tack because I'm past the layline");
          return true;
     }      
@@ -401,21 +390,6 @@ void setup()
  Serial2.begin(19200);
 Serial3.begin(4800);
 // 
- //setup indicator LEDs       
-// pinMode(oldDataLED, OUTPUT); //there is data, but buffer is full, error indicator light
-// pinMode(noDataLED, OUTPUT);  // no data, error indicator LED
-// pinMode(twoCommasLED, OUTPUT); // indicates that there were two commas in the data, and it has been discarded and not parsed
-// pinMode(checksumBadLED, OUTPUT);// indicates checksum fail on data
-// pinMode(goodCompassDataLED, OUTPUT); // indicates that strtok returned PTNTHTM, so we probably got good data
-// pinMode(rolloverDataLED, OUTPUT); //indicates data rolled over, not fast enough
-//            
-// digitalWrite(oldDataLED, LOW); //there is data, but buffer is full, error indicator light
-// digitalWrite(noDataLED, LOW);  // no data, error indicator LED
-// digitalWrite(twoCommasLED, LOW); // indicates that there were two commas in the data, and it has been discarded and not parsed
-// digitalWrite(checksumBadLED, LOW);// indicates checksum fail on data
-// digitalWrite(goodCompassDataLED, LOW); // indicates that strtok returned PTNTHTM, so we probably got good data
-// digitalWrite(rolloverDataLED, LOW); //indicates data rolled over, not fast enough
-
  delay(10);          
   
   //initialize all counters/variables
@@ -500,7 +474,7 @@ void loop()
   Serial.print("Sailing towards: ");
   Serial.print(StraightSailDirection, DEC);
   Serial.println(" degrees.");
-  sail(StraightSailDirection); //FIXME!!! Straightsail can no longer be called in isolation, needs sailtoWaypoint which keeps track of when tacking is necessary)
+  sail(StraightSailDirection); //FIXME!!! Straightsail can no longer be called in isolation, needs sailtoWaypoint which keeps track of when tacking is necessary
   break;
   case 1:        //this will be station keeping
   Serial.println("StationKeeping");
