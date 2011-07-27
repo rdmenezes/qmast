@@ -4,41 +4,37 @@ double GPSdistance(struct points location1, struct points location2){
     double distance;
     
     deltaLong = (location2.lonDeg - location1.lonDeg)*DEGREE_TO_MINUTE + (location2.lonMin - location1.lonMin); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
-    deltaLat = (location2.latDeg - location1.latDeg)*DEGREE_TO_MINUTE + (location2.latMin - location1.latMin); //y is the east/west coordinate, + in the east direction
-    
+    deltaLat = (location2.latDeg - location1.latDeg)*DEGREE_TO_MINUTE + (location2.latMin - location1.latMin); //y is the east/west coordinate, + in the east direction    
     //convert to meters, based on the number of meters in a minute, looked up for the given latitude
     deltaLat = deltaLat*LATITUDE_TO_METER; 
-    deltaLong = deltaLong*LONGITUDE_TO_METER;
-    
-    distance = sqrt (deltaLat*deltaLat + deltaLong*deltaLong);     
-    
+    deltaLong = deltaLong*LONGITUDE_TO_METER;   
+    distance = sqrt (deltaLat*deltaLat + deltaLong*deltaLong);         
     return distance;
 }
 
 int getWaypointDirn(struct points waypoint){
 // computes the compass heading to the waypoint based on the latest known position of the boat and the present waypoint, both in global variables
 // first converting minutes to meters
-  float waypointHeading;//the heading to the waypoint from where we are
-  float deltaX, deltaY; //the difference between the boats location and the waypoint in x and y
-  int integerHeading;
+    float waypointHeading;//the heading to the waypoint from where we are
+    float deltaX, deltaY; //the difference between the boats location and the waypoint in x and y
+    int integerHeading;
   
   // there are (approximately) 1855 meters in a minute of latitude; this isn't true for longitude, as it depends on the latitude
   //there are approximately 1314 m in a minute of longitude at 45 degrees north; this difference will mean that if we just use deltax over deltay in minutes to find an angle it will be wrong
-
-  deltaX = (waypoint.latDeg - boatLocation.latDeg)*DEGREE_TO_MINUTE + (waypoint.latMin - boatLocation.latMin); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
-  deltaY = (waypoint.lonDeg - boatLocation.lonDeg)*DEGREE_TO_MINUTE + (waypoint.lonMin - boatLocation.lonMin); //y is the east/west coordinate, + in the east direction  
-  deltaX *=LATITUDE_TO_METER;
-  deltaY *= LONGITUDE_TO_METER;
-  waypointHeading = radiansToDegrees(atan2(deltaY, deltaX)); // atan2 returns -pi to pi, taking account of which variables are positive to put in proper quadrant 
+    deltaX = (waypoint.latDeg - boatLocation.latDeg)*DEGREE_TO_MINUTE + (waypoint.latMin - boatLocation.latMin); //x (rather than y) is the north/south coordinate, +'ve in the north direction, because that will rotate the final angle to be the compass bearing
+    deltaY = (waypoint.lonDeg - boatLocation.lonDeg)*DEGREE_TO_MINUTE + (waypoint.lonMin - boatLocation.lonMin); //y is the east/west coordinate, + in the east direction  
+    deltaX *=LATITUDE_TO_METER;
+    deltaY *= LONGITUDE_TO_METER;
+    waypointHeading = radiansToDegrees(atan2(deltaY, deltaX)); // atan2 returns -pi to pi, taking account of which variables are positive to put in proper quadrant 
         
   //normalize direction
-  if (waypointHeading < 0)
-    waypointHeading += 360;
-  else if (waypointHeading > 360)
-    waypointHeading -= 360;
-    integerHeading = waypointHeading;
-    headingVal = integerHeading;
-  return integerHeading;
+    if (waypointHeading < 0)
+        waypointHeading += 360;
+    else if (waypointHeading > 360)
+        waypointHeading -= 360;
+        integerHeading = waypointHeading;
+        headingVal = integerHeading;
+        return integerHeading;
 }
 
 int getCloseHauledDirn(){
@@ -48,15 +44,14 @@ int getCloseHauledDirn(){
   int windHeading = 0; //compass bearing that the wind is coming from
   
   windHeading = getWindDirn(); //compass bearing for the wind
-
   //determine which tack we're on 
   if (wind_angl > 180){ //wind from left side of boat first
-    desiredDirection = windHeading + TACKING_ANGLE; //bear off to the right
+      desiredDirection = windHeading + TACKING_ANGLE; //bear off to the right
   }
-    else
-    desiredDirection = windHeading - TACKING_ANGLE; //bear off to the left  
-    if (desiredDirection < 0){
-      desiredDirection = -desiredDirection;
+  else
+      desiredDirection = windHeading - TACKING_ANGLE; //bear off to the left  
+  if (desiredDirection < 0){
+      desiredDirection *= -1;
     }
     if(desiredDirection > 360){
      desiredDirection = desiredDirection + (-desiredDirection +360);  
@@ -74,11 +69,11 @@ int getOppositeCloseHauledDirn(){
 
   //determine which tack we're on 
   if (wind_angl > 180){ //wind from left side of boat first
-    desiredDirection = windHeading - TACKING_ANGLE; //bear off to the right
+      desiredDirection = windHeading - TACKING_ANGLE; //bear off to the right
   }
-    else
+  else
     desiredDirection = windHeading + TACKING_ANGLE; //bear off to the left  
-    if (desiredDirection < 0){
+  if (desiredDirection < 0){
       desiredDirection = -desiredDirection;
     }
     if(desiredDirection > 360){

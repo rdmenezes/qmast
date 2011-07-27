@@ -258,3 +258,23 @@
 //        Serial.println(error);
 //        delay(1000);
 //    
+
+//wind sensor setup code
+//*hh<CR><LF>
+//$PAMTC,EN*hh<CR><LF>
+//$PAMTC,OPTION*hh<CR><LF>
+//$PAMTX*hh<CR><LF>
+//$PAMTC,ATTOFF*hh<CR><LF> // set which way is forward; have to input degrees; theres a nice description of the procedure for doing this in the manual
+//$PAMTC,ALT,Q*hh<CR><LF> will return $PAMTR,ALT,a,b,c with a,b,c = altitude,fixed or not, pressure setting
+  
+//Commands to talk to wind sensor: none of this is working
+//I switched the NMEA Combiner box's connections to the PC-OPTO-1-A cable to all be connected to the display terminals 
+//(the input to the wind sensor was previously connected to the AUX IN connections on the end of the combiner board);
+//no difference, still not working, data being sent from wind sensor
+//Perhaps the PC-OPTO cable is broken? Or it's not properly getting power from the way it's setup with only 3 wires connected?
+//  Serial3.println("$PAMTC,EN,Q*11"); // query the windsensor for its current settings based on the working copy in RAM (RAM as opposed to EPROM); this doesnt seem to be responding with anything, or it's being overwritten
+//Serial3.println("$PAMTC,EN,ALL,0*1D"); //disable all commands; this doesnt seem to have worked
+//Serial3.println("$PAMTX*50");//temporarily disable commands until power cycles; not working
+//***above commands now working! opto-isolator is now gone!!
+
+//$PAMTC,EN,S // save to EEPROM (changing wind sensor settings only affects RAM; unless this command is used, settings will return to previous state when power is cycled)

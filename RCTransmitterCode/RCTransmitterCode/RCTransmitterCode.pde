@@ -1,10 +1,8 @@
-
 /*
 code to take input from pots stolen from an old RC transmitter, and will send angle values through xbee to the boat.
 June 2011
 
 Valerie and Laszlo  
-
 
 Rudder sends values from 120 to 180 (centered at 150), sails sends value from 225 to 275 (centered at 250). This is so that all values sent are 3 characters, and not negative.
 This is taken into account in super xbee RC mode in the actual menu code.
@@ -23,24 +21,21 @@ void setup()
 }
 
 void loop()
-{
-  
+{  
   int rudderval;
   int sailsval;
   int normalizedrudder;
   int normalizedsails;
   char signalchar;      //char to signal data spam
   static boolean RCTime = false;
-  
-
+  if (Serial.available() > 20){
+   Serial.f 
+  }
     signalchar = Serial.read();
-   // Serial.println(signalchar);
     if(signalchar == '~'){
-//      Serial.println("yay");
       RCTime = true;
     }
       if(signalchar == '|'){
-//    Serial.println("noooooooo");
       RCTime = false;
     }
     if (RCTime == true){
@@ -79,10 +74,7 @@ int analogToSails(int analog)
 {
   float temp;
   temp = analog - 512; //see comment
-  temp = temp/133.0 * 25; //see rudder
-  
-  temp += 250;//scale for transmission
-  
-  return temp;  
-  
+  temp = temp/133.0 * 25; //see rudder  
+  temp += 250;//scale for transmission  
+  return temp;    
 }
