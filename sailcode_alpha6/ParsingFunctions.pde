@@ -129,7 +129,7 @@ int Parser(char *val)
   if (DataValid(val) == 0){ //check if the data is valid - ideally we'd do this by checking the checksum
     //Serial.print("Parses says: valid string, val (full string) is:\n");
   }
-  else { Serial.println("Datavalid fail"); digitalWrite(twoCommasLED, HIGH); 
+  else { Serial.println("Datavalid fail");  
 
 ; } // if data isnt valid, dont try to parse it and throw error code
 
@@ -234,11 +234,11 @@ int Parser(char *val)
 
     //wind_ref for the PB100 is always R? (relative to boat)
     //speed unit for the PB100 is always N? (knots)
-//    if(wind_ang != 270.0){
+    if((wind_ang != 270.0) && (wind_ang !=360.0) && (wind_ang != 90.0) && (wind_ang !=180.0)){ //these are known to occur during an error
     //wind_angl = wind_ang; //cb! dont we want a moving average?\
     wind_velocity = wind_vel;
     wind_angl_newest = wind_ang; //for testing purposes, save the newest wind angle
-    
+    }
     
    if(webmail == 1){
      webmail = 0;
@@ -247,7 +247,7 @@ int Parser(char *val)
   webmail++;
   } 
     windDataArray[webmail] = wind_angl_newest;    //code for averaging errors, needs to be fixed for smallest angle
-    wind_angl =0;
+    wind_angl = 0;
     for(j = 1; j < 2; j++){
         diff =   windDataArray[j] - windDataArray[j-1] + 180 + 360 ;
         if(diff > 360){
@@ -323,8 +323,7 @@ int Parser(char *val)
      */
 
      //need a way to parse commands with blanks in their data ie $PTNTHTM,,N,-2.4,N,10.7,N,59.1,3844*27 , which is what the compass returns when its tipped over too much; right now that breaks this parsing
-    digitalWrite(goodCompassDataLED, HIGH);
-    
+     
     head2_string = strtok(NULL, ","); // should return 285.2; this will use the cp copied string, since strtok magically remembers which string it was initially referenced to if NULL if used instead of a string
     head_st = (char) * strtok(NULL, ","); //head_st is only a (char) not a array of chars. It's value is only N or S. Hence, head_st = typecast(char) dereferenced strtok. 
           // strtok returns a point to a character array; we only want the value at the pointer's address (first value)
@@ -377,14 +376,15 @@ int Parser(char *val)
     if (abs(pitch_deg) > 45) 
     {
       Serial.println("OMG WERE FALLING OVER");
-      head2_deg = 0;
-      pitch_deg = 0;
-      roll_deg = 0;
+//      head2_deg = 0;
+//      pitch_deg = 0;
+//      roll_deg = 0;
     }
+    if(head2_deg != 0.0){
     headingc = head2_deg; //cb! dont we want a moving average?
-    pitch = pitch_deg;
-    roll = roll_deg;
-    
+    }
+    pitch = pitch_deg;    
+    roll = roll_deg;    
     heading_newest = head2_deg;//also track the newest heading
   }
 

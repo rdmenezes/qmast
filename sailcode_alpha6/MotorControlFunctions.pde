@@ -10,12 +10,11 @@
 //Servo_command receieves a servo number (acceptable range: 00-FE) and a position (acceptable range: 00-FE)
 void servo_command(int whichservo, int position, byte longRange)
 {
- servo_ser.print(0xFF, BYTE); //servo control board sync
+    servo_ser.print(0xFF, BYTE); //servo control board sync
  //Plolou documentation is wrong on servo numbers in MiniSSCII
- servo_ser.print(whichservo+(longRange*8), BYTE); //servo number, 180 mode
- servo_ser.print(position, BYTE); //servo position
+    servo_ser.print(whichservo+(longRange*8), BYTE); //servo number, 180 mode
+    servo_ser.print(position, BYTE); //servo position
 }
-
 
 //Accept a angle range to turn the rudder to 
 //float ang acceptable values: 90 degree total range (emulation); -45 = left; +45 = right; 0 = centre 
@@ -25,53 +24,47 @@ void setrudder(float ang)
 {
 //fill this in with the code to interface with pololu 
 
-  int servo_num = 1;
-  int pos; //position ("position" was highlighted as a special name?)
-  
- // Serial.println("Controlling motors");
+    int servo_num = 1;
+    int pos; //position 
   
 //check input, and change is appropriate
-constrain(ang,-30,30);
-
-  pos = RUDDER_SERVO_RATE*(ang + 45) * rudderDir * 254.0 / 90.0;//convert from 180 degree range, -90 to +90 angle to a 0 to 256 maximum position range
-//  myservo.write((ang+90));
-  servo_command(servo_num,pos,0);
-  rudderVal = ang;
-  //delay(10);
+    constrain(ang,-30,30);
+    pos = (ang + 45) * rudderDir * 254.0 / 90.0;//convert from 180 degree range, -90 to +90 angle to a 0 to 256 maximum position range
+    servo_command(servo_num,pos,0);
+    rudderVal = ang;
 }
 
 void setSails(float ang)
 //this could make more sense conceptually for sails if it mapped 0 to 90 rather than -45 to +45
-// presently the working range on the smartwinch (april 3) only respoings to -30 to +30 angles
 {
-  setJib(ang);
-  setMain(ang);
-
- 
+    setJib(ang);
+    setMain(ang); 
 }
+
 void setJib(float ang)
-//yet to be implemented code for 3rd servo
 //currently using setsails to call both main and jib servos
 {
-  int servo_num = 3;
-  int pos;
-  constrain(ang, 1,100);
-
-  pos = ang*110.0/100.0;
+    int servo_num = 3;
+    int pos;
+  
+    constrain(ang, 1,100);
+    pos = ang*110.0/100.0; //tweaking for gaelforce 2, 
     servo_command(servo_num,pos,0); 
     jibVal = ang;
 }
+
 void setMain(float ang)
 //code for setting main sail only
 {
-  int servo_num = 2;
-  int pos;
-  constrain(ang,1,100);
-  
-  pos = (ang + 50)*104.0/100.0;
-  servo_command(servo_num,pos,0); 
-  mainVal = ang;
+    int servo_num = 2;
+    int pos;
+
+    constrain(ang,1,100);  
+    pos = (ang + 50)*104.0/100.0;  //tweaking for gaelforce 2, check if smartwinch fuse blows
+    servo_command(servo_num,pos,0); 
+    mainVal = ang;
 }
+
 int pid(int err)
 //experimental code for a possible future pid control of rudder and sails
 //this may give better performance and smooth out motor movements

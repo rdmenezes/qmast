@@ -40,9 +40,9 @@ void transmit(void)
   Serial.print(headingc,2);
   Serial.print("setPoint: ");
   Serial.print(headingVal,2);
-  
+  //tacking
   Serial.print("TAK:");
-  Serial.print(tacking,DEC);
+  Serial.print(tacking,BIN);
   Serial.print("SID:");
   Serial.print(tackingSide,DEC);
   Serial.print("IRON:");
@@ -66,3 +66,26 @@ void transmit(void)
   Serial.print("***");
 }
 
+void relayData(){//sends data to shore
+
+  Serial.println(millis());
+ //send data to zigbee
+ Serial.println();
+ Serial.print(boatLocation.latDeg);
+ Serial.print(","); 
+ Serial.print(boatLocation.latMin);
+ Serial.print(",");
+ Serial.print(boatLocation.lonDeg); //latitude and longitude of boat's location, split into more precise degrees and minutes, to fit into a float
+ Serial.print(",");
+ Serial.print(boatLocation.lonMin);
+ Serial.print(",");
+ Serial.print(bspeed); //boat speed 
+ Serial.print(",");
+ Serial.print(heading);  //boat direction
+ Serial.print(",");
+ Serial.print(wind_angl);  //wind angle, (relative to boat or north?)
+ Serial.print(",");
+ Serial.print(wind_velocity);//wind velocity in knots
+ Serial.print(",");
+ Serial.println(headingc);//compass 
+}
