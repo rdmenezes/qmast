@@ -1,6 +1,6 @@
 //early tacking code, simpler than the unimplemented version for testing 
 //Jib has to be let out at the beginning of turning, this exert a moment on the boat allowing for faster turning, 
-//after truned halfway, pull jib in and let main out, again faster turning, speed should not be an issue, not much required in order to turn
+//after turned halfway, pull jib in and let main out, again faster turning, speed should not be an issue, not much required in order to turn
 //should still check if in iron, if so let main out, turn rudder to one side, when angle is no longer closehauled
 //try sailing again, 
 
@@ -17,20 +17,22 @@ void tack(){
   else
       tackingSide = -1;
   } 
+  Serial.println("tacking....");
   tacking = true;
   ironTime++;                  //checks to see if turned far enough
   if(ironTime > 100){           //waits about 10 seconds to before assuming in irons        
       getOutofIrons(tackingSide);    
       inIrons = true;      
   }
-  if(((wind_angl > 180) && (wind_angl < 360-TACKING_ANGLE))||((wind_angl < 180) && (wind_angl > TACKING_ANGLE))) {         //check to see if still trying to tack
+  if(((wind_angl > 180) && (wind_angl < 360-TACKING_ANGLE-5)) || ((wind_angl < 180) && (wind_angl > TACKING_ANGLE+5))) {         //check to see if still trying to tack
       tacking = false;        //resets variables 
-      newData = sensorData(BUFF_MAX, 'w');  
+      tackingSide = 0;
       dirn = getCloseHauledDirn();
       ironTime = 0;
       inIrons = false;
+      Serial.println("done tacking");
       sail(dirn);    //straighten out, sail closehauled
-      delay(200);
+//      delay(200);
   }  
   else if(tacking == true && inIrons == false){      //tacks depending on the side the wind is aproaching from
       if(tackingSide == 1){        //nested if statements
@@ -44,9 +46,7 @@ void tack(){
               setJib(ALL_OUT);                    //sets main and jib to allows better turning
               setrudder(-20);
           }      //rudder angle cannot be to steep, this would stall the boat, rather than turn it
-          delay(100);
-          newData = sensorData(BUFF_MAX, 'w');     
-          delay(100);                
+//          delay(100);                    
     } 
     //mirror for other side
     if(tackingSide == -1){
@@ -60,9 +60,7 @@ void tack(){
             setJib(ALL_OUT);                    //sets main and jib to allows better turning
             setrudder(20);
         }      //rudder angle cannot be to steep, this would stall the boat, rather than turn it
-        delay(100);
-        newData = sensorData(BUFF_MAX, 'w');      
-        delay(100);                
+//        delay(100);                
     }
   }
 }
@@ -74,8 +72,7 @@ void getOutofIrons(int tackside){
   setMain(ALL_OUT);
   setJib(ALL_IN);
   setrudder(30*tackside);        //arbitrary might want to base on direction of travel
-  dirn = sensorData(BUFF_MAX, 'w');
-  delay(100);
+ // delay(100);
 }
 
 

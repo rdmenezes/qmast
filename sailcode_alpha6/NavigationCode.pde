@@ -30,11 +30,12 @@ int getWaypointDirn(struct points waypoint){
   //normalize direction
     if (waypointHeading < 0)
         waypointHeading += 360;
-    else if (waypointHeading > 360)
+    else if (waypointHeading > 360){
         waypointHeading -= 360;
-        integerHeading = waypointHeading;
-        headingVal = integerHeading;
-        return integerHeading;
+    }
+    integerHeading = waypointHeading;
+    headingVal = integerHeading;
+    return integerHeading;
 }
 
 int getCloseHauledDirn(){

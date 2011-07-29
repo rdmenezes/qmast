@@ -6,9 +6,7 @@ void sailCourse(){
   //**declare things static so that they persist after each call, eliminate globals
   static int error; 
   static int distanceToWaypoint;//the boat's distance to the present waypoint
-      
-  error = sensorData(BUFF_MAX,'c');  
-  error = sensorData(BUFF_MAX,'w');     
+         
   distanceToWaypoint = GPSdistance(boatLocation, coursePoints[currentPoint]);//returns in meters
   Serial.println(distanceToWaypoint);
   //set rudder and sails    
@@ -38,7 +36,6 @@ int sail(int waypointDirn){
   static int windDirn;
   
   windDirn = getWindDirn(); 
-  error = sensorData(BUFF_MAX, 'c'); //updates heading_newest
   if (error){
       return (error);
   }         
@@ -48,16 +45,7 @@ int sail(int waypointDirn){
   else{
       directionError = waypointDirn - headingc;
   }
-  if (directionError < 0)
-      directionError += 360;
-  if  (directionError > 10 && directionError < 350) { //rudder deadzone to avoid constant adjustments and oscillating, only change the rudder if there's a big error
-      if (directionError > 180) //turn left, so send a negative to setrudder function
-          setrudder((directionError-360)/4);  //adjust rudder proportional; setrudder accepts -45 to +45
-      else
-          setrudder(directionError/4); // adjust rudder proportional; setrudder accepts -30 to +30     
-  }   
-  else
-      setrudder(0);//set to neutral position      
+  rudderControl(directionError);   
   delay(10);     //wait to allow rudder signal to be sent to pololu
   directionError = sailControl();
   return 0;
@@ -79,7 +67,7 @@ int sailToWaypoint(struct points waypoint){
     else{                        //not facing upwind or inside corridor
         sail(waypointDirn); //get the next waypoint's compass bearing; must be positive 0-360 heading; 
     }
-    delay(300);
+//    delay(300);
     return error;
 }
 
@@ -97,38 +85,26 @@ boolean checkTack(int corridorHalfWidth, struct points waypoint){
    
    windDirn = getWindDirn();
    currentHeading = headingc;
-   //difference = currentHeading - windDirn;          //call between fix later
-   if(currentHeading > windDirn){ 
-       difference = currentHeading - windDirn;
-       if(difference > 360 - TACKING_ANGLE){
-           difference -= 360;
-       } 
-   }
-   else{
-       difference = windDirn- currentHeading;
-       if(difference > 360 - TACKING_ANGLE){
-           difference -= 360; 
-       }
-   }
-  if(abs(difference) < TACKING_ANGLE +5){            //checks if closehauled first, +5 for good measure
+   
+  if(between(currentHeading,windDirn - TACKING_ANGLE, windDirn + TACKING_ANGLE)){
+    //checks if closehauled first, +5 for good measure
   //do this with trig. It's a right-angled triangle, where opp is the distance perpendicular to the wind angle (the number we're looking for); 
   // and theta is the angle between the wind and the waypoint directions; positive when windDirn > waypointDirn
       waypointDirn = getWaypointDirn(waypoint);
       theta = waypointDirn - windDirn;    
   // the hypotenuse is as long as the distance between the boat and the waypoint, in meters
       hypotenuse = GPSdistance(boatLocation, waypoint);//latitude is Y, longitude X for waypoints  
-   //opp = hyp * sin(theta)
       distance = hypotenuse * sin(degreesToRadians(theta));
-      Serial.println("The distance from the corridor is:  ");
+      Serial.println("The distance from corridor:  ");
       Serial.println(distance);
       if ( (distance  < 0 && wind_angl> 180) || (distance > 0 && wind_angl < 180) ) // check the direction of the wind so we only try to tack towards the mark
       {
           if (abs(distance) > corridorHalfWidth){ //we're outside corridor
-              Serial.println("I want to tack because I'm outside the 10m corridor");
+              Serial.println("want to tackoutside the corridor");
               return true; 
           } 
           else if(!between(waypointDirn, windDirn + TACKING_ANGLE, windDirn - TACKING_ANGLE)) { //if we're past the layline
-              Serial.println("I want to tack because I'm past the layline");
+              Serial.println("want to tack  past the layline");
               return true;
           }      
      }     
@@ -145,7 +121,6 @@ int sailControl(){
       setMain(ALL_OUT); //set sails all the way out, keep jibaX 
       return (1); //return 1 to indicate heel
   }
-  error = sensorData(BUFF_MAX, 'w'); //updates wind_angl_newest
   if (wind_angl > 180) //wind is from port side, but we dont care
       windAngle = 360 - wind_angl; //set to 180 scale, dont care if it's on port or starboard right now, 
   else
@@ -157,3 +132,16 @@ int sailControl(){
   return error;
 }
 
+//controls the rudder movement, used to be part of sail, but is moved to a seperate function so it is easier to modify
+int rudderControl(int directionError){
+    if (directionError < 0)
+        directionError += 360;
+    if  (directionError > 10 && directionError < 350) { //rudder deadzone to avoid constant adjustments and oscillating, only change the rudder if there's a big error
+        if (directionError > 180) //turn left, so send a negative to setrudder function
+            setrudder((directionError-360)/4);  //adjust rudder proportional; 
+        else
+            setrudder(directionError/4); // adjust rudder proportional; setrudder accepts -30 to +30     
+    }   
+    else
+        setrudder(0);//set to neutral position  
+}

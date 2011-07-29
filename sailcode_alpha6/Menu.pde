@@ -500,6 +500,7 @@ int displayMenu()
                                             Serial.println(wind_velocity);                                                  
                                         }
                                         Serial.println("testing complete");
+                                        return 0;
                                         break;
                                 case 'p':  //returns your current position
                                         Serial3.flush();
@@ -539,7 +540,8 @@ int displayMenu()
                                                     Serial.println("invalid input");
                                                 }
                                             }
-                                        }                                                
+                                        }  
+                                        return 0;                                        
                                         break;
                                         
                                 case 'r':  //Direct rudder and sail control

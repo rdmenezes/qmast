@@ -89,7 +89,7 @@ float roll;//roll
 int rudderVal;      
 int jibVal;
 int mainVal;
-int headingVal;    //where we are going,
+float headingVal;    //where we are going, temporary compass smoothing test
 
 // one-shots, no averaging, present conditions
 float heading_newest;//heading relative to true north
@@ -174,9 +174,12 @@ void setup()
 
 void loop()
 {
-  int menuReturn;
-
+  int menuReturn; 
+  
   transmit();
+  sensorData(BUFF_MAX, 'w');
+  sensorData(BUFF_MAX, 'c');
+
   if(Serial.available())
   {
       menuReturn = displayMenu();
@@ -203,7 +206,9 @@ void loop()
       break;
       default:
         Serial.println("Invalid menu return. Press any key"); 
-     delay(100);
+     delay(50);
+     
+
    }
 }
 
