@@ -28,8 +28,7 @@ void ParseGPGLL(char *GPGLL_string, double *degree, double *minute){
     float fractionalMinute; // the fractional portion of minutes (ie 0.mmmm of mm.mmmm)
     int i; //counter
     double temp; //garbage
-    
-    Serial.println("GPGLL r");   
+      
     //find degrees and low precision minutes      
     lowPrecisionGPS = atof(GPGLL_string);
       //get the degrees part, and the integer minutes part
@@ -117,15 +116,6 @@ int Parser(char *val)
   char *head2_string; //sscanf, strtok doesnt support directly scanning into floats; hence we are scanning into strings and then using atof to convert to float
   char *roll_string;
   char *pitch_string;
-     int j;
-  static int webmail;    //random name by kevin
-  static int windDataArray[2] ;
-  int diff;
-  int calcAng;    //variables for computing average angle
-
-  //for averaging errors to give smoother rudder control
-
-    
   if (DataValid(val) == 0){ //check if the data is valid - ideally we'd do this by checking the checksum
     //Serial.print("Parses says: valid string, val (full string) is:\n");
   }
@@ -234,40 +224,26 @@ int Parser(char *val)
 
     //wind_ref for the PB100 is always R? (relative to boat)
     //speed unit for the PB100 is always N? (knots)
-    if((wind_ang != 270.0) && (wind_ang !=360.0) && (wind_ang != 90.0) && (wind_ang !=180.0)){ //these are known to occur during an error
+    if((wind_ang != 270.0) && (wind_ang !=360.0) && (wind_ang != 90.0) && (wind_ang !=180.0) &&(wind_ang != 0.0)){ //these are known to occur during an error willthrow off sail logic
     //wind_angl = wind_ang; //cb! dont we want a moving average?\
-    wind_velocity = wind_vel;
-    wind_angl_newest = wind_ang; //for testing purposes, save the newest wind angle
+        wind_velocity = wind_vel;
+        wind_angl_newest = wind_ang; //for testing purposes, save the newest wind angle
+           if(wind_angl_newest - wind_angl > 180){
+                wind_angl += 360;
+            }
+            if(wind_angl - wind_angl_newest > 180){
+                wind_angl_newest += 360;
+            }
+            wind_angl += wind_angl_newest;
+            wind_angl /= 2;
+            while (wind_angl < 0){
+                wind_angl += 360;
+            }
+            while (wind_angl > 360){
+                wind_angl -= 360;
+            }
+        }   
     }
-    
-   if(webmail == 1){
-     webmail = 0;
-  }
-  else{
-  webmail++;
-  } 
-    windDataArray[webmail] = wind_angl_newest;    //code for averaging errors, needs to be fixed for smallest angle
-    wind_angl = 0;
-    for(j = 1; j < 2; j++){
-        diff =   windDataArray[j] - windDataArray[j-1] + 180 + 360 ;
-        if(diff > 360){
-         diff -= 360;
-        }
-        else if(diff < 0){
-          diff += 360;
-        }
-        diff -= 180;
-        calcAng = (360 + windDataArray[j-1] + ( diff / 2 ) );
-                if(calcAng > 360){
-         calcAng -= 360;
-                }
-        else if(calcAng < 0){
-          calcAng += 360;
-        }
-     wind_angl =calcAng;
-    }
-    }
-    
   
   //Boat's speed
   if (strcmp(str, "$GPVTG") == 0) 
@@ -380,8 +356,23 @@ int Parser(char *val)
 //      pitch_deg = 0;
 //      roll_deg = 0;
     }
+
     if(head2_deg != 0.0){
-    headingc = head2_deg; //cb! dont we want a moving average?
+        if(head2_deg - headingc > 180){
+            headingc += 360;
+        }
+        if(headingc - head2_deg > 180){
+            head2_deg += 360;
+        }
+        headingc += head2_deg;
+        headingc /= 2;
+        while (headingc < 0){
+            headingc += 360;
+        }
+        while (headingc > 360){
+            headingc -= 360;
+        }   
+ //   headingVal = head2_deg; //cb! dont we want a moving average?
     }
     pitch = pitch_deg;    
     roll = roll_deg;    

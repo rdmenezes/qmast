@@ -1,9 +1,9 @@
 void transmit(void)
 {
-  int boatLat;
-  int boatLon;
-  boatLat = boatLocation.latDeg*100000+boatLocation.latMin*10000/0.6;
-  boatLat = boatLocation.lonDeg*100000+boatLocation.lonMin*10000/0.6;
+  long boatLat;
+  long boatLon;
+  boatLat = boatLocation.latDeg*1000000+boatLocation.latMin*10000/0.6;
+  boatLon = boatLocation.lonDeg*1000000+boatLocation.lonMin*10000/0.6;
   Serial.print("###");
   //GPS
   Serial.print("LAT:");
@@ -17,7 +17,7 @@ void transmit(void)
   Serial.print("SPD:");
   Serial.print(bspeed,2);
   //Wind Dirn and Vel
-  Serial.print("vwthetaBR:");
+  Serial.print("vwthetaT:");
   Serial.print(wind_angl,2);
   Serial.print("vwR:");
   Serial.print(wind_velocity,2);
@@ -36,10 +36,11 @@ void transmit(void)
   Serial.print("RUD:");
   Serial.print(rudderVal,DEC);
   //What we are doing
-  Serial.print("vbthetaT: ");
+  Serial.print("vbthetaT:");
   Serial.print(headingc,2);
-  Serial.print("setPoint: ");
+  Serial.print("setPoint:");
   Serial.print(headingVal,2);
+
   //tacking
   Serial.print("TAK:");
   Serial.print(tacking,BIN);

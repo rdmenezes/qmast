@@ -65,38 +65,4 @@ void setMain(float ang)
     mainVal = ang;
 }
 
-int pid(int err)
-//experimental code for a possible future pid control of rudder and sails
-//this may give better performance and smooth out motor movements
-//needs to be tuned
-//proportion values for all 3 sections need to be adjusted,
-//integral function may need to be limited to prevent overshoot
-//may need to eliminate derivative term completely if the system noise turns out to be too great
-{
- static int error;    //the amount of error
- static int proportion;    //proportional change to the error
- static int integral;    //integral change
- static int differential;  //differential change
- static int lastError[5];      //previous error
- static int output;
- static int i = 0;            //counter
- int j;
-  
-  error = err;
-  proportion = error/5;
-  for(j = 0; j <5; j++)
-  {
-  integral += lastError[i]/20;
-  }
-  integral += error/20 ;
-  differential = (error - lastError[i-1])/10;
-  lastError[i] = error;
-  if(i == 4){
-    i = 0;
-  }
-  else{
-    i++;
-  }
-  output = proportion+ integral + differential;
-  return output;
-}
+

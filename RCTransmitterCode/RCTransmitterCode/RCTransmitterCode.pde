@@ -28,9 +28,7 @@ void loop()
   int normalizedsails;
   char signalchar;      //char to signal data spam
   static boolean RCTime = false;
-  if (Serial.available() > 20){
-   Serial.f 
-  }
+  
     signalchar = Serial.read();
     if(signalchar == '~'){
       RCTime = true;
