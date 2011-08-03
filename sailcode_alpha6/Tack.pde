@@ -12,12 +12,12 @@ void tack(){
 
   if(tacking == false){
       if(wind_angl > 180){
-      tackingSide = 1; 
-  }
-  else
-      tackingSide = -1;
+          tackingSide = 1; 
+      }
+      else
+          tackingSide = -1;
   } 
-  Serial.println("tacking....");
+  Serial.println("tacking........");
   tacking = true;
   ironTime++;                  //checks to see if turned far enough
   if(ironTime > 100){           //waits about 10 seconds to before assuming in irons        
@@ -31,36 +31,32 @@ void tack(){
       ironTime = 0;
       inIrons = false;
       Serial.println("done tacking");
-      sail(dirn);    //straighten out, sail closehauled
-//      delay(200);
   }  
   else if(tacking == true && inIrons == false){      //tacks depending on the side the wind is aproaching from
       if(tackingSide == 1){        //nested if statements
-          if(wind_angl < 180){
-              setJib(ALL_IN);
-              setMain(ALL_OUT);
+          if(wind_angl > 180){
+              setJib(ALL_OUT);
+              setMain(ALL_IN);
               setrudder(-20);
           }
           else{
-              setMain(ALL_IN);
-              setJib(ALL_OUT);                    //sets main and jib to allows better turning
+              setMain(ALL_OUT);
+              setJib(ALL_IN);                    //sets main and jib to allows better turning
               setrudder(-20);
-          }      //rudder angle cannot be to steep, this would stall the boat, rather than turn it
-//          delay(100);                    
+          }      //rudder angle cannot be to steep, this would stall the boat, rather than turn it                   
     } 
     //mirror for other side
     if(tackingSide == -1){
-        if(wind_angl > 180){
-            setJib(ALL_IN);
-            setMain(ALL_OUT);
+        if(wind_angl < 180){
+            setJib(ALL_OUT);
+            setMain(ALL_IN);
             setrudder(20);
         }
         else{
-            setMain(ALL_IN);
-            setJib(ALL_OUT);                    //sets main and jib to allows better turning
+            setMain(ALL_OUT);
+            setJib(ALL_IN);                    //sets main and jib to allows better turning
             setrudder(20);
-        }      //rudder angle cannot be to steep, this would stall the boat, rather than turn it
-//        delay(100);                
+        }      //rudder angle cannot be to steep, this would stall the boat, rather than turn it             
     }
   }
 }
@@ -72,7 +68,6 @@ void getOutofIrons(int tackside){
   setMain(ALL_OUT);
   setJib(ALL_IN);
   setrudder(30*tackside);        //arbitrary might want to base on direction of travel
- // delay(100);
 }
 
 

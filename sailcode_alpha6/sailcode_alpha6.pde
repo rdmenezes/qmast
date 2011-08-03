@@ -60,14 +60,14 @@
 // for reliable serial data  
  int		extraWindData = 0; //'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer
  int              extraCompassData = 0;
- int		savedWindChecksum=0;//clear the global saved XOR value
- int		savedWindXorState=0;//clear the global saved XORstate value
- int		savedCompassChecksum=0;
- int		savedCompassXorState=0;
+ int		savedWindChecksum = 0;//clear the global saved XOR value
+ int		savedWindXorState = 0;//clear the global saved XORstate value
+ int		savedCompassChecksum = 0;
+ int		savedCompassXorState = 0;
  int		lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
- int 		noData =1; // global flag to indicate serial buffer was empty
+ int 		noData = 1; // global flag to indicate serial buffer was empty
  char 		extraWindDataArray[LONGEST_NMEA]; // a buffer to store roll-over data in case this data is fetched mid-line
- char            extraCompassDataArray[LONGEST_NMEA];
+ char           extraCompassDataArray[LONGEST_NMEA];
 
 //Sensor data
 //Heading angle using wind sensor
@@ -84,13 +84,13 @@ float wind_velocity;//wind velocity in knots
 float headingc;//heading from compass
 float pitch;//pitch 
 float roll;//roll 
-
+float trueWind;// wind direction calculated at checkteck
 //variables for transmiting data
 int rudderVal;      
 int jibVal;
 int mainVal;
 float headingVal;    //where we are going, temporary compass smoothing test
-
+float distanceVal;    //distance to next waypoint
 // one-shots, no averaging, present conditions
 float heading_newest;//heading relative to true north
 float wind_angl_newest;//wind angle, (relative to boat)
@@ -106,7 +106,6 @@ int currentPoint = 0;    //current waypoint on course of travel
 //Menu hack globals
 int StraightSailDirection;
 int CurrentSelection;
-boolean RCMode;
 //stationkeepig globals
 long startTime;
 int stationCounter;
@@ -119,8 +118,7 @@ int tackingSide;    //1 for left -1 for right
 int ironTime;
 
 void setup()
-{
-        
+{       
 	Serial.begin(9600);
 
 //for pololu
@@ -151,7 +149,7 @@ void setup()
   bspeed = 0; //Boat's speed in km/h
   bspeedk = 0; //Boat's speed in knots
   //Wind data
-  wind_angl = 0;//wind angle, (relative to boat or north?)
+  wind_angl = 0;//wind angle, (relative to boat)
   wind_velocity = 0;//wind velocity in knots
   //Compass data
   headingc = 0;//heading relative to true north
@@ -162,7 +160,6 @@ void setup()
   heading_newest = 0;//heading relative to true north, newest
   wind_angl_newest = 0;//wind angle relative to boat
   
-  RCMode = false;
 //compass setup code
   delay(1000); //give everything some time to set up, especially the serial buffers
   Serial2.println("$PTNT,HTM*63"); //request a data sample from the compass for heading/tilt/etc, and give it time to get it
@@ -189,6 +186,8 @@ void loop()
       }  
   }
   switch (CurrentSelection) {
+      case 0:
+      break;
       case 1:        //this will be station keeping
         stationKeep();
       break;    
@@ -196,19 +195,17 @@ void loop()
         sailCourse();
       break;
       case 3://Straight Sail towards N,S,E,W as 0, 180, 90, 270. No sail control.
-        sail(StraightSailDirection); //FIXME!!! Straightsail can no longer be called in isolation, needs sailtoWaypoint which keeps track of when tacking is necessary
+        sail(StraightSailDirection); // Straightsail can no longer be called in isolation, needs sailtoWaypoint which keeps track of when tacking is necessary
       break;
       case 4:
         sailToWaypoint(waypoints[point]);
       break;
       case 5:
-        stationKeepSinglePoint();
+        stationKeepSinglePoint();      //stationskeeps around a single spot in the middle of the square
       break;
       default:
         Serial.println("Invalid menu return. Press any key"); 
-     delay(50);
-     
-
+     delay(60);     
    }
 }
 
