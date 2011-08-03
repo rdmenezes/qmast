@@ -45,7 +45,7 @@ int displayMenu()
 	//GAELFORCE!
 	
 	Serial.println("");
-              //Val: not anymore, now return stuff based on inputs, 0 for unchanged //this loops through the menu until the user has selected the "exit menu" function 
+              //return stuff based on inputs, 0 for unchanged 
 	while(true)
 	{
 		//menu options
@@ -57,9 +57,6 @@ int displayMenu()
 		Serial.println("b.	Begin course sailing");
 		Serial.println("c.     *Straight sail");
 		Serial.println("d.	Sail to waypoint");
-		Serial.println("f.     *Get Wind Sensor Data");
-		Serial.println("g.     *Get Compass Data");
-                Serial.println("h.     *Get Speed Data");
                 Serial.println("i.      Fleet Racing mode");
 		Serial.println("j.     *Exit Menu");
                 Serial.println("k.      Stationkeeping");
@@ -87,10 +84,8 @@ int displayMenu()
 				selection = Serial.read(); //Val: switched to char values since out of single digits // - '0';     //the " - '0' " converts the ASCII char to its actaul integer value (ex: without this, if the user entered '1' it would store as 49)			
 				hasSelection = true;
 			}	
-		}
-		
+		}		
 		//calls appropriate function, and returns to the menu after function execution
-		//Serial.println(selection,BYTE);    this prints the input, but the serial input is stored as its ASCII value, (ie 1 = 49, 2 = 50, etc)
 		switch(selection)
 		{
 			//call input waypoints function
@@ -218,19 +213,20 @@ int displayMenu()
                                 Serial.println("Enter number of waypoints");
                                 hasValue = false;
                                 while(hasValue == false){
-                                    while(Serial.available() ==false);
+                                    while(Serial.available() == false);
                                     points = Serial.read() - '0';
                                     for(i = 0; i < points; i++){
                                         Serial.print("Select waypoint for waypoint ");
                                         Serial.println(i);
                                         while(Serial.available() == false);
-                                        pointNum = Serial.read();
-                                        coursePoints[i] = waypoints[pointNum];
+                                        pointNum = Serial.read() - '0';
+                                        coursePoints[i] = waypoints[pointNum];                                        
                                         Serial.println("added waypoint to course");
                                     }                                  
                                     hasValue = true;
                                 }
                                 Serial.println("sailing course");
+                                currentPoint = 0;
                                 return 2;
 				break;				
 				//sets sails and rudder to go in a direction
@@ -284,48 +280,8 @@ int displayMenu()
                                         }       
                                         Serial.println("sail to Waypoint");                             
                                         return 4;
-  					break;
-						
-					//call wind function	
-				case 'f':
-					Serial.println("Selected Wind");
-					windData = sensorData(BUFF_MAX,'w');
-                                        if(windData == false){
-                                            Serial.println("Wind Sensor Data: ");
-                                            Serial.print("  Averaged wind Angle:  ");
-                                            Serial.println(wind_angl);
-                                            Serial.print(" Fresh wind Angle:  ");
-                                            Serial.println(wind_angl_newest);
-                                            Serial.print("  Wind Velocity (knots):   ");
-                                            Serial.println(wind_velocity);  
-                                            Serial.println("TEMPORARY wind sensor heading");
-                                            Serial.println(heading);                                               
-                                        }
-                                        return 0;
-					break;
-					//call compass
-				case 'g':
-					Serial.println("Selected Compass");
-					compassData = sensorData(BUFF_MAX,'c');		
-                                        Serial.println("Compass Data: ");
-                                        Serial.print("  Heading:  ");
-                                        Serial.println(headingc);
-                                        Serial.print("  Pitch:   ");
-                                        Serial.println(pitch);
-                                        Serial.print("  Roll   ");
-                                        Serial.println(roll); 
-                                        return 0;                                                 
-					break;
-                                                  //returns speed
-                                case 'h':
-					Serial.println("Selected Speed");        						                         
-                                        Serial.println("Speed Data: ");
-                                        Serial.print("  Boat's speed (km/h):  ");
-                                        Serial.println(bspeed);
-                                        Serial.print("  Boat's speed(knots):   ");
-                                        Serial.println(bspeedk);
-                                        return 0;
-					break;
+  					break;	
+
 					//puts boat in fleet racing mode, where rudder is manual but sails are autonomous
                                 case 'i':
                                         Serial.println("Selected Fleet Racing Mode (autonomous sails, RC rudder.");
@@ -666,18 +622,18 @@ int displayMenu()
                                             if(rudcount > 10){
                                                 rudVal = 0; 
                                             }
-                                            sensorData(BUFF_MAX, 'w');
-                                            sensorData(BUFF_MAX, 'c');
+                                      //      sensorData(BUFF_MAX, 'w');
+                                      //      sensorData(BUFF_MAX, 'c');
                                             setrudder(rudVal);
                                             setSails(sailsVal);
-                                            transmit();
+                                       //     transmit();
                                         }
                                         return 0;
                                         break;
                                                 //station keeping makes a single point inthe centre of the box and tries to stay there
                                 case 't': 
                                         Serial.println("StationKeeping");   //stationkeeping menu item, currently untested
-                                        Serial.println("Using the first 4 coordinates as corners"); //cannot access menu when stationkeeping                                          
+                                        Serial.println("Using the first 4 coordinates as corners");                                         
                                         for(i = 0; i < 4; i++){                                                  
                                             stationPoints[i] = waypoints[i];                                          
                                         }                                                
@@ -710,7 +666,6 @@ int displayMenu()
                                  default:
                                         return 0;
 				        break;
-			}	
-			
+			}			
 	}
 }	

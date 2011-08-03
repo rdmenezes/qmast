@@ -9,7 +9,7 @@ struct points{
 };            
  //struct for holding course waypoints 
  
-points waypoints[10] ={        //optional preset values for registers
+points waypoints[10] = {        //optional preset values for registers
   {44.0,13.6927,-76.0,-29.5175},       //note both degrees and minutes must have the right sign in order for manipulation of gps data to work
   {38.0,58.9443,-76.0,-28.7383}, 
   {38.0,58.9515,-76.0,-28.7127}};
@@ -18,7 +18,16 @@ points waypoints[10] ={        //optional preset values for registers
 points stationPoints[4];      //possible additional structures for stationkeeping and 
                               //course plotting
 points floatingStationPoints[4];  //plot for points within the stationkeeping square                              
-points coursePoints[10];  
+points coursePoints[10] = {
+ {0,0,0,0},
+ {0,0,0,0},
+ {0,0,0,0},
+ {0,0,0,0},
+ {0,0,0,0},
+ {0,0,0,0},
+ {0,0,0,0},
+ {0,0,0,0},
+ {0,0,0,0}};  
 
 points clearPoints = {        //generic empty struct, use for clearing other structs
   0,0,0,0};

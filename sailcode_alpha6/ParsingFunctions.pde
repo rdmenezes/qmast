@@ -56,7 +56,6 @@ void ParseGPGLL(char *GPGLL_string, double *degree, double *minute){
     fractionalMinute = modf(smallFraction, &temp); //0.mmmm
     //Serial.println(fractionalMinute);
 
-
     //drop the fraction from the low precision minute variable, save the integer part
     temp = modf(*minute, &intMinute);//drop the decimal part, we already have it; save the integer part into intMinute
     
@@ -65,12 +64,9 @@ void ParseGPGLL(char *GPGLL_string, double *degree, double *minute){
 }
 
 int Parser(char *val) 
-{
-  //I changed parser to no longer sum up the data
-  
+{  
 //parses a string of NMEA wind sensor data
 // this also changes the global variables depending on the data; this would be much better split into separate functions
-// presently, the changes to global variables are not conducive to a moving average; they CAN be used for an average, which could perhaps go into a moving average
 
 // This parser breaks when there are blanks in the data ie $PTNTHTM,,N,-2.4,N,10.7,N,59.1,3844*27
 
@@ -78,11 +74,6 @@ int Parser(char *val)
   char cp[100]; //temporary array for parsing, a copy of val
 
   //GPSGLL gps latitude and longitude data
-  //old method variables (delete after ParseGPGLL is tested)
-//  double grades, frac; //the integer and fractional part of Degrees.minutes
-//  float lat_deg_nmea, lon_deg_nmea; // latitude and longitude in ddmm.mmmm degrees minutes format
-//  double lat; //latitude read from the string converted to decimal dd.mmmm
-//  double lon; //longitude read from the string converted to decimal dd.mmmm
  //new method variables
   char lat_dir, lon_dir; //N,S,E,W direction character
   int hms; //the time stamp on GPS strings; hours minutes seconds
@@ -121,26 +112,20 @@ int Parser(char *val)
   }
   else { Serial.println("Datavalid fail");  
 
-; } // if data isnt valid, dont try to parse it and throw error code
+ } // if data isnt valid, dont try to parse it and throw error code
 
   //Serial.println(val);//echo what we're about to parse
 
   strcpy(cp, val); //make a backup copy of the data to parse; if not copied val gets corrupted when tokenized
   str = strtok(cp, ","); //find location of first ',', and copy everything before it into str1; returns a pointer to a character array. this will be the type of command, should return $xxxxx identifier
-// Serial.print("command portion from cp strtok is: ");
- //Serial.println(str);
+//  Serial.print("command portion from cp strtok is: ");
+//  Serial.println(str);
   
   //now we know what type of command we're dealing with and can parse it - wooooo
   
   //GPS String
   if (strcmp(str, "$GPGLL") == 0) 
-  {
-   // sscanf(val, "$%5s,%f,%c,%f,%c,%d,%c,", str, &lat_deg_nmea, &lat_dir, &lon_deg_nmea, &lon_dir, &hms, &valid);
-   //"$GPGLL,4413.7075,N,07629.5199,W,192945,A,A*5E"
-   
-   //THIS ISNT WORKING because on arduino, floats only have 6 to 7 points of accuracy, same for doubles, so we're losing precision
-   //perhaps try splitting at the decimal point, subtracting the known degrees (huge accuracy, we wont travel a degree) to regain 2 extra digits
-    
+  {   
     lat_deg_nmea_string = strtok(NULL, ","); // this will use the cp copied string, since strtok magically remembers which string it was initially referenced to if NULL if used instead of a string
     lat_dir = (char) * strtok(NULL, ","); // only a (char) not a array of chars. Hence, = typecast(char) dereferenced strtok. 
           // strtok s a point to a character array; we only want the value at the pointer's address (first value)
@@ -151,7 +136,7 @@ int Parser(char *val)
     hms = atoi(hms_string); //hms is converted to integer, not float
 
     ParseGPGLL(lat_deg_nmea_string, &boatLocation.latDeg, &boatLocation.latMin); //convert the ddmm.mmmm string into dd, mm.mmmm (because there isnt enough precision in an arduino float, we split it into 2)
-    ParseGPGLL(lon_deg_nmea_string, &boatLocation.lonDeg, &boatLocation.lonMin);    //hacked to use structs 
+    ParseGPGLL(lon_deg_nmea_string, &boatLocation.lonDeg, &boatLocation.lonMin);    
 
     if (lat_dir == 'S')
     {
@@ -194,7 +179,7 @@ int Parser(char *val)
     var_deg = atof(var_deg_string); 
 
     //process
-    heading = (head_deg + 25); //cb! dont we want a moving average? FIXME later
+    heading = (head_deg + 25); // using external compass, may want to average the two
     if (heading > 360)
       heading -= 360;
     deviation = dev_deg; //what is this in compass terminology? I think we should be taking dev_dir into account
@@ -225,7 +210,6 @@ int Parser(char *val)
     //wind_ref for the PB100 is always R? (relative to boat)
     //speed unit for the PB100 is always N? (knots)
     if((wind_ang != 270.0) && (wind_ang !=360.0) && (wind_ang != 90.0) && (wind_ang !=180.0) &&(wind_ang != 0.0)){ //these are known to occur during an error willthrow off sail logic
-    //wind_angl = wind_ang; //cb! dont we want a moving average?\
         wind_velocity = wind_vel;
         wind_angl_newest = wind_ang; //for testing purposes, save the newest wind angle
            if(wind_angl_newest - wind_angl > 180){
@@ -280,14 +264,9 @@ int Parser(char *val)
     //ref_kmh is always K to indicate kilometers
 
     bspeed = sov_kmh; //actual speed not the average
-    bspeedk = sov_knot;
-	
-   //bspeed += sov_kmh; //cb! dont we want a moving average?
-    //bspeedk += sov_knot;
-    //GPVTG++;
+    bspeedk = sov_knot;	
   }
- 
- 
+  
   //Compass
   if (strcmp(str, "$PTNTHTM") == 0) 
   { //"$PTNTHTM,285.2,N,-2.4,N,10.7,N,59.1,3844*27" is actual data
@@ -349,12 +328,9 @@ int Parser(char *val)
       head2_deg -= 360;
 
     //data isnt valid if the boat is heeled over too much, so discard it if pitch is more than 45 degrees <- parser breaks before this, as the compass doesnt return a heading when its tipped
-    if (abs(pitch_deg) > 45) 
+    if (abs(pitch_deg) > 40) 
     {
       Serial.println("OMG WERE FALLING OVER");
-//      head2_deg = 0;
-//      pitch_deg = 0;
-//      roll_deg = 0;
     }
 
     if(head2_deg != 0.0){
@@ -372,7 +348,6 @@ int Parser(char *val)
         while (headingc > 360){
             headingc -= 360;
         }   
- //   headingVal = head2_deg; //cb! dont we want a moving average?
     }
     pitch = pitch_deg;    
     roll = roll_deg;    

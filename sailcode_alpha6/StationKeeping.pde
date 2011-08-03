@@ -3,7 +3,7 @@ void getStationKeepingCentre(double *centreLatMin, double *centreLonMin){
   //this function averages the GPS locations to find the centre point of the rectangle; has to be tested on Arduino
 
   double sumLatMin = 0;
-  double sumLonMin = 0;\  
+  double sumLonMin = 0;  
   int i;//counter
   
   for (i = 0; i < 4; i++)
@@ -70,9 +70,6 @@ int stationKeep(){
   //Timer variables
   long elapsedTime, currentTime;
   
-  //get data from sensors for global variables
-  error = sensorData(BUFF_MAX,'c');  
-  error = sensorData(BUFF_MAX,'w');    
   //set up waypoints
   getStationKeepingCentre(&centreLatMin, &centreLonMin); //find the centre of the global stationkeeping corner variables maybe move this to menu? only needs to be done once
   windDirn = getWindDirn(); //find the wind direction so we can set out waypoints downwind from it
@@ -88,13 +85,9 @@ int stationKeep(){
   }
   else{
       stayPoint = floatingStationPoints[stationCounter];             
-      distanceToWaypoint = GPSdistance(boatLocation, stayPoint);//returns in meters
-      Serial.println(distanceToWaypoint);        
-        //set rudder and sails 
-      error = sensorData(BUFF_MAX,'c');     
-      error = sensorData(BUFF_MAX,'w');            
-      error = sailToWaypoint(stayPoint); //sets the rudder, stays in corridor if sailing upwind       
-      delay(100);//give rudder time to adjust? this might not be necessary      
+      distanceToWaypoint = GPSdistance(boatLocation, stayPoint);//returns in meters        
+        //set rudder and sails          
+      error = sailToWaypoint(stayPoint); //sets the rudder, stays in corridor if sailing upwind          
         //check timer
       currentTime = millis(); //get the Arduino clock time              
       elapsedTime = currentTime - startTime;//calculate elapsed miliseconds since the start of the 5 minute loop
@@ -120,7 +113,7 @@ void stationKeepSinglePoint(){
   int windDirn;
   
   getStationKeepingCentre(&centreLatMin, &centreLonMin); //find the centre of the global stationkeeping corner variables
-  stayPoint.latDeg = 38;
+  stayPoint.latDeg = 44;
   stayPoint.latMin = centreLatMin;
   stayPoint.lonDeg = -76;
   stayPoint.lonMin = centreLonMin;
@@ -131,18 +124,13 @@ void stationKeepSinglePoint(){
       timesUp = true;
   }
   
-  if(timesUp == true){         //leave square; can either calculate the closest place to leave, or just head in beam reach as we do here:  
-      error = sensorData(BUFF_MAX,'w');    
+  if(timesUp == true){         //leave square; can either calculate the closest place to leave, or just head in beam reach as we do here:      
       windDirn = getWindDirn();
-      error = sail(windDirn+90); //sail out of box in beam reach
-      delay(100);//give rudder time to adjust? this might not be necessary 
+      error = sail(windDirn+90); //sail out of box in beam reach 
   }
   else{        
-        //set rudder and sails 
-      error = sensorData(BUFF_MAX,'c');     
-      error = sensorData(BUFF_MAX,'w');            
-      error = sailToWaypoint(stayPoint); //sets the rudder, stays in corridor if sailing upwind          
-      delay(100); //pololu crashes without this delay; maybe one command gets garbled with the next one?      
+        //set rudder and sails       
+      error = sailToWaypoint(stayPoint); //sets the rudder, stays in corridor if sailing upwind            
         //check timer
       currentTime = millis(); //get the Arduino clock time            
   } //end go to waypoint             

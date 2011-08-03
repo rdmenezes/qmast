@@ -18,10 +18,7 @@ int sensorData(int bufferLength, char device) {
   int error;//error flag for parser
   bool twoCommasPresent = false; //Alright, this flag will be set if the data being read in has two commas in a row. This is needed since
   	  	  	  	  	  	  	  	 //it will crash the program as strtok will have trouble with the delimiters later.
-
   //Serial.println(device); //display that data is being gathered from a device
-
-   // delay(5000);
    if(device == 'c')
    dataAvailable = Serial2.available(); //check how many bytes are in the buffer
    else if (device == 'w')
@@ -123,7 +120,6 @@ int sensorData(int bufferLength, char device) {
               array[j+1] = '\0';//append the end of string character
   //            Serial.println("Good string, about to parse");    
               error = Parser(array); //checksum was successful, so parse              
-              //delay(500);  //trying to add a delay to account for the fact that the code works when print out all the elements of the array, but not when you don't. Seems sketchy.
              } else {
         	  twoCommasPresent = false;
             //      Serial.println("Two commas present, didnt parse");
@@ -134,9 +130,6 @@ int sensorData(int bufferLength, char device) {
               }
               
         }
-//        else{
-//           Serial.println("checksum not good...");// else statement and this line are only here for testing
-//        }
         //regardless of checksum, reset array to beginning and reset checksum
         j = -1;//this will start writing over the old data, need -1 because we add to j
         //should be fine how we parse presently to have old data tagged on the end,
@@ -182,10 +175,6 @@ int sensorData(int bufferLength, char device) {
         dataAvailable = Serial3.available(); //check how many bytes are in the buffer
     }//end loop, used to be from 0 to dataAvailable, now its while dataAvailable
 
-//Jan 28, Christine:
-//this is the part where the data is being messed up; extraWindDataArray isnt saving useful data, just 0's. Memory issue??? 
-//Patch/fix: add in delay, so that partial data never wraps around and data is disgarded instead!
-
  //   Serial.print("end, 0 is:");
  //   Serial.println(array[0]);
 
@@ -218,14 +207,7 @@ int sensorData(int bufferLength, char device) {
  //     Serial.print(extraWindDataArray[2],HEX);
   //    Serial.print(extraWindDataArray[3],HEX);      
     }
-//    else if (j > LONGEST_NMEA)
-//       digitalWrite(twoCommasLED, HIGH); //error light
-//    else 
-//      digitalWrite(rolloverDataLED, LOW); //indicates data didnt roll over
-//      
   }//end if theres data to parse
- 
-
  
  /*  Serial.println(headingc);
    Serial.println(pitch);

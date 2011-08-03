@@ -4,11 +4,7 @@
 //should still check if in iron, if so let main out, turn rudder to one side, when angle is no longer closehauled
 //try sailing again, 
 void oldtack(){    
-  
-  
-  
-  
-  
+    
   boolean tackComplete = false;      
   float startingWind_angl = wind_angl;
   int newData = 0;

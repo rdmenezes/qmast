@@ -1,3 +1,6 @@
+  //most of this is no longer needed, or will not work
+  
+  
   //all testing code from last sailcode here
   //not guarenteed to work, has not been changed for new sailcode
   
@@ -68,7 +71,7 @@
 //      delay(100);  
 //  }
 
-  
+//no longer exists....  
 //MUX with motor testing  ; with present hardware setup, this makes rudder turn from Pololu and then jitter (no RC controller turned on)
 // the sails just trill and occasionally seems to mirror rudder with rudder plugged in; with rudder unplugged they jitter and low-pitched jittery-beep
 // this is likely due to the fact that the sail pin (11) seems to be broken (or that MUX channel is broken on the other side), it ranges .8to3.2V)
