@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
 <Placemark>
-<name> ALT:0 SPD:0.00vwthetaBR:332.91vwthetaT:47.00vwR:0.40ROL:-13.30MAIN:0JIB:100RUD:-20vbthetaT:75.49setPoint:306.00TAK:1SID:1IRON:96 HED:47.00vwR:0.40ROL:-13.30MAIN:0JIB:100RUD:-20vbthetaT:75.49setPoint:306.00TAK:1SID:1IRON:96</name>
+<name> SPD: HED:55.00vwR:0.40ROL:2.80MAIN:5JIB:5RUD:-11vbthetaT:7.12setPoint:310.00TAK:0SID:0IRON:0</name>
 <visibility>1</visibility>
 <description>Current Position</description>
 <Style>
 <IconStyle>
 <Icon>
-<href>http://maps.google.com/mapfiles/kml/shapes/airports.png</href>
+<href>http://maps.google.com/mapfiles/kml/shapes/sailing.png</href>
 </Icon>
 </IconStyle>
 <LineStyle>
@@ -17,7 +17,7 @@
 <Point>
 <extrude>1</extrude>
 <altitudeMode>relativeToGround</altitudeMode>
-<coordinates>0.000000,0.000000,0</coordinates>
+<coordinates>0.000000,0.000000,</coordinates>
 </Point>
 </Placemark>
 </kml>

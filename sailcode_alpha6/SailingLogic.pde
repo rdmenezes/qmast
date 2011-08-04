@@ -17,6 +17,24 @@ void sailCourse(){
       return;
   }     
 } 
+
+//new version of sailToWaypoint, this version checks if boat should tack or 'sail', thats it
+int sailToWaypoint(struct points waypoint){
+    static int waypointDirn;
+    static int error = 0;
+    
+    waypointDirn = getWaypointDirn(waypoint); //get the next waypoint's compass bearing; must be positive 0-360 heading;
+    if(tacking == true){                      //checks if it is already tacking, saves having to run checktack
+        tack();
+    }
+    else if(checkTack(10, waypoint) == true){          //checks if outside corridor and sailing into the wind 
+        tack(); 
+    }
+    else{                        //not facing upwind or inside corridor
+        sail(waypointDirn); //get the next waypoint's compass bearing; must be positive 0-360 heading; 
+    }
+    return error;    
+}
 /* old description of Straightsail (deprecated)
          //this should be the generic straight sailing function; getWaypointDirn should return a desired compass direction, 
          //taking into account wind direction (not necc just the wayoint dirn); (or make another function to do this)
@@ -42,24 +60,6 @@ int sail(int waypointDirn){
   delay(10);     //wait to allow rudder signal to be sent to pololu
   directionError = sailControl();
   return error;
-}
-
-//new version of sailToWaypoint, this version checks if boat should tack or 'sail', thats it
-int sailToWaypoint(struct points waypoint){
-    static int waypointDirn;
-    static int error = 0;
-    
-    waypointDirn = getWaypointDirn(waypoint); //get the next waypoint's compass bearing; must be positive 0-360 heading;
-    if(tacking == true){                      //checks if it is already tacking, saves having to run checktack
-        tack();
-    }
-    else if(checkTack(10, waypoint) == true){          //checks if outside corridor and sailing into the wind 
-        tack(); 
-    }
-    else{                        //not facing upwind or inside corridor
-        sail(waypointDirn); //get the next waypoint's compass bearing; must be positive 0-360 heading; 
-    }
-    return error;
 }
 
 //Checks if tacking is neccessary,returns true if it is false if not.
