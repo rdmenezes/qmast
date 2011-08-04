@@ -119,7 +119,7 @@ int ironTime;
 
 void setup()
 {       
-	Serial.begin(9600);
+	Serial.begin(57600);
 
 //for pololu
         pinMode(txPin, OUTPUT);
@@ -205,7 +205,7 @@ void loop()
       break;
       default:
         Serial.println("Invalid menu return. Press any key"); 
-     delay(60);     
+     delay(40);     
    }
 }
 
