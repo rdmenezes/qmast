@@ -20,7 +20,7 @@ void tack(){
   Serial.println("tacking........");
   tacking = true;
   ironTime++;                  //checks to see if turned far enough
-  if(ironTime > 100){           //waits about 10 seconds to before assuming in irons        
+  if(ironTime > 200){           //waits about 10 seconds to before assuming in irons        
       getOutofIrons(tackingSide);    
       inIrons = true;      
   }
@@ -43,7 +43,7 @@ void tack(){
               setMain(ALL_OUT);
               setJib(ALL_IN);                    //sets main and jib to allows better turning
               setrudder(-20);
-          }      //rudder angle cannot be to steep, this would stall the boat, rather than turn it                   
+          }      //rudder angle cannot be too steep, this would stall the boat, rather than turn it                   
     } 
     //mirror for other side
     if(tackingSide == -1){
@@ -56,7 +56,7 @@ void tack(){
             setMain(ALL_OUT);
             setJib(ALL_IN);                    //sets main and jib to allows better turning
             setrudder(20);
-        }      //rudder angle cannot be to steep, this would stall the boat, rather than turn it             
+        }      //rudder angle cannot be too steep, this would stall the boat, rather than turn it             
     }
   }
 }
@@ -67,7 +67,7 @@ void getOutofIrons(int tackside){
   
   setMain(ALL_OUT);
   setJib(ALL_IN);
-  setrudder(30*tackside);        //arbitrary might want to base on direction of travel
+  setrudder(30*tackside);        
 }
 
 

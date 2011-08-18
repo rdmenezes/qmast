@@ -119,13 +119,13 @@ int ironTime;
 
 void setup()
 {       
-	Serial.begin(57600);
+	Serial.begin(19200);
 
 //for pololu
         pinMode(txPin, OUTPUT);
         pinMode(resetPin, OUTPUT);
                             
-        servo_ser.begin(2400);
+        servo_ser.begin(4800);
         delay(2000);
         //next NEED to explicitly reset the Pololu board using a separate pin
         //else it times out and reports baud rate is too slow (red LED)

@@ -1,6 +1,6 @@
 // 'c' = compass
 // 'w' = wind sensor
-// sensorData replaces Compass() and Wind() with one function. This is not complete; the rollover array (at least) needs to be split into two separate arrays.
+// sensorData replaces Compass() and Wind() with one function. 
 int sensorData(int bufferLength, char device) {
 
 
@@ -35,7 +35,7 @@ int sensorData(int bufferLength, char device) {
     //when we get the data out
     
     //flushing data is probably not the best; the data will not be corrupt since the port blocks, it will justbe old, so accept it.
-      Serial.flush(); //clear the serial buffer
+//      Serial.flush(); //clear the serial buffer
 //    extraWindData = 0; //'clear' the extra data buffer, because any data wrapping around will be destroyed by clearing the buffer
 //    savedChecksum=0;//clear the saved XOR value
 //    savedXorState=0;//clear the saved XORstate value
@@ -81,10 +81,6 @@ int sensorData(int bufferLength, char device) {
       savedCompassChecksum = 0;//reset for the next time
       savedCompassXorState = 0;//reset for next time
     }
-    
-  //  Serial.print(array[0]);
-   // Serial.print(array[1]);
-   // Serial.print(array[2]);
     
     while(dataAvailable){//this loop empties the whole serial buffer, and parses every time there is a newline      
        if(device == 'c')

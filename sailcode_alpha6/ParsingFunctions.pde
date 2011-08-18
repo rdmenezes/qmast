@@ -108,7 +108,6 @@ int Parser(char *val)
   char *roll_string;
   char *pitch_string;
   if (DataValid(val) == 0){ //check if the data is valid - ideally we'd do this by checking the checksum
-    //Serial.print("Parses says: valid string, val (full string) is:\n");
   }
   else { Serial.println("Datavalid fail");  
 
@@ -148,9 +147,6 @@ int Parser(char *val)
       boatLocation.lonDeg *= -1; 
       boatLocation.lonMin *= -1;
     }          
-     //check 'valid' before continuing; throw error code if not valid -> do this properly
-    //  if (valid == 'V')
-    //    return 1; 
   }
 
   //Wind sensor compass
@@ -315,13 +311,6 @@ int Parser(char *val)
     */
   //   end diagnostic printing 
 
-    //check 'valid' before continuing; throw error code if not valid -> see compass manual on dropbox, this isnt actually correct
-   /* if (valid == 'V') //we need to check the checksum, not the V code (doesnt exist in our data); also check status codes of each variable that returns a status code; but for now no error checking
-      {
-      Serial.println("Compass reports invalid data!");
-      return 1; 
-      }
-*/
     if (head2_deg < 0)
       head2_deg += 360;
     else if (head2_deg > 360)
@@ -353,7 +342,5 @@ int Parser(char *val)
     roll = roll_deg;    
     heading_newest = head2_deg;//also track the newest heading
   }
-
-  return 0;
-	
-}
+  return 0;	
+} 
