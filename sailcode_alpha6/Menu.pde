@@ -1,6 +1,3 @@
-//Andrew Brannan wrote the skeleton of this during 2010-2011
-//returns the value of the menu item so loop knows what to do.
-//returns 0 when all updating happened in the menu (e.g. setting RC mode) and code should continue with previous selection
 int displayMenu()
 {
   /*
@@ -309,7 +306,6 @@ int displayMenu()
                                                          Serial.println("exiting RC mode");
                                                          delay(2000);
                                                          Serial.flush();
-                                                         Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
                                                          Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");                  //ending symbol, lots so that the boat does not miss it
                                                          rudderDir *= -1;
                                                          break;
@@ -535,7 +531,6 @@ int displayMenu()
                                                     hasValue = true;
                                                     Serial.println("exiting RC mode");
                                                     delay(2000);
-                                                    Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");
                                                     Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");            //ending symbol, lots so that it is not missed
                                                     rudderDir *= -1;
                                                     break;

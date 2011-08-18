@@ -13,7 +13,7 @@ void sailCourse(){
       currentPoint++;
   }
   if (currentPoint > points){
-      currentPoint = points;
+      currentPoint--;
       return;
   }     
 } 
@@ -48,6 +48,7 @@ int sail(int waypointDirn){
   static int error = 0; //error flag
   int directionError = 0;
   static int windDirn;
+  int offset;
   
   windDirn = getWindDirn();            
   if(between(waypointDirn, windDirn - TACKING_ANGLE, windDirn + TACKING_ANGLE)){ //check if the waypoint's direction is between the wind and closehauled on either side (ie are we downwind?)
@@ -64,7 +65,7 @@ int sail(int waypointDirn){
 
 //Checks if tacking is neccessary,returns true if it is false if not.
 //looks to see if boat is in the downwind corridor and if its angle to the wind is closehauled.
-//if the boat is pout the corridor and sailing closehauled then it will tack. This results in better turning and 
+//if the boat is out of the corridor and sailing closehauled then it will tack. This results in better turning and 
 //will allow for the safety of the getOutOfIrons being called during any turn into the wind
 boolean checkTack(int corridorHalfWidth, struct points waypoint){
    static int currentHeading;
