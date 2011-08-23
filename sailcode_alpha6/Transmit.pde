@@ -45,7 +45,7 @@ void transmit(void)
   Serial.print(ironTime,DEC);
   Serial.print(",DMD:");
   Serial.print(distanceVal);  // current distance
-  Serial.print(",ERR:');
+  Serial.print(",ERR:");
   Serial.print(errorCode);
   Serial.print("***");
 }
