@@ -1,37 +1,22 @@
-/*
-  Web  Server
- 
- A simple web server that shows the value of the analog input pins.
- using an Arduino Wiznet Ethernet shield.
- 
- Circuit:
- * Ethernet shield attached to pins 10, 11, 12, 13
- * Analog inputs attached to pins A0 through A5 (optional)
- 
- created 18 Dec 2009
- by David A. Mellis
- modified 4 Sep 2010
- by Tom Igoe
- 
- */
-
 #include <SPI.h>
 #include <Ethernet.h>
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x6D, 0xCA };
-byte ip[] = { 192,168,2, 177 };
+byte ip[] = { 192,168,13,100  };
+byte gateway[] ={74,49,31,1};
+byte subnet[] = {255,255,255,0};
 
 // Initialize the Ethernet server library
-// with the IP address and port you want to use
+// with the IP address and port you want to use 
 // (port 80 is default for HTTP):
-Server server(80);
+Server server(1080);
 
 void setup()
 {
   // start the Ethernet connection and the server:
-  Ethernet.begin(mac, ip);
+  Ethernet.begin(mac, ip, gateway, subnet);
   server.begin();
 }
 
@@ -67,7 +52,7 @@ void loop()
         if (c == '\n') {
           // you're starting a new line
           currentLineIsBlank = true;
-        }
+        } 
         else if (c != '\r') {
           // you've gotten a character on the current line
           currentLineIsBlank = false;
@@ -80,3 +65,4 @@ void loop()
     client.stop();
   }
 }
+

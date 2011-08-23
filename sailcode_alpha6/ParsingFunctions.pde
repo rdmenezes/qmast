@@ -107,13 +107,11 @@ int Parser(char *val)
   char *head2_string; //sscanf, strtok doesnt support directly scanning into floats; hence we are scanning into strings and then using atof to convert to float
   char *roll_string;
   char *pitch_string;
-  if (DataValid(val) == 0){ //check if the data is valid - ideally we'd do this by checking the checksum
-  }
-  else { Serial.println("Datavalid fail");  
-
+  if (DataValid(val) != 0){ //check if the data is valid - ideally we'd do this by checking the checksum
+      setErrorBit(twoCommasBit);
  } // if data isnt valid, dont try to parse it and throw error code
-
-  //Serial.println(val);//echo what we're about to parse
+ 
+ // Serial.println(val);//echo what we're about to parse
 
   strcpy(cp, val); //make a backup copy of the data to parse; if not copied val gets corrupted when tokenized
   str = strtok(cp, ","); //find location of first ',', and copy everything before it into str1; returns a pointer to a character array. this will be the type of command, should return $xxxxx identifier
@@ -152,14 +150,6 @@ int Parser(char *val)
   //Wind sensor compass
   if (strcmp(str, "$HCHDG") == 0) 
   {
-   // sscanf(val, "$%5s,%f,%f,%c,%f,%c,", str, &head_deg, &dev_deg, &dev_dir, &var_deg, &var_dir);
-
-    /*                printf("The string: %s\n", str);
-     printf("Heading: %f\n", head_deg);
-     printf("Dev: %f\n", dev_deg);
-     printf("Dev dir: %c\n", dev_dir);
-     printf("Var: %f\n", var_deg);
-     printf("Var dir: %c\n", var_dir);*/
   
     //parse
     head_deg_string = strtok(NULL, ","); // this will use the cp copied string, since strtok magically remembers which string it was initially referenced to if NULL if used instead of a string
@@ -199,13 +189,10 @@ int Parser(char *val)
     wind_ang = atof(wind_ang_string); 
     wind_vel = atof(wind_vel_string);
     
-    //check 'valid' before continuing; throw error code if not valid
-    //if (valid == 'V')
-     // return 1; 
-
     //wind_ref for the PB100 is always R? (relative to boat)
     //speed unit for the PB100 is always N? (knots)
     if((wind_ang != 270.0) && (wind_ang !=360.0) && (wind_ang != 90.0) && (wind_ang !=180.0) &&(wind_ang != 0.0)){ //these are known to occur during an error willthrow off sail logic
+        clearErrorBit(badWindData);
         wind_velocity = wind_vel;
         wind_angl_newest = wind_ang; //for testing purposes, save the newest wind angle
            if(wind_angl_newest - wind_angl > 180){
@@ -222,7 +209,10 @@ int Parser(char *val)
             while (wind_angl > 360){
                 wind_angl -= 360;
             }
-        }   
+        }
+       else{
+      setErrorBit(badWindData);
+       }   
     }
   
   //Boat's speed
@@ -250,10 +240,6 @@ int Parser(char *val)
     sov_knot = atof(sov_knot_string); 
     sov_kmh = atof(sov_kmh_string); 
 
-    //check 'valid' before continuing; throw error code if not valid
-    //if (valid == 'V')
-     // return 1; 
-
     //cov_true is the actual course the boat has been travelling in; ref_true = T this is relative to true north
     //meg_true is the actual course the boat has been travelling in; ref_true = M this is relative to magnetic north
     //ref_knot is always N to indicate knots
@@ -268,22 +254,17 @@ int Parser(char *val)
   { //"$PTNTHTM,285.2,N,-2.4,N,10.7,N,59.1,3844*27" is actual data
     // sscanf(val, "$%7s,%s,%c,%s,%c,%s,%c,%c", str1, &head2_string, &head_st, &pitch_string, &pitch_st, &roll_string, &roll_st, &valid);
     /*printf("Heading is : %f\n", head2_deg);
-     printf("String is : %s\n", str);
-     
+     printf("String is : %s\n", str);     
      "The %s format in sscanf is defined to read a string until it encounters white space.  If you want it to stop on a comma, you should use the %[^,] format." - some forum
      */
-
-     //need a way to parse commands with blanks in their data ie $PTNTHTM,,N,-2.4,N,10.7,N,59.1,3844*27 , which is what the compass returns when its tipped over too much; right now that breaks this parsing
-     
+    clearErrorBit(badCompassDataBit); 
     head2_string = strtok(NULL, ","); // should return 285.2; this will use the cp copied string, since strtok magically remembers which string it was initially referenced to if NULL if used instead of a string
     head_st = (char) * strtok(NULL, ","); //head_st is only a (char) not a array of chars. It's value is only N or S. Hence, head_st = typecast(char) dereferenced strtok. 
           // strtok returns a point to a character array; we only want the value at the pointer's address (first value)
     pitch_string = strtok(NULL, ",");
     pitch_st = (char) * strtok(NULL, ",");
     roll_string = strtok(NULL, ",");
-    roll_st = (char) * strtok(NULL, ",");
-   // valid = (char) * strtok(NULL, ","); //this was a temp data checking; our sensor doesnt behave like this
-    
+    roll_st = (char) * strtok(NULL, ",");    
     head2_deg = atof(head2_string);
     roll_deg = atof(roll_string);
     pitch_deg = atof(pitch_string);
@@ -319,7 +300,10 @@ int Parser(char *val)
     //data isnt valid if the boat is heeled over too much, so discard it if pitch is more than 45 degrees <- parser breaks before this, as the compass doesnt return a heading when its tipped
     if (abs(pitch_deg) > 40) 
     {
-      Serial.println("OMG WERE FALLING OVER");
+      setErrorBit(tooMuchRollBit);
+    }
+    else{
+     clearErrorBit(tooMuchRollBit); 
     }
 
     if(head2_deg != 0.0){

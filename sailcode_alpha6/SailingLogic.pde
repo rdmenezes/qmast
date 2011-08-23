@@ -4,11 +4,10 @@
 void sailCourse(){
   //sail the race course   
   //**declare things static so that they persist after each call, eliminate globals
-  static int error; 
   static int distanceToWaypoint;//the boat's distance to the present waypoint
          
   distanceToWaypoint = GPSdistance(boatLocation, coursePoints[currentPoint]);//returns in meters
-  error = sailToWaypoint(coursePoints[currentPoint]); //sets the rudder, stays in corridor if sailing upwind         
+  sailToWaypoint(coursePoints[currentPoint]); //sets the rudder, stays in corridor if sailing upwind         
   if (distanceToWaypoint < MARK_DISTANCE){
       currentPoint++;
   }
@@ -19,10 +18,11 @@ void sailCourse(){
 } 
 
 //new version of sailToWaypoint, this version checks if boat should tack or 'sail', thats it
-int sailToWaypoint(struct points waypoint){
+void sailToWaypoint(struct points waypoint){
     static int waypointDirn;
-    static int error = 0;
-    
+    static int distance = 0;
+                                                            //called to keep the gui up to date
+    distance = GPSdistance(boatLocation, waypoint);
     waypointDirn = getWaypointDirn(waypoint); //get the next waypoint's compass bearing; must be positive 0-360 heading;
     if(tacking == true){                      //checks if it is already tacking, saves having to run checktack
         tack();
@@ -32,23 +32,20 @@ int sailToWaypoint(struct points waypoint){
     }
     else{                        //not facing upwind or inside corridor
         sail(waypointDirn); //get the next waypoint's compass bearing; must be positive 0-360 heading; 
-    }
-    return error;    
+    }  
 }
 /* old description of Straightsail (deprecated)
          //this should be the generic straight sailing function; getWaypointDirn should return a desired compass direction, 
          //taking into account wind direction (not necc just the wayoint dirn); (or make another function to do this)
           //needs to set rudder to not try and head directly into the wind
    */
-int sail(int waypointDirn){
+void sail(int waypointDirn){
   //sails towards the waypointDirn passed in, unless this is upwind, in which case it sails closehauled.
   //sailToWaypoint will take care of when tacking is necessary   
   //This function replaces straightsail which originally only controlled rudder
   
-  static int error = 0; //error flag
   int directionError = 0;
   static int windDirn;
-  int offset;
   
   windDirn = getWindDirn();            
   if(between(waypointDirn, windDirn - TACKING_ANGLE, windDirn + TACKING_ANGLE)){ //check if the waypoint's direction is between the wind and closehauled on either side (ie are we downwind?)
@@ -59,8 +56,7 @@ int sail(int waypointDirn){
   }
   rudderControl(directionError);   
   delay(10);     //wait to allow rudder signal to be sent to pololu
-  directionError = sailControl();
-  return error;
+  sailControl();
 }
 
 //Checks if tacking is neccessary,returns true if it is false if not.
@@ -89,7 +85,7 @@ boolean checkTack(int corridorHalfWidth, struct points waypoint){
       distance = hypotenuse * sin(degreesToRadians(theta));
       Serial.println("Distance from corridor:  ");
       Serial.println(distance);
-      if ( (distance  < 0 && wind_angl> 180) || (distance > 0 && wind_angl < 180) ) // check the direction of the wind so we only try to tack towards the mark
+      if ( (distance  < 0 && wind_angl > 180) || (distance > 0 && wind_angl < 180) ) // check the direction of the wind so we only try to tack towards the mark
       {
           if (abs(distance) > corridorHalfWidth){ //we're outside corridor
               Serial.println("Outside corridor");
@@ -105,13 +101,12 @@ boolean checkTack(int corridorHalfWidth, struct points waypoint){
 }
 
 //this functin controls the sails, proportional to the wind direction with no consideration for wind strength (yet)
-int sailControl(){
-  int error = 0;
+void sailControl(){
   int windAngle;
   
   if (abs(roll) > 40){ //if heeled over a lot (experimentally found that 40 was appropriate according to cory)
       setMain(ALL_OUT); //set sails all the way out, keep jibaX 
-      return (1); //return 1 to indicate heel
+      break;
   }
   if (wind_angl > 180) //wind is from port side, but we dont care
       windAngle = 360 - wind_angl; //set to 180 scale, dont care if it's on port or starboard right now, 
@@ -120,8 +115,8 @@ int sailControl(){
   if (windAngle > TACKING_ANGLE) //not in irons
       setSails( (windAngle-TACKING_ANGLE)*100/(180 - TACKING_ANGLE) );//scale the range of winds from 40->180 (140 degree range) onto 0 to 100 controls; 0 means all the way in
   else
-      setSails(ALL_IN);// set sails all the way in, in irons     
-  return error;
+      setSails(ALL_IN);// set sails all the way in, in irons   
+    delay(20);     //delay to stop pololu crashing  
 }
 
 //controls the rudder movement, used to be part of sail, but is moved to a seperate function so it is easier to modify
@@ -136,4 +131,5 @@ int rudderControl(int directionError){
     }   
     else
         setrudder(0);//set to neutral position  
+        delay(20);
 }

@@ -16,7 +16,7 @@ void setup()
 {
   pinMode(SAILSPIN, INPUT);
   pinMode(RUDDERPIN, INPUT);
-  Serial.begin(57600);
+  Serial.begin(19200);
   
 }
 

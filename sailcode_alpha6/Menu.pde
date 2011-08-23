@@ -97,6 +97,12 @@ int displayMenu()
                                 do{Serial.println("Enter Which coordinate to update:  ");
                                 while(Serial.available() == 0);    //wait until serial data is available            
                                 coornum = Serial.read() - '0';
+                                if(coornum > 9){
+                                 Serial.println("Invalid coordinate");
+                                 Serial.println("Exiting waypoint update");
+                                  return 0;
+                                 break; 
+                                }
                                }while((coornum < 0) || (coornum > 9));
                                   waypoints[coornum] = clearPoints;
                                 /*
@@ -217,6 +223,11 @@ int displayMenu()
                                         Serial.println(i);
                                         while(Serial.available() == false);
                                         pointNum = Serial.read() - '0';
+                                        if (pointNum > 9){
+                                          Serial.println("Error, not a valid point, exiting course sailing");
+                                          return 0;
+                                          break;
+                                        }
                                         coursePoints[i] = waypoints[pointNum];                                        
                                         Serial.println("added waypoint to course");
                                     }                                  
@@ -273,6 +284,9 @@ int displayMenu()
                                         while(hasValue == false){
                                             while(Serial.available() == false);
                                             point = Serial.read() - '0'; 
+                                            if(point > 9){
+                                             Serial.println("Error, not a valid point, exiting waypoint sailing");
+                                            }
                                             hasValue = true;                                         
                                         }       
                                         Serial.println("sail to Waypoint");                             
@@ -429,7 +443,7 @@ int displayMenu()
                                         setMain(ALL_IN);
                                         delay(5000);                                               
                                         Serial.println("testing compass");
-                                        compassData = sensorData(BUFF_MAX,'c');        						
+                                         sensorData(BUFF_MAX,'c');        						
                                         if(compassData == false){
                                             Serial.println("Compass Data: ");
                                             Serial.print("  Heading:  ");
@@ -443,22 +457,19 @@ int displayMenu()
                                             Serial.println("Error fetching compass data");
                                         }
                                         Serial.println("testing wind sensor");                                                
-						windData = sensorData(BUFF_MAX,'w');
-                                        if(windData == false){
-                                            Serial.println("Wind Sensor Data: ");
-                                            Serial.print("  Wind Angle:  ");
-                                            Serial.println(wind_angl);
-                                            Serial.print("  Wind Velocity (knots):   ");
-                                            Serial.println(wind_velocity);                                                  
-                                        }
+					sensorData(BUFF_MAX,'w');                                   
+                                        Serial.println("Wind Sensor Data: ");
+                                        Serial.print("  Wind Angle:  ");
+                                        Serial.println(wind_angl);
+                                        Serial.print("  Wind Velocity (knots):   ");
+                                        Serial.println(wind_velocity);                                                                                          
                                         Serial.println("testing complete");
                                         return 0;
                                         break;
                                 case 'p':  //returns your current position
                                         Serial3.flush();
-                                        delay(1400);
-                                        windData = sensorData(BUFF_MAX,'w');
-                                        delay(300);
+                                        delay(500);
+                                        sensorData(BUFF_MAX,'w');
                                         Serial.print(boatLocation.latDeg,0);
                                         Serial.print(boatLocation.latMin,4);
                                         Serial.print(" ");
@@ -536,15 +547,15 @@ int displayMenu()
                                                     break;
                                             }                                                                                                            
                                         }
-                                        sensorData(BUFF_MAX, 'c');
-                                        sensorData(BUFF_MAX, 'w'); 
-                                        transmit(); 
+               //                         sensorData(BUFF_MAX, 'c');
+               //                         sensorData(BUFF_MAX, 'w'); 
+              //                          transmit(); 
                                         return 0;                                               
                                         break;
                                                                //keyboard based RC mode,                 
                                 case 's':
                                         rudderDir *= -1;
-                                        int rudcount;
+                                        static int rudcount;
                                         Serial.println("RC mode, use a/d for rudder control with s to center, w/e for fine sails, q/r for coarse sails");
                                         Serial.println(" 'y' exist back to menu");
                                         hasValue = false;
@@ -555,7 +566,7 @@ int displayMenu()
                                             rcVal = Serial.read();
                                             switch(rcVal){  //the input char sailDirection                                                        
                                                 case 'a':
-                                                        rudcount =0;
+                                                        rudcount = 0;
                                                         if(rudVal < 28){
                                                             rudVal += 2;
                                                         }
@@ -614,14 +625,14 @@ int displayMenu()
                                                         break;
                                             }
                                             rudcount++;            //loop for resetting rudder to 0
-                                            if(rudcount > 10){
+                                            if(rudcount > 30){
                                                 rudVal = 0; 
                                             }
-                                      //      sensorData(BUFF_MAX, 'w');
-                                      //      sensorData(BUFF_MAX, 'c');
+                                            sensorData(BUFF_MAX, 'w');
+                                            sensorData(BUFF_MAX, 'c');
                                             setrudder(rudVal);
                                             setSails(sailsVal);
-                                       //     transmit();
+                                            transmit();
                                         }
                                         return 0;
                                         break;

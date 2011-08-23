@@ -21,7 +21,7 @@ const char* bonjour_hostname = "arduino";
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 const char* ip_to_str(const uint8_t*);
-Server server(80);
+Server server(1080);
 void setup()
 {
   Serial.begin(9600);

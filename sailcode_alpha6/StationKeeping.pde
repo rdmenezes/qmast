@@ -65,7 +65,6 @@ int stationKeep(){
   // setup waypoints (takes first 4 waypoints frm the waypoints struct
   double centreLatMin, centreLonMin;
   int windDirn, waypointWindDirn;
-  int error;  
   int distanceToWaypoint;//the boat's distance to the present waypoint  
   //Timer variables
   long elapsedTime, currentTime;
@@ -79,7 +78,7 @@ int stationKeep(){
   //sail between waypoints until 5 minute timer is up      
   if(timesUp == true){         //leave square; can either calculate the closest place to leave, or just head downwind as we do here:     
       windDirn = getWindDirn();
-      error = sail(windDirn+90); //sail out of box in beam reach
+      sail(windDirn+90); //sail out of box in beam reach
       delay(100);//give rudder time to adjust? this might not be necessary 
       return 0;
   }
@@ -87,7 +86,7 @@ int stationKeep(){
       stayPoint = floatingStationPoints[stationCounter];             
       distanceToWaypoint = GPSdistance(boatLocation, stayPoint);//returns in meters        
         //set rudder and sails          
-      error = sailToWaypoint(stayPoint); //sets the rudder, stays in corridor if sailing upwind          
+      sailToWaypoint(stayPoint); //sets the rudder, stays in corridor if sailing upwind          
         //check timer
       currentTime = millis(); //get the Arduino clock time              
       elapsedTime = currentTime - startTime;//calculate elapsed miliseconds since the start of the 5 minute loop
@@ -109,7 +108,6 @@ int stationKeep(){
 void stationKeepSinglePoint(){
   double centreLatMin, centreLonMin;
   static struct points stayPoint;
-  int error;
   int windDirn;
   
   getStationKeepingCentre(&centreLatMin, &centreLonMin); //find the centre of the global stationkeeping corner variables
@@ -126,11 +124,11 @@ void stationKeepSinglePoint(){
   
   if(timesUp == true){         //leave square; can either calculate the closest place to leave, or just head in beam reach as we do here:      
       windDirn = getWindDirn();
-      error = sail(windDirn+90); //sail out of box in beam reach 
+      sail(windDirn+90); //sail out of box in beam reach 
   }
   else{        
         //set rudder and sails       
-      error = sailToWaypoint(stayPoint); //sets the rudder, stays in corridor if sailing upwind            
+      sailToWaypoint(stayPoint); //sets the rudder, stays in corridor if sailing upwind            
         //check timer
       currentTime = millis(); //get the Arduino clock time            
   } //end go to waypoint             
