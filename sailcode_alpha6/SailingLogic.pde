@@ -103,11 +103,7 @@ boolean checkTack(int corridorHalfWidth, struct points waypoint){
 //this functin controls the sails, proportional to the wind direction with no consideration for wind strength (yet)
 void sailControl(){
   int windAngle;
-  
-  if (abs(roll) > 40){ //if heeled over a lot (experimentally found that 40 was appropriate according to cory)
-      setMain(ALL_OUT); //set sails all the way out, keep jibaX 
-      break;
-  }
+    
   if (wind_angl > 180) //wind is from port side, but we dont care
       windAngle = 360 - wind_angl; //set to 180 scale, dont care if it's on port or starboard right now, 
   else
@@ -115,7 +111,10 @@ void sailControl(){
   if (windAngle > TACKING_ANGLE) //not in irons
       setSails( (windAngle-TACKING_ANGLE)*100/(180 - TACKING_ANGLE) );//scale the range of winds from 40->180 (140 degree range) onto 0 to 100 controls; 0 means all the way in
   else
-      setSails(ALL_IN);// set sails all the way in, in irons   
+      setSails(ALL_IN);// set sails all the way in, in irons  
+  if (abs(roll) > 40){ //if heeled over a lot (experimentally found that 40 was appropriate according to cory)
+      setMain(ALL_OUT); //set sails all the way out, keep jibaX 
+     } 
     delay(20);     //delay to stop pololu crashing  
 }
 

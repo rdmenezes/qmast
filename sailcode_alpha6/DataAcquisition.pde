@@ -214,7 +214,7 @@ void sensorData(int bufferLength, char device) {
  
   if(device == 'c')
        Serial2.println("$PTNT,HTM*63"); //compass is in sample mode now; so request the next sample! :)   
-}
+     }
 void setErrorBit(int aBit){
   
         bitSet(errorCode,aBit);    //sets an error bit in the error code

@@ -22,7 +22,7 @@ void oldtack(){
         if(Serial.available())
         return;
         delay(100);
-        newData = sensorData(BUFF_MAX, 'w');  
+        sensorData(BUFF_MAX, 'w');  
         ironTime++;                  //checks to see if turned far enough
         if(ironTime == 100){           //waits about 10 seconds to before assuming in irons
         Serial.println("It has been 10 seconds and I haven't crossed over, so I am trying to get out of irons)");
@@ -52,7 +52,7 @@ void oldtack(){
         if(Serial.available())
         return;
         delay(100);
-        newData = sensorData(BUFF_MAX, 'w');
+        sensorData(BUFF_MAX, 'w');
         if(ironTime == 100){            //waits about 10 seconds to before assuming in irons
         Serial.println("It has been 10 seconds and I haven't crossed over, so I am trying to get out of irons)");
         
@@ -67,7 +67,7 @@ void oldtack(){
       sail(dirn);
       Serial.println("I am now trying to sail closehauled");
       //setSails(ALL_IN);
-      newData = sensorData(BUFF_MAX, 'w');
+      sensorData(BUFF_MAX, 'w');
       if(wind_angl < 180){
         tackComplete = 1;
         }  
@@ -106,7 +106,7 @@ void oldtack(){
         if(Serial.available())
         return;
         delay(100);
-        newData = sensorData(BUFF_MAX, 'w');  
+        sensorData(BUFF_MAX, 'w');  
         ironTime++;                  //checks to see if turned far enough
         if(ironTime == 100){           //waits about 10 seconds to before assuming in irons
         Serial.println("It has been 10 seconds and I haven't crossed over, so I am trying to get out of irons)");
@@ -142,7 +142,7 @@ void oldtack(){
         if(Serial.available())
         return;
         delay(100);
-        newData = sensorData(BUFF_MAX, 'w');
+        sensorData(BUFF_MAX, 'w');
         if(ironTime == 100){            //waits about 10 seconds to before assuming in irons
         Serial.println("It has been 10 seconds and I haven't crossed over, so I am trying to get out of irons)");
         
@@ -159,7 +159,7 @@ void oldtack(){
       sail(dirn);
       delay(1000);
       //setSails(ALL_IN);
-      newData = sensorData(BUFF_MAX, 'w');
+      sensorData(BUFF_MAX, 'w');
       if(wind_angl < 180){
         tackComplete = 1;
         Serial.println("tack complete");
@@ -179,7 +179,7 @@ void getOutofIronsOld(int tackside){
   while(wind_angl < TACKING_ANGLE || wind_angl > 360 -TACKING_ANGLE){
     if(Serial.available())
     return;
-  dirn = sensorData(BUFF_MAX, 'w');
+  sensorData(BUFF_MAX, 'w');
   delay(100);
   Serial.println("hanging out until I am out of irons");
   }
