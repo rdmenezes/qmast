@@ -1,7 +1,7 @@
 // 'c' = compass
 // 'w' = wind sensor
 // sensorData replaces Compass() and Wind() with one function. 
-int sensorData(int bufferLength, char device) {
+void sensorData(int bufferLength, char device) {
 
 
  //compass connects to serial2
@@ -18,7 +18,6 @@ int sensorData(int bufferLength, char device) {
   int error;//error flag for parser
   bool twoCommasPresent = false; //Alright, this flag will be set if the data being read in has two commas in a row. This is needed since
   	  	  	  	  	  	  	  	 //it will crash the program as strtok will have trouble with the delimiters later.
-  //Serial.println(device); //display that data is being gathered from a device
    if(device == 'c')
    dataAvailable = Serial2.available(); //check how many bytes are in the buffer
    else if (device == 'w')
@@ -26,14 +25,17 @@ int sensorData(int bufferLength, char device) {
  
  if(!dataAvailable)
  {
-    noData = 1;//set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
-    //Serial.println("No data available. ");
+    setErrorBit(noDataBit);  //set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
+    setErrorBit(badCompassDataBit);
   } 
   else {  
+    clearErrorBit(oldDataBit);
+    clearErrorBit(noDataBit);
     if (dataAvailable > bufferLength) { //the buffer has filled up; the data is likely corrupt;
     //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
     //when we get the data out
-    
+        setErrorBit(oldDataBit);
+        setErrorBit(badCompassDataBit);
     //flushing data is probably not the best; the data will not be corrupt since the port blocks, it will justbe old, so accept it.
 //      Serial.flush(); //clear the serial buffer
 //    extraWindData = 0; //'clear' the extra data buffer, because any data wrapping around will be destroyed by clearing the buffer
@@ -88,10 +90,12 @@ int sensorData(int bufferLength, char device) {
         else  if(device == 'w')
         array[j] = Serial3.read();
       
-      //Serial.print(array[j]);      
+//      Serial.print(array[j]);      
     	if (j > 0) {
     		if (array[j] == ',' && array[j-1] == ',') {
-    			twoCommasPresent = true;                   
+    			twoCommasPresent = true;  
+                        setErrorBit(badCompassDataBit);
+                        setErrorBit(twoCommasBit);    
     		}
     	}
 
@@ -114,6 +118,7 @@ int sensorData(int bufferLength, char device) {
             if (!twoCommasPresent) {
              // Serial.println(array[0]); //print first character (should be $)
               array[j+1] = '\0';//append the end of string character
+                 clearErrorBit(twoCommasBit);
   //            Serial.println("Good string, about to parse");    
               error = Parser(array); //checksum was successful, so parse              
              } else {
@@ -123,8 +128,12 @@ int sensorData(int bufferLength, char device) {
         	  //This will be where we handle the presence of twoCommas, since it means that the boat is doing something strange
         	  //AKA tilted two far, bad compass data
         	  //GPS can't locate satellites, lots of commas, no values.
-              }
-              
+              }    
+            clearErrorBit(checksumBadBit);     
+        }
+        else{
+            setErrorBit(checksumBadBit);
+            setErrorBit(badCompassDataBit); 
         }
         //regardless of checksum, reset array to beginning and reset checksum
         j = -1;//this will start writing over the old data, need -1 because we add to j
@@ -150,6 +159,7 @@ int sensorData(int bufferLength, char device) {
         checksum=0;//set the xor checksum back to zero
         xorState = 0;//only start the Xoring for the checksum once a new $ character is found, not here
         twoCommasPresent = false; // there isnt any data, so reset the twoCommasPresent       
+        setErrorBit(badCompassDataBit);
        } 
       else if (array[j] == '*'){//if find a * within a reasonable length, stop XORing and wait for \n
         //could set a flag to stop XORing
@@ -161,7 +171,6 @@ int sensorData(int bufferLength, char device) {
 
       //removed this because it can be checked when a newline is encountered
       //else checksumFromNMEA=checksumFromNMEA*8+array[j];//something like this, keep shifting it up a character
-     // Serial.println(array[j]/*,HEX*/);
       j++;
       
       //keep emptying buffer until it's empty; doing this should limit roll-over data
@@ -192,26 +201,40 @@ int sensorData(int bufferLength, char device) {
           savedCompassChecksum=checksum;
           savedCompassXorState=xorState;
       }
-
-      
-      // twoCommasPresent status isnt saved, since data isnt saved if it has two commas
- //     Serial.println("Stored extra data - ");      
-  //    Serial.print(extraWindData);
-  //    Serial.print(",");
- //     Serial.print(extraWindDataArray[0],HEX);
- //     Serial.print(extraWindDataArray[1],HEX);
- //     Serial.print(extraWindDataArray[2],HEX);
-  //    Serial.print(extraWindDataArray[3],HEX);      
+       setErrorBit(rolloverDataBit);
     }
+      // twoCommasPresent status isnt saved, since data isnt saved if it has two commas
+       else if (j > LONGEST_NMEA){
+       setErrorBit(twoCommasBit);
+    }else{ 
+      clearErrorBit(rolloverDataBit);
+    }  
+    
   }//end if theres data to parse
  
- /*  Serial.println(headingc);
-   Serial.println(pitch);
-   Serial.println(roll);
-   Serial.println(PTNTHTM); */ 
   if(device == 'c')
        Serial2.println("$PTNT,HTM*63"); //compass is in sample mode now; so request the next sample! :)   
-   return error;
+}
+void setErrorBit(int aBit){
+  
+        bitSet(errorCode,aBit);    //sets an error bit in the error code
+}
+
+void clearErrorBit(int aBit){
+  
+        bitClear(errorCode,aBit);
+}
+
+int checkErrorBit(int aBit){
+        int result;
+        int mask = 1 << aBit; //start with bit 0 (rightmost) as 1 and shift left by variable bit
+        //now we have one bit that is 1 in the correct location
+        result = mask & errorCode;
+        if (result == 0){
+          return 0;//the bit is not set
+        }else{
+          return 1;//the bit is set
+        }
 }
 
 

@@ -42,14 +42,25 @@
 //there are approximately 1314 m in a minute of longitude at 45 degrees north (Kingston); this difference will mean that if we just use deltax over deltay in minutes to find an angle it will be wrong
 #define LONGITUDE_TO_METER 1314 //for kingston; change for Annapolis 1314 was kingston value
 
+//Error bit constants
+#define noDataBit  0 // no data, error error bit
+#define oldDataBit 1 //there is data, but buffer is full, error bit
+#define checksumBadBit 2 // indicates checksum fail on data
+#define twoCommasBit 3 // indicates that there were two commas in the data, and it has been discarded and not parsed
+#define rolloverDataBit 4 //indicates data rolled over, not fast enough
+#define badCompassDataBit 5 // indicates that strtok did not return PTNTHTM, so we probably got bad data
+#define tooMuchRollBit 6    //indicates the boat is falling over
+#define badWindData 7    //indicates an error from the wind sensor
+#define badGpsData 8    //indicates error in gps data
+
 //sail control constants
 #define ALL_IN 0
 #define ALL_OUT 100
 
 //pololu pins
 
-#define resetPin 6 //Pololu reset (digital pin on arduino)
-#define txPin 7 //Pololu serial pin (with SoftwareSerial library)
+#define resetPin 8 //Pololu reset (digital pin on arduino)
+#define txPin 9 //Pololu serial pin (with SoftwareSerial library)
 
 //for serial data aquisition
 #define SHORTEST_NMEA 5
@@ -59,13 +70,11 @@
 //------------------------
 // for reliable serial data  
  int		extraWindData = 0; //'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer
- int              extraCompassData = 0;
+ int            extraCompassData = 0;
  int		savedWindChecksum = 0;//clear the global saved XOR value
  int		savedWindXorState = 0;//clear the global saved XORstate value
  int		savedCompassChecksum = 0;
  int		savedCompassXorState = 0;
- int		lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
- int 		noData = 1; // global flag to indicate serial buffer was empty
  char 		extraWindDataArray[LONGEST_NMEA]; // a buffer to store roll-over data in case this data is fetched mid-line
  char           extraCompassDataArray[LONGEST_NMEA];
 
@@ -117,6 +126,9 @@ boolean tacking;
 int tackingSide;    //1 for left -1 for right
 int ironTime;
 
+//error code
+int errorCode;
+
 void setup()
 {       
 	Serial.begin(19200);
@@ -159,14 +171,19 @@ void setup()
   //Testing variables; present conditions, used for testing
   heading_newest = 0;//heading relative to true north, newest
   wind_angl_newest = 0;//wind angle relative to boat
-  
+   
 //compass setup code
   delay(1000); //give everything some time to set up, especially the serial buffers
   Serial2.println("$PTNT,HTM*63"); //request a data sample from the compass for heading/tilt/etc, and give it time to get it
   delay(200);
-    
+ //wind sensor setup code, changes rates
+    Serial3.println("$PAMTC,EN,RMC,0,10");     //disable GPRMC
+    Serial3.println("$PAMTC,EN,GLL,1,3");      //change gps to send 3.3 times a second
+    Serial3.println("$PAMTC,EN,HDG,1,5");      //change heading to send 2 times a second
+    Serial.println("$PAMTC,EN,MWVR,1,2");      //change wind to send 5 times a second
+    delay(500);
   setrudder(0);   
-  delay(3000);  //setup delay
+  delay(2000);  //setup delay
 }
 
 void loop()

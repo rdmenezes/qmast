@@ -29,7 +29,7 @@
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 // substitute an address on your own network here
-byte ip[] = { 192, 168, 13 , 100 };
+byte ip[] = { 192, 168 , 13, 101 };
 byte gateway[] = {192, 168, 13, 31};
 byte subnet [] = {255, 255, 255, 0};
 boolean reading;
@@ -66,7 +66,7 @@ void setup()
   // the service under Bookmarks -> Bonjour (Provided that you have enabled
   // Bonjour in the "Bookmarks" preferences in Safari).
   EthernetBonjour.addServiceRecord("Arduino Bonjour Webserver Example._http",
-                                   80,
+                                   1080,
                                    MDNSServiceTCP);
 }
 
