@@ -37,8 +37,6 @@ void transmit(void)
   Serial.print(headingVal,2);
 
   //tacking
-  Serial.print("TAK:");
-  Serial.print(tacking,BIN);
   Serial.print("SID:");
   Serial.print(tackingSide,DEC);
   Serial.print("IRON:");
@@ -73,3 +71,4 @@ void relayData(){//sends data to shore
  Serial.print(",");
  Serial.println(headingc);//compass 
 }
+
