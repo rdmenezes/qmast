@@ -44,9 +44,7 @@ void sensorData(int bufferLength, char device) {
 //    lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
 
         //Serial.println("You filled the buffer, data old. ");
-       }
-
-    
+       }   
     //first copy all the leftover data into array from the buffer;  //!!! this has to depend on if it's wind or compass, and different arrays for them!
     if(device == 'w')
     {
@@ -98,7 +96,10 @@ void sensorData(int bufferLength, char device) {
                         setErrorBit(twoCommasBit);    
     		}
     	}
-
+        else{
+            clearErrorBit(badCompassDataBit);
+            clearErrorBit(twoCommasBit);
+        }    
         if ((array[j] == '\n') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
         //if you're not getting here and using serial monitor, make sure to select newline from the line ending dropdown near the baud rate
       //  Serial.print("read slash n, checksum is:  ");

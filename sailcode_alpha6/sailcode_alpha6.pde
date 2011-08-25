@@ -80,9 +80,9 @@
 
 //Sensor data
 //Heading angle using wind sensor
-float heading;//heading relative to true north
-float deviation;//deviation relative to true north; do we use this in our calculations?
-float variance;//variance relative to true north; do we use this in our calculations?
+float heading;//heading relative to true north, do not use, only updating 2 times a second
+float deviation;//deviation relative to true north; do we use this in our calculations?Nope
+float variance;//variance relative to true north; do we use this in our calculations?Nope
 //Boat's speed
 float bspeed; //Boat's speed in km/h
 float bspeedk; //Boat's speed in knots
@@ -180,7 +180,7 @@ void setup()
     Serial3.println("$PAMTC,EN,RMC,0,10");     //disable GPRMC
     Serial3.println("$PAMTC,EN,GLL,1,3");      //change gps to send 3.3 times a second
     Serial3.println("$PAMTC,EN,HDG,1,5");      //change heading to send 2 times a second
-    Serial.println("$PAMTC,EN,MWVR,1,2");      //change wind to send 5 times a second
+   Serial.println("$PAMTC,EN,MWVR,1,2");      //change wind to send 5 times a second default for now, need to make sure we can get everything out of the buffer
     delay(500);
   setrudder(0);   
   delay(2000);  //setup delay

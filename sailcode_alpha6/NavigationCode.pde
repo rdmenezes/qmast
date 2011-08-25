@@ -56,17 +56,11 @@ int getCloseHauledDirn(){
         desiredDirection += 360;
      if(desiredDirection > 360)
         desiredDirection -= 360; 
-//  if (desiredDirection < 0){
-//      desiredDirection *= -1;
-//    }
-//    if(desiredDirection > 360){
-//     desiredDirection = desiredDirection + (-desiredDirection +360);  
-//    }
-//  return desiredDirection;
 }
 
 int getOppositeCloseHauledDirn(){
   //find the compass heading that is close-hauled on the present tack
+  //not used, may not work, look at getCloseHauledDirn
   
   int desiredDirection=0; //closehauled direction
   int windHeading = 0; //compass bearing that the wind is coming from

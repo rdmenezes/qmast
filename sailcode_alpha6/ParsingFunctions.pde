@@ -211,7 +211,7 @@ int Parser(char *val)
             }
         }
        else{
-      setErrorBit(badWindData);
+          setErrorBit(badWindData);
        }   
     }
   
@@ -298,7 +298,7 @@ int Parser(char *val)
       head2_deg -= 360;
 
     //data isnt valid if the boat is heeled over too much, so discard it if pitch is more than 45 degrees <- parser breaks before this, as the compass doesnt return a heading when its tipped
-    if (abs(pitch_deg) > 40) 
+    if (abs(roll_deg) > 40) 
     {
       setErrorBit(tooMuchRollBit);
     }

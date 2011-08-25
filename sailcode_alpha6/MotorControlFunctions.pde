@@ -1,8 +1,3 @@
-//arduino servo library
-//void arduinoServo(int pos){
-//      myservo.write(pos);              // tell servo to go to position in variable 'pos' 
-//}
-
 
 //Pololu servo board test in Mini SSC II mode
 //(mode jumper inplace on Pololu board)
