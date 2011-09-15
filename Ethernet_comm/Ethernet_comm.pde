@@ -1,22 +1,32 @@
+/*
+From Arduino website.
+Sept 15th, 2011. Valerie. Works on the Uno with ethernet shield
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x6D, 0xCA };
+byte ip[] = { 192,168,0,100  };
+Server server(80);
+when connected directly to computer with ethernet (and also USB for power but probably irrelevant)
+navigate browswer to 192.168.0.100
+*/
+
 #include <SPI.h>
 #include <Ethernet.h>
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x6D, 0xCA };
-byte ip[] = { 192,168,13,100  };
-byte gateway[] ={74,49,31,1};
-byte subnet[] = {255,255,255,0};
+byte ip[] = { 192,168,0,100  };
+//byte gateway[] ={74,49,31,1};
+//byte subnet[] = {255,255,255,0};
 
 // Initialize the Ethernet server library
 // with the IP address and port you want to use 
 // (port 80 is default for HTTP):
-Server server(1080);
+Server server(80);
 
 void setup()
 {
   // start the Ethernet connection and the server:
-  Ethernet.begin(mac, ip, gateway, subnet);
+  Ethernet.begin(mac, ip);//,gateway, subnet);
   server.begin();
 }
 
