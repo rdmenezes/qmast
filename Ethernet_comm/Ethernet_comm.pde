@@ -5,7 +5,8 @@ byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x6D, 0xCA };
 byte ip[] = { 192,168,0,100  };
 Server server(80);
 when connected directly to computer with ethernet (and also USB for power but probably irrelevant)
-navigate browswer to 192.168.0.100
+navigate browswer to 192.168.0.100 and it displays the analog inputs
+
 */
 
 #include <SPI.h>
@@ -14,7 +15,7 @@ navigate browswer to 192.168.0.100
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0x6D, 0xCA };
-byte ip[] = { 192,168,0,100  };
+byte ip[] = {192,168,13,101}; //{74,49,35,48};
 //byte gateway[] ={74,49,31,1};
 //byte subnet[] = {255,255,255,0};
 
@@ -49,6 +50,8 @@ void loop()
           client.println("Content-Type: text/html");
           client.println();
 
+          client.print("<h1><font color=\"red\" face = \"Century Gothic\">whoooooooo working!!! (Hello Laszlo and Cory)<br /></font></h1>");
+          client.print("sample output: <br />");
           // output the value of each analog input pin
           for (int analogChannel = 0; analogChannel < 6; analogChannel++) {
             client.print("analog input ");
@@ -57,6 +60,7 @@ void loop()
             client.print(analogRead(analogChannel));
             client.println("<br />");
           }
+         
           break;
         }
         if (c == '\n') {
