@@ -5,11 +5,11 @@
  *      Author: Nader for MAST Software
  */
 /* ////////////////////////////////////////////////
-// Changelog
-////////////////////////////////////////////////
-//So this is the new alpha 6 sailcode, it is a cleaned up version of alph 5 with
-//added functionality and a more advanced data structures, restructured basic sailcode
-*/
+ // Changelog
+ ////////////////////////////////////////////////
+ //So this is the new alpha 6 sailcode, it is a cleaned up version of alph 5 with
+ //added functionality and a more advanced data structures, restructured basic sailcode
+ */
 
 //All bearing calculations in this code assume that the compass returns True North readings. ie it is adjusted for declination.
 //If this is not true: adjust for declination in the Parse() function, as compass data is decoded add or subtract the declination
@@ -20,7 +20,7 @@
 #include <String.h> //for parsing - necessary?
 #include <stdio.h> //for parsing - necessary?
 #include <avr/io.h>
- 
+
 // Global variables and constants
 ////////////////////////////////////////////////
 
@@ -39,7 +39,8 @@
 //Calculation constantes
 #define DEGREE_TO_MINUTE 60 //there are 60 minutes in one degree
 #define LATITUDE_TO_METER 1855 // there are (approximately) 1855 meters in a minute of latitude everywhere; this isn't true for longitude, as it depends on the latitude
-//there are approximately 1314 m in a minute of longitude at 45 degrees north (Kingston); this difference will mean that if we just use deltax over deltay in minutes to find an angle it will be wrong
+//there are approximately 1314 m in a minute of longitude at 45 degrees north (Kingston); this difference will mean that if we just u
+e deltax over deltay in minutes to find an angle it will be wrong
 #define LONGITUDE_TO_METER 1314 //for kingston; change for Annapolis 1314 was kingston value
 
 //Error bit constants
@@ -66,17 +67,18 @@
 #define SHORTEST_NMEA 5
 #define LONGEST_NMEA 120
 
-//!when testing by sending strings through the serial monitor, you need to select "newline" ending from the dropdown beside the baud rate
+//!when testing by sending strings through the serial monitor, you need to select "newline" ending from the dropdown beside the baud 
+ate
 //------------------------
 // for reliable serial data  
- int		extraWindData = 0; //'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer
- int            extraCompassData = 0;
- int		savedWindChecksum = 0;//clear the global saved XOR value
- int		savedWindXorState = 0;//clear the global saved XORstate value
- int		savedCompassChecksum = 0;
- int		savedCompassXorState = 0;
- char 		extraWindDataArray[LONGEST_NMEA]; // a buffer to store roll-over data in case this data is fetched mid-line
- char           extraCompassDataArray[LONGEST_NMEA];
+int		extraWindData = 0; //'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer
+int            extraCompassData = 0;
+int		savedWindChecksum = 0;//clear the global saved XOR value
+int		savedWindXorState = 0;//clear the global saved XORstate value
+int		savedCompassChecksum = 0;
+int		savedCompassXorState = 0;
+char 		extraWindDataArray[LONGEST_NMEA]; // a buffer to store roll-over data in case this data is fetched mid-line
+char           extraCompassDataArray[LONGEST_NMEA];
 
 //Sensor data
 //Heading angle using wind sensor
@@ -131,27 +133,27 @@ int errorCode;
 
 void setup()
 {       
-	Serial.begin(19200);
+  Serial.begin(19200);
 
-//for pololu
-        pinMode(txPin, OUTPUT);
-        pinMode(resetPin, OUTPUT);
-                            
-        servo_ser.begin(4800);
-        delay(2000);
-        //next NEED to explicitly reset the Pololu board using a separate pin
-        //else it times out and reports baud rate is too slow (red LED)
-        digitalWrite(resetPin, 0);
-        delay(10);
-        digitalWrite(resetPin, 1);  
- 
- Serial2.begin(19200);
- Serial3.begin(4800);
-// 
- delay(10);          
-  
+  //for pololu
+  pinMode(txPin, OUTPUT);
+  pinMode(resetPin, OUTPUT);
+
+  servo_ser.begin(4800);
+  delay(2000);
+  //next NEED to explicitly reset the Pololu board using a separate pin
+  //else it times out and reports baud rate is too slow (red LED)
+  digitalWrite(resetPin, 0);
+  delay(10);
+  digitalWrite(resetPin, 1);  
+
+  Serial2.begin(19200);
+  Serial3.begin(4800);
+  // 
+  delay(10);          
+
   //initialize all counters/variables
-    //current position from sensors
+  //current position from sensors
   boatLocation = clearPoints;    //sets initial location of the boat to 0;
   //Heading angle using wind sensor
   heading = 0;//heading relative to true north
@@ -167,63 +169,66 @@ void setup()
   headingc = 0;//heading relative to true north
   pitch = 0;//pitch relative to ??
   roll = 0;//roll relative to ??
-  
+
   //Testing variables; present conditions, used for testing
   heading_newest = 0;//heading relative to true north, newest
   wind_angl_newest = 0;//wind angle relative to boat
-   
-//compass setup code
+
+  //compass setup code
   delay(1000); //give everything some time to set up, especially the serial buffers
   Serial2.println("$PTNT,HTM*63"); //request a data sample from the compass for heading/tilt/etc, and give it time to get it
   delay(200);
- //wind sensor setup code, changes rates
-    Serial3.println("$PAMTC,EN,RMC,0,10");     //disable GPRMC
-    Serial3.println("$PAMTC,EN,GLL,1,3");      //change gps to send 3.3 times a second
-    Serial3.println("$PAMTC,EN,HDG,1,5");      //change heading to send 2 times a second
-   Serial.println("$PAMTC,EN,MWVR,1,2");      //change wind to send 5 times a second default for now, need to make sure we can get everything out of the buffer
-    delay(500);
+  //wind sensor setup code, changes rates
+  Serial3.println("$PAMTC,EN,RMC,0,10");     //disable GPRMC
+  Serial3.println("$PAMTC,EN,GLL,1,3");      //change gps to send 3.3 times a second
+  Serial3.println("$PAMTC,EN,HDG,1,5");      //change heading to send 2 times a second
+  Serial.println("$PAMTC,EN,MWVR,1,2");      //change wind to send 5 times a second default for now, need to make sure we can get everything out of the buffer
+  delay(500);
   setrudder(0);   
   delay(2000);  //setup delay
+  RCMode();
 }
 
 void loop()
 {
   int menuReturn; 
-  
+
   transmit();
   sensorData(BUFF_MAX, 'w');
   sensorData(BUFF_MAX, 'c');
 
   if(Serial.available())
   {
-      menuReturn = displayMenu();
-         if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.g. setting RC mode)
+    menuReturn = displayMenu();
+    if(menuReturn != 0) //if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing be
+      ore (e.g. setting RC mode)
       {
         CurrentSelection = menuReturn;
       }  
   }
   switch (CurrentSelection) {
-      case 0:
-      break;
-      case 1:        //this will be station keeping
-        stationKeep();
-      break;    
-      case 2:
-        sailCourse();
-      break;
-      case 3://Straight Sail towards N,S,E,W as 0, 180, 90, 270. No sail control.
-        sail(StraightSailDirection); // Straightsail can no longer be called in isolation, needs sailtoWaypoint which keeps track of when tacking is necessary
-      break;
-      case 4:
-        sailToWaypoint(waypoints[point]);
-      break;
-      case 5:
-        stationKeepSinglePoint();      //stationskeeps around a single spot in the middle of the square
-      break;
-      default:
-        Serial.println("Invalid menu return. Press any key"); 
-     delay(40);     
-   }
+  case 0:
+    break;
+  case 1:        //this will be station keeping
+    stationKeep();
+    break;    
+  case 2:
+    sailCourse();
+    break;
+  case 3://Straight Sail towards N,S,E,W as 0, 180, 90, 270. No sail control.
+    sail(StraightSailDirection); // Straightsail can no longer be called in isolation, needs sailtoWaypoint which keeps track of when tacking is necessary
+    break;
+  case 4:
+    sailToWaypoint(waypoints[point]);
+    break;
+  case 5:
+    stationKeepSinglePoint();      //stationskeeps around a single spot in the middle of the square
+    break;
+  default:
+    Serial.println("Invalid menu return. Press any key"); 
+    delay(40);     
+  }
 }
+
 
 

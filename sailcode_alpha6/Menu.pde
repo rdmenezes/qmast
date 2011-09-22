@@ -11,7 +11,7 @@ int displayMenu()
    tell the boat to start station-keeping; 
    */  					
 	boolean hasSelection = false;
-	char selection;
+	char selection; // = 'r';
         boolean compassData = false;
         boolean windData = false;
         boolean speedData = false;
