@@ -49,7 +49,7 @@ void loop()
           client.println("HTTP/1.1 200 OK");
           client.println("Content-Type: text/html");
           client.println();
-
+           client.print("<head><title>Whooo MAST</title></head>");
           client.print("<h1><font color=\"red\" face = \"Century Gothic\">whoooooooo working!!! (Hello Laszlo and Cory)<br /></font></h1>");
           client.print("sample output: <br />");
           // output the value of each analog input pin
