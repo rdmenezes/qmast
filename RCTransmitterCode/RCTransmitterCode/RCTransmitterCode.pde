@@ -1,23 +1,30 @@
 /*
 code to take input from pots stolen from an old RC transmitter, and will send angle values through xbee to the boat.
-June 2011
-
-Valerie and Laszlo  
-
-Rudder sends values from 120 to 180 (centered at 150), sails sends value from 225 to 275 (centered at 250). This is so that all values sent are 3 characters, and not negative.
-This is taken into account in super xbee RC mode in the actual menu code.
-
-*/
+ June 2011
+ 
+ Valerie and Laszlo  
+ 
+ Rudder sends values from 120 to 180 (centered at 150), sails sends value from 225 to 275 (centered at 250). 
+ This is so that all values sent are 3 characters, and not negative.
+ This is taken into account in super xbee RC mode in the actual menu code.
+ 
+ */
 
 #define SAILSPIN A0 //the one without the spring is to be used for sails since the exact middle value is much less relevant
 #define RUDDERPIN A1 //the one with the spring, to be used for rudder
+#define PANICPIN  7
+#define LEDPIN    13
 
 void setup()
 {
   pinMode(SAILSPIN, INPUT);
   pinMode(RUDDERPIN, INPUT);
+  pinMode(PANICPIN, INPUT);
+  pinMode(LEDPIN, OUTPUT);
+  pinMode(6,OUTPUT); // use as a 5 volt to power panic button
+  digitalWrite(6,HIGH); // set power high
   Serial.begin(19200);
-  
+
 }
 
 void loop()
@@ -28,36 +35,42 @@ void loop()
   int normalizedsails;
   char signalchar;      //char to signal data spam
   static boolean RCTime = false;
-  
-    signalchar = Serial.read();
-    if(signalchar == '~'){
-      RCTime = true;
-    }
-      if(signalchar == '|'){
-      RCTime = false;
-    }
-    if (RCTime == true){
-  sailsval = analogRead(SAILSPIN);
-  normalizedsails = analogToSails(sailsval);  
-  rudderval = analogRead(RUDDERPIN);
-  normalizedrudder = analogToRudder(rudderval);  
-  //Serial.print("pot 1 val: ");
- // Serial.println(pot1val);
-  //Serial.print("normalized Sails angle: ");
-  //Serial.println(normalized1);  
-//  Serial.print("pot 2 val: ");
-//  Serial.println(pot2val);
-//  Serial.print("normalized rudder value: ");
-//  Serial.println(normalized2);
-//  Serial.println();  
+
+
+  digitalWrite(LEDPIN, !digitalRead(PANICPIN)); // have led represent whether panic button is being pressed
+  if(digitalRead(PANICPIN) == LOW) //if panic button is being pressed
+  {
+    delay(30);//eliminate debouncing
+      Serial.println("rrrr"); 
+    
+  }
+
+
+  signalchar = Serial.read();
+  if(signalchar == '~'){
+    RCTime = true;
+    Serial.println("Entering RC mode");
+  }
+  if(signalchar == '|'){
+    RCTime = false;
+    Serial.println("Exiting RC mode");
+  }
+
+  if (RCTime == true){
+
+    sailsval = analogRead(SAILSPIN);
+    normalizedsails = analogToSails(sailsval);  
+    rudderval = analogRead(RUDDERPIN);
+    normalizedrudder = analogToRudder(rudderval);  
     Serial.println(normalizedsails);
     Serial.print(normalizedrudder);  
     delay(100);
-    
-    }
+
+  }
 }
 //translates analog to digital scale from 0-1023 to a -25 to 25 degree angle that should be fed to the rudder
-//analog values vary from min 310 to max 720, with 0 at 512, so subtraction 512 should give us a value from -100 to 100 (but will not ever likely reach 100)
+//analog values vary from min 310 to max 720, with 0 at 512, so subtraction 512 should give us a value from 
+//-100 to 100 (but will not ever likely reach 100)
 int analogToRudder(int analog)
 {
   float temp;
@@ -76,3 +89,22 @@ int analogToSails(int analog)
   temp += 250;//scale for transmission  
   return temp;    
 }
+
+
+Hide details
+Change log
+30391bb36402 by Glen, Val on Sep 22 (6 days ago)   Diff
+update RC transmitter code to intergrate
+with power button. semi-permanent hardware
+to follow
+Go to: 	
+Double click a line to add a comment
+Older revisions
+ 71dd5cb0a5c5 by Laszlo on Aug 23, 2011   Diff 
+ 344f3808561d by Laszlo on Aug 4, 2011   Diff 
+ 8facec2816da by Laszlo on Jul 29, 2011   Diff 
+All revisions of this file
+File info
+Size: 2628 bytes, 93 lines
+View raw file
+
