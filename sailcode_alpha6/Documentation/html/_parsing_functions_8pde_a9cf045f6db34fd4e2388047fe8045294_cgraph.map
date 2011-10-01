@@ -1,0 +1,6 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$_parsing_functions_8pde.html#adba7fa397be479bf3c2b345e05969c10" title="DataValid" alt="" coords="122,4,195,31"/>
+<area shape="rect" id="node5" href="$_data_acquisition_8pde.html#a7754ceed7ff85b4abd95a6ada7828b3d" title="setErrorBit" alt="" coords="120,55,198,81"/>
+<area shape="rect" id="node7" href="$_parsing_functions_8pde.html#a601e25d1a7636238ce5083c54461a17f" title="ParseGPGLL" alt="" coords="112,105,205,132"/>
+<area shape="rect" id="node9" href="$_data_acquisition_8pde.html#a6e69d0b8b4d3517b8abba6d50cd3b8d0" title="clearErrorBit" alt="" coords="115,156,203,183"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$_motor_control_functions_8pde.html#a3ee6de88bcd944f9cb1b7301769c8b7e" title="setSails" alt="" coords="134,4,197,31"/>
+<area shape="rect" id="node9" href="$_motor_control_functions_8pde.html#ab945c39b15584683f123bca1f5df6faa" title="setMain" alt="" coords="246,55,309,81"/>
+<area shape="rect" id="node5" href="$_motor_control_functions_8pde.html#a6e741ed9688f5a70307e8baabab9326a" title="setJib" alt="" coords="251,4,304,31"/>
+<area shape="rect" id="node7" href="$_motor_control_functions_8pde.html#a13167cafd07541f82a26312a556f5a7a" title="servo_command" alt="" coords="358,29,468,56"/>
+</map>

@@ -14,115 +14,175 @@
 ////////////////////////////////////////////////
 // Changelog
 ////////////////////////////////////////////////
-//So this is the new alpha 6 sailcode, it is a cleaned up version of alph 5 with
-//added functionality and a more advanced data structures, restructured basic sailcode
+// So this is the new alpha 6 sailcode, it is a cleaned up version of alph 5 with
+// added functionality and a more advanced data structures, restructured basic
+// sailcode
 
-// All bearing calculations in this code assume that the compass returns True North readings. ie it is adjusted for declination.
-// If this is not true: adjust for declination in the Parse() function, as compass data is decoded add or subtract the declination
+// All bearing calculations in this code assume that the compass returns True North
+// readings. ie it is adjusted for declination. If this is not true: adjust for 
+// declination in the Parse() function, as compass data is decoded add or subtract 
+// the declination
 
 #include "LocationStruct.h"
 #include <SoftwareSerial.h> /// for pololu non-buffering serial channel
-// #include <String.h> 		// It appears Arduino has built-in support for strings and doesn't need this
 #include <stdio.h>			/// for parsing - necessary?
 #include <avr/io.h>
+// #include <String.h>
+/** @brief Arduino doesn't look like it contains the String.h lib, however it does have
+ * its own string handling support built in.
+ */
 
 
 // Global variables and constants
 ////////////////////////////////////////////////
 
-// Constants
-// Boat parameter constants
+/** @defgroup globalconstants
+ * Global Constants
+ * @{
+ */
+
+/** @brief Boat parameter constants in globalconstants */
 #define TACKING_ANGLE 40 //the highest angle we can point
-//Course Navigation constants
-#define MARK_DISTANCE 4 //the distance we have to be to a mark before moving to the next one, in meters //do we have this kind of accuracy??
 
-//Station keeping navigation constants
-#define STATION_KEEPING_RADIUS 15 //the radius we want to stay around the centre-point of the station-keeping course; full width is 40 meters
-#define WIND_CHANGE_THRESHOLD 10 // the angle in degrees that the wind is allowed to shift by before we recalculate the waypoint locations (to avoid tacking)
+/** @brief Course Navigation constants */
+#define MARK_DISTANCE 4 
+// the distance we have to be to a mark before moving to the next one, in meters 
 
-//serial data constants
-#define BUFF_MAX 511 // serial buffer length, set in HardwareSerial.cpp in arduino0022/hardware/arduino/cores/arduino
-//Calculation constantes
-#define DEGREE_TO_MINUTE 60 //there are 60 minutes in one degree
-#define LATITUDE_TO_METER 1855 // there are (approximately) 1855 meters in a minute of latitude everywhere; this isn't true for longitude, as it depends on the latitude
-// there are approximately 1314 m in a minute of longitude at 45 degrees north (Kingston); this difference will mean that if we just
-// use deltax over deltay in minutes to find an angle it will be wrong
-#define LONGITUDE_TO_METER 1314 //for kingston; change for Annapolis 1314 was kingston value
+/** @brief Station keeping navigation constants */
+#define STATION_KEEPING_RADIUS 15 
+// The radius we want to stay around the centre-point of the station-keeping course; 
+// full width is 40 meters
 
-//Error bit constants
-#define noDataBit  0 // no data, error error bit
-#define oldDataBit 1 //there is data, but buffer is full, error bit
-#define checksumBadBit 2 // indicates checksum fail on data
-#define twoCommasBit 3 // indicates that there were two commas in the data, and it has been discarded and not parsed
-#define rolloverDataBit 4 //indicates data rolled over, not fast enough
-#define badCompassDataBit 5 // indicates that strtok did not return PTNTHTM, so we probably got bad data
-#define tooMuchRollBit 6    //indicates the boat is falling over
-#define badWindData 7    //indicates an error from the wind sensor
-#define badGpsData 8    //indicates error in gps data
+#define WIND_CHANGE_THRESHOLD 10 
+// the angle in degrees that the wind is allowed to shift by before we recalculate 
+// the waypoint locations (to avoid tacking)
 
-//sail control constants
+/** @brief serial data constants */
+#define BUFF_MAX 511 
+// serial buffer length, set in HardwareSerial.cpp in 
+// arduino0022/hardware/arduino/cores/arduino
+
+/** @brief Calculation constantes */
+#define DEGREE_TO_MINUTE 60 	
+ /** 
+ * There are (approximately) 1855 meters in a minute of latitude everywhere; 
+ * This isn't true for longitude, as it depends on the latitude. There are 
+ * approximately 1314 m in a minute of longitude at 45 degrees north (Kingston); 
+ * this difference will mean that if we just use deltax over deltay in minutes to 
+ * find an angle it will be wrong
+ * 
+ * there are 60 minutes in one degree
+ */
+#define LATITUDE_TO_METER 1855 
+#define LONGITUDE_TO_METER 1314 // For Kingston; change for Annapolis 1314 was Kingston value
+
+// Error bit constants
+/** @brief no data, error error bit */
+#define noDataBit  0 
+/** @brief there is data, but buffer is full, error bit */
+#define oldDataBit 1 
+/** @brief  indicates checksum fail on data */
+#define checksumBadBit 2 
+/** @brief indicates that there were two commas in the data, and it has been discarded
+ * and not parsed */
+#define twoCommasBit 3 
+/** @brief Indicates data rolled over, not fast enough */
+#define rolloverDataBit 4 
+/** @brief indicates that strtok did not return PTNTHTM, so we probably got bad data */
+#define badCompassDataBit 5 
+/** @brief indicates the boat is falling over */
+#define tooMuchRollBit 6    
+/** @brief indicates an error from the wind sensor */
+#define badWindData 7    
+/** @brief indicates error in gps data */
+#define badGpsData 8    
+
+// Sail control constants
+/** @brief Constant which defines when the boat is "All In" */
 #define ALL_IN 0
+/** @brief Constant which defines when the boat is "All Out" */
 #define ALL_OUT 100
 
-//pololu pins
+// Pololu pins
+/** @brief Pololu reset (digital pin on arduino) */
+#define resetPin 8 
+/** @brief Pololu serial pin (with SoftwareSerial library) */
+#define txPin 9 
 
-#define resetPin 8 //Pololu reset (digital pin on arduino)
-#define txPin 9 //Pololu serial pin (with SoftwareSerial library)
-
-//for serial data aquisition
+// For serial data acquisition 
+/** @brief The shortest possible NMEA String */
 #define SHORTEST_NMEA 5
+/** @brief The longest possible NMEA String */
 #define LONGEST_NMEA 120
 
-//!when testing by sending strings through the serial monitor, you need to select "newline" ending from the dropdown beside the baud
-// ate
-//------------------------
+/** @} */
+
+/** @warning When testing by sending strings through the serial monitor, you need to select 
+ * "newline" ending from the dropdown beside the baud
+ */
+
 // for reliable serial data
-int		extraWindData = 0; //'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer
-int            extraCompassData = 0;
-int		savedWindChecksum = 0;//clear the global saved XOR value
-int		savedWindXorState = 0;//clear the global saved XORstate value
-int		savedCompassChecksum = 0;
-int		savedCompassXorState = 0;
-char 		extraWindDataArray[LONGEST_NMEA]; // a buffer to store roll-over data in case this data is fetched mid-line
-char           extraCompassDataArray[LONGEST_NMEA];
+
+/** @defgroup group1 SerialData
+ * Variables for Serial Communications
+ * @{
+ */
+/** Contains extra data from the Wind Sensor.
+ * @warning 'clear' the extra global data buffer, because 
+ * any data wrapping around will be destroyed by clearing the buffer 
+ */
+int extraWindData                                   = 0;
+int extraCompassData                                = 0;
+/** @brief clear the global saved XOR value */
+int savedWindChecksum                               = 0;
+/** @brief clear the global saved XORstate value */
+int savedWindXorState                               = 0;
+int	savedCompassChecksum                            = 0;
+int	savedCompassXorState                            = 0;
+ /** @brief  a buffer to store roll-over data in case this data is fetched mid-line */
+char extraWindDataArray[LONGEST_NMEA]; 
+char extraCompassDataArray[LONGEST_NMEA];
 
 //Sensor data
 //Heading angle using wind sensor
-float heading;//heading relative to true north, do not use, only updating 2 times a second
-float deviation;//deviation relative to true north; do we use this in our calculations?Nope
-float variance;//variance relative to true north; do we use this in our calculations?Nope
-//Boat's speed
-float bspeed; //Boat's speed in km/h
-float bspeedk; //Boat's speed in knots
-//Wind data
-float wind_angl;//wind angle, (relative to boat I believe, could be north, check this)
-float wind_velocity;//wind velocity in knots
+float heading;       ///< heading relative to true north, do not use, only updating 2 times a second
+float deviation;     ///< deviation relative to true north; do we use this in our calculations? Nope
+float variance;      ///< variance relative to true north; do we use this in our calculations? Nope
+// Boat's speed
+float bspeed;        ///< Boat's speed in km/h
+float bspeedk;       ///< Boat's speed in knots
+
+// Wind data
+float wind_angl;     ///< wind angle, (relative to boat I believe, could be north, check this)
+float wind_velocity; ///< wind velocity in knots
+
 //Compass data
-float headingc;//heading from compass
-float pitch;//pitch
-float roll;//roll
-float trueWind;// wind direction calculated at checkteck
+float headingc; ///< Heading from compass
+float pitch; 	///< pitch
+float roll; 	///< roll
+float trueWind; ///< wind direction calculated at checkteck
+
 //variables for transmiting data
 int rudderVal;
 int jibVal;
 int mainVal;
-float headingVal;    //where we are going, temporary compass smoothing test
-float distanceVal;    //distance to next waypoint
-// one-shots, no averaging, present conditions
-float heading_newest;//heading relative to true north
-float wind_angl_newest;//wind angle, (relative to boat)
+float headingVal;       ///< where we are going, temporary compass smoothing test
+float distanceVal;      ///< distance to next waypoint one-shots, no averaging, present conditions
+float heading_newest;   ///< heading relative to true north
+float wind_angl_newest; ///< wind angle, (relative to boat)
 
-//Pololu
+// Pololu
 SoftwareSerial servo_ser = SoftwareSerial(7, txPin); // for connecting via a nonbuffered serial port to pololu -output only
 
-int rudderDir = -1; //global for reversing rudder if we are parking lot testing
-int points;        //max waypoints selected for travel
-int point;          //point for sail to waypoint in menu
-int currentPoint = 0;    //current waypoint on course of travel
+int rudderDir = -1;   ///< global for reversing rudder if we are parking lot testing
+int points;           ///< max waypoints selected for travel
+int point;            ///< point for sail to waypoint in menu
+int currentPoint = 0; ///< current waypoint on course of travel
 
-//Menu hack globals
+// Menu hack globals
 int StraightSailDirection;
 int CurrentSelection;
+
 //stationkeepig globals
 long startTime;
 int stationCounter;
@@ -136,6 +196,8 @@ int ironTime;
 
 //error code
 int errorCode;
+
+/** @} */
 
 void setup() {
     Serial.begin(19200);

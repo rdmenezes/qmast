@@ -1,0 +1,8 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$_navigation_code_8pde.html#ae8999f3c7fe4fd1480b06dd5b60d78f5" title="getWindDirn" alt="" coords="148,4,236,31"/>
+<area shape="rect" id="node5" href="$_utilities_8pde.html#acf7fddcdef68f94ad48b357770aebac5" title="between" alt="" coords="159,55,225,81"/>
+<area shape="rect" id="node7" href="$_navigation_code_8pde.html#a4fffe1cc3f2386b3364495749dfebc9e" title="getWaypointDirn" alt="" coords="137,105,247,132"/>
+<area shape="rect" id="node11" href="$_navigation_code_8pde.html#a5a81fac76ec3537d65664a394090479f" title="GPSdistance" alt="" coords="146,156,238,183"/>
+<area shape="rect" id="node13" href="$_utilities_8pde.html#afe25c7411bef33d33beaa8f6bf6e07e7" title="degreesToRadians" alt="" coords="131,207,253,233"/>
+<area shape="rect" id="node9" href="$_utilities_8pde.html#abcc11dba11f0d39f4ab19c05f1d5fe75" title="radiansToDegrees" alt="" coords="302,105,421,132"/>
+</map>
