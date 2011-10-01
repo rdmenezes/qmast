@@ -1,0 +1,20 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$_navigation_code_8pde.html#a5a81fac76ec3537d65664a394090479f" title="GPSdistance" alt="" coords="300,4,391,31"/>
+<area shape="rect" id="node5" href="$_navigation_code_8pde.html#a4fffe1cc3f2386b3364495749dfebc9e" title="getWaypointDirn" alt="" coords="291,55,400,81"/>
+<area shape="rect" id="node9" href="$_tack_8pde.html#a6687f149db3a26da0af4bcb2c61fc9a3" title="tack" alt="" coords="172,460,215,487"/>
+<area shape="rect" id="node30" href="$_sailing_logic_8pde.html#a1acad42611d693fa074f7dae5e5a5e3f" title="checkTack" alt="" coords="155,105,232,132"/>
+<area shape="rect" id="node39" href="$_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835" title="sail" alt="" coords="174,283,213,309"/>
+<area shape="rect" id="node7" href="$_utilities_8pde.html#abcc11dba11f0d39f4ab19c05f1d5fe75" title="radiansToDegrees" alt="" coords="459,55,578,81"/>
+<area shape="rect" id="node11" href="$_tack_8pde.html#aa9b9ac04e546adfd9a330715867797de" title="getOutofIrons" alt="" coords="298,561,392,588"/>
+<area shape="rect" id="node13" href="$_motor_control_functions_8pde.html#ab945c39b15584683f123bca1f5df6faa" title="setMain" alt="" coords="627,409,690,436"/>
+<area shape="rect" id="node17" href="$_motor_control_functions_8pde.html#a6e741ed9688f5a70307e8baabab9326a" title="setJib" alt="" coords="632,536,685,563"/>
+<area shape="rect" id="node20" href="$_motor_control_functions_8pde.html#ada2247ce798f57b0f35794901100c48b" title="setrudder" alt="" coords="483,460,555,487"/>
+<area shape="rect" id="node23" href="$_navigation_code_8pde.html#aff425444a43bfea4cccd00c915eff7a5" title="getCloseHauledDirn" alt="" coords="281,308,410,335"/>
+<area shape="rect" id="node15" href="$_motor_control_functions_8pde.html#a13167cafd07541f82a26312a556f5a7a" title="servo_command" alt="" coords="740,460,850,487"/>
+<area shape="rect" id="node25" href="$_navigation_code_8pde.html#ae8999f3c7fe4fd1480b06dd5b60d78f5" title="getWindDirn" alt="" coords="475,257,562,284"/>
+<area shape="rect" id="node33" href="$_utilities_8pde.html#acf7fddcdef68f94ad48b357770aebac5" title="between" alt="" coords="312,207,379,233"/>
+<area shape="rect" id="node37" href="$_utilities_8pde.html#afe25c7411bef33d33beaa8f6bf6e07e7" title="degreesToRadians" alt="" coords="285,105,406,132"/>
+<area shape="rect" id="node44" href="$_sailing_logic_8pde.html#aad7e4cc1e18478540e9c1d8c00390d24" title="rudderControl" alt="" coords="298,460,393,487"/>
+<area shape="rect" id="node47" href="$_sailing_logic_8pde.html#aae8de392da41d229212d9943d965690c" title="sailControl" alt="" coords="306,359,384,385"/>
+<area shape="rect" id="node49" href="$_motor_control_functions_8pde.html#a3ee6de88bcd944f9cb1b7301769c8b7e" title="setSails" alt="" coords="487,359,550,385"/>
+</map>

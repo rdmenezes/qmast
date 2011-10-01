@@ -1,0 +1,35 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$_transmit_8pde.html#a29ff55f7ca3b7d4a69af0648518423a3" title="The transmit function is used to communicate with LabView? through a series of preset strings..." alt="" coords="684,107,748,133"/>
+<area shape="rect" id="node5" href="$_data_acquisition_8pde.html#a5e6370de6e960ff592044b790015ba48" title="sensorData" alt="" coords="675,157,757,184"/>
+<area shape="rect" id="node21" href="$_menu_8pde.html#aad9ed7a055a99883645739e4bfca0e5e" title="displayMenu" alt="" coords="513,297,602,324"/>
+<area shape="rect" id="node43" href="$_station_keeping_8pde.html#aa299757ffc71d051d673a238a5a4b387" title="stationKeep" alt="" coords="130,613,214,640"/>
+<area shape="rect" id="node51" href="$_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835" title="sail" alt="" coords="538,613,577,640"/>
+<area shape="rect" id="node65" href="$_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1" title="sailToWaypoint" alt="" coords="328,843,429,869"/>
+<area shape="rect" id="node92" href="$_sailing_logic_8pde.html#aeaba10e3002bd9b9fd2ea1bdd5ab97ea" title="sailCourse" alt="" coords="133,843,211,869"/>
+<area shape="rect" id="node98" href="$_station_keeping_8pde.html#a8582ebc297542fd91bbbdcb46b34cd24" title="stationKeepSinglePoint" alt="" coords="99,512,245,539"/>
+<area shape="rect" id="node7" href="$_data_acquisition_8pde.html#a7754ceed7ff85b4abd95a6ada7828b3d" title="setErrorBit" alt="" coords="1010,157,1088,184"/>
+<area shape="rect" id="node9" href="$_data_acquisition_8pde.html#a6e69d0b8b4d3517b8abba6d50cd3b8d0" title="clearErrorBit" alt="" coords="1005,5,1093,32"/>
+<area shape="rect" id="node11" href="$_utilities_8pde.html#acdb581c51e99361f7c3f648a9ee7e862" title="convertASCIItoHex" alt="" coords="830,56,954,83"/>
+<area shape="rect" id="node13" href="$_parsing_functions_8pde.html#a9cf045f6db34fd4e2388047fe8045294" title="Parser" alt="" coords="864,107,920,133"/>
+<area shape="rect" id="node15" href="$_parsing_functions_8pde.html#adba7fa397be479bf3c2b345e05969c10" title="DataValid" alt="" coords="1013,107,1086,133"/>
+<area shape="rect" id="node18" href="$_parsing_functions_8pde.html#a601e25d1a7636238ce5083c54461a17f" title="ParseGPGLL" alt="" coords="1003,56,1096,83"/>
+<area shape="rect" id="node23" href="$_motor_control_functions_8pde.html#ada2247ce798f57b0f35794901100c48b" title="setrudder" alt="" coords="856,664,928,691"/>
+<area shape="rect" id="node27" href="$_sailing_logic_8pde.html#aae8de392da41d229212d9943d965690c" title="sailControl" alt="" coords="677,360,755,387"/>
+<area shape="rect" id="node29" href="$_motor_control_functions_8pde.html#a3ee6de88bcd944f9cb1b7301769c8b7e" title="setSails" alt="" coords="860,385,924,412"/>
+<area shape="rect" id="node31" href="$_motor_control_functions_8pde.html#a6e741ed9688f5a70307e8baabab9326a" title="setJib" alt="" coords="1023,585,1076,612"/>
+<area shape="rect" id="node34" href="$_motor_control_functions_8pde.html#ab945c39b15584683f123bca1f5df6faa" title="setMain" alt="" coords="1018,524,1081,551"/>
+<area shape="rect" id="node25" href="$_motor_control_functions_8pde.html#a13167cafd07541f82a26312a556f5a7a" title="servo_command" alt="" coords="1145,585,1255,612"/>
+<area shape="rect" id="node45" href="$_station_keeping_8pde.html#a8781730c6d0b63baad8958328d7721e1" title="getStationKeepingCentre" alt="" coords="301,512,456,539"/>
+<area shape="rect" id="node47" href="$_navigation_code_8pde.html#ae8999f3c7fe4fd1480b06dd5b60d78f5" title="getWindDirn" alt="" coords="848,563,936,589"/>
+<area shape="rect" id="node49" href="$_station_keeping_8pde.html#a659621408d0c86bc3a5bc1d80214eaec" title="fillStationKeepingWaypoints" alt="" coords="294,664,463,691"/>
+<area shape="rect" id="node63" href="$_navigation_code_8pde.html#a5a81fac76ec3537d65664a394090479f" title="GPSdistance" alt="" coords="670,1120,762,1147"/>
+<area shape="rect" id="node54" href="$_utilities_8pde.html#acf7fddcdef68f94ad48b357770aebac5" title="between" alt="" coords="683,765,749,792"/>
+<area shape="rect" id="node56" href="$_navigation_code_8pde.html#aff425444a43bfea4cccd00c915eff7a5" title="getCloseHauledDirn" alt="" coords="652,613,780,640"/>
+<area shape="rect" id="node59" href="$_sailing_logic_8pde.html#aad7e4cc1e18478540e9c1d8c00390d24" title="rudderControl" alt="" coords="669,664,763,691"/>
+<area shape="rect" id="node68" href="$_navigation_code_8pde.html#a4fffe1cc3f2386b3364495749dfebc9e" title="getWaypointDirn" alt="" coords="661,1069,771,1096"/>
+<area shape="rect" id="node72" href="$_tack_8pde.html#a6687f149db3a26da0af4bcb2c61fc9a3" title="tack" alt="" coords="536,843,579,869"/>
+<area shape="rect" id="node83" href="$_sailing_logic_8pde.html#a1acad42611d693fa074f7dae5e5a5e3f" title="checkTack" alt="" coords="519,895,596,921"/>
+<area shape="rect" id="node70" href="$_utilities_8pde.html#abcc11dba11f0d39f4ab19c05f1d5fe75" title="radiansToDegrees" alt="" coords="833,1069,951,1096"/>
+<area shape="rect" id="node74" href="$_tack_8pde.html#aa9b9ac04e546adfd9a330715867797de" title="getOutofIrons" alt="" coords="669,867,763,893"/>
+<area shape="rect" id="node89" href="$_utilities_8pde.html#afe25c7411bef33d33beaa8f6bf6e07e7" title="degreesToRadians" alt="" coords="655,1019,777,1045"/>
+</map>

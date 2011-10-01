@@ -1,0 +1,567 @@
+\hypertarget{group__group1}{
+\section{\-Serial\-Data}
+\label{group__group1}\index{\-Serial\-Data@{\-Serial\-Data}}
+}
+
+
+\-Variables for \-Serial \-Communications.  
+
+
+\subsection*{\-Variables}
+\begin{DoxyCompactItemize}
+\item 
+int \hyperlink{group__group1_gaf9d919ceea98cf74d8ee327ca87871ee}{extra\-Wind\-Data} = 0
+\begin{DoxyCompactList}\small\item\em \-Contains extra data from the \-Wind \-Sensor. \end{DoxyCompactList}\item 
+int \hyperlink{group__group1_gaafded9aee7842e71393cafc5ac68d921}{extra\-Compass\-Data} = 0
+\item 
+int \hyperlink{group__group1_gaf7ce3159cdebccf941f8db4e70f5764e}{saved\-Wind\-Checksum} = 0
+\begin{DoxyCompactList}\small\item\em clear the global saved \-X\-O\-R value \end{DoxyCompactList}\item 
+int \hyperlink{group__group1_gabc070e9e6f6449471852bd233593d1d2}{saved\-Wind\-Xor\-State} = 0
+\begin{DoxyCompactList}\small\item\em clear the global saved \-X\-O\-Rstate value \end{DoxyCompactList}\item 
+int \hyperlink{group__group1_ga6e28e651127135816788318d7b473dc8}{saved\-Compass\-Checksum} = 0
+\item 
+int \hyperlink{group__group1_ga766482b676879097212dc7aba1450aa0}{saved\-Compass\-Xor\-State} = 0
+\item 
+char \hyperlink{group__group1_ga5a0e345949d7a23900298d33d0be150c}{extra\-Wind\-Data\-Array} \mbox{[}\-L\-O\-N\-G\-E\-S\-T\-\_\-\-N\-M\-E\-A\mbox{]}
+\begin{DoxyCompactList}\small\item\em a buffer to store roll-\/over data in case this data is fetched mid-\/line \end{DoxyCompactList}\item 
+char \hyperlink{group__group1_ga87dbc2b6143e295eae5c571f1b5f460d}{extra\-Compass\-Data\-Array} \mbox{[}\-L\-O\-N\-G\-E\-S\-T\-\_\-\-N\-M\-E\-A\mbox{]}
+\item 
+float \hyperlink{group__group1_gac5682e48513a771560df50e3b213e61a}{heading}
+\begin{DoxyCompactList}\small\item\em heading relative to true north, do not use, only updating 2 times a second \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_gad20d9e23979c81b96a060830d0d460a6}{deviation}
+\begin{DoxyCompactList}\small\item\em deviation relative to true north; do we use this in our calculations? \-Nope \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_gaec967762d2c44e3594070dca470ae334}{variance}
+\begin{DoxyCompactList}\small\item\em variance relative to true north; do we use this in our calculations? \-Nope \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_ga3c5844d05a57a968ed5686a10e4a5af8}{bspeed}
+\begin{DoxyCompactList}\small\item\em \-Boat's speed in km/h. \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_ga6ebc5b99dfacc747433709383f3bea8c}{bspeedk}
+\begin{DoxyCompactList}\small\item\em \-Boat's speed in knots. \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_ga6bc5259b7cc1cb6128495b28f55b0a5d}{wind\-\_\-angl}
+\begin{DoxyCompactList}\small\item\em wind angle, (relative to boat \-I believe, could be north, check this) \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_ga641fd5e4834deb5465b1931b7645457d}{wind\-\_\-velocity}
+\begin{DoxyCompactList}\small\item\em wind velocity in knots \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_ga4736792191ccbbbb7b3d6933a3302336}{headingc}
+\begin{DoxyCompactList}\small\item\em \-Heading from compass. \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_ga282e7d4378d4a18a805b8980295ac86c}{pitch}
+\begin{DoxyCompactList}\small\item\em pitch \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_ga26fd84d522945b6038221d9e38c7cc39}{roll}
+\begin{DoxyCompactList}\small\item\em roll \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_gaea221e98c9a7c4e63325dc52ab83c14d}{true\-Wind}
+\begin{DoxyCompactList}\small\item\em wind direction calculated at checkteck \end{DoxyCompactList}\item 
+int \hyperlink{group__group1_ga8b212bdc5d94214c0e3803a696f2f676}{rudder\-Val}
+\item 
+int \hyperlink{group__group1_ga1fee0a7eb4ae243dcc5afe20f508990e}{jib\-Val}
+\item 
+int \hyperlink{group__group1_ga3c5dac52b53dc3642a843a7d6a9266ca}{main\-Val}
+\item 
+float \hyperlink{group__group1_ga8d6cfa64e358c393d2d13c5a9803e052}{heading\-Val}
+\begin{DoxyCompactList}\small\item\em where we are going, temporary compass smoothing test \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_ga90176c4024ce3ce161b5feda285f97c5}{distance\-Val}
+\begin{DoxyCompactList}\small\item\em distance to next waypoint one-\/shots, no averaging, present conditions \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_ga3c596663ba52aec96df1f504772914be}{heading\-\_\-newest}
+\begin{DoxyCompactList}\small\item\em heading relative to true north \end{DoxyCompactList}\item 
+float \hyperlink{group__group1_ga9fcee93bab7f0c81f67b99f8b8597e9c}{wind\-\_\-angl\-\_\-newest}
+\begin{DoxyCompactList}\small\item\em wind angle, (relative to boat) \end{DoxyCompactList}\item 
+\-Software\-Serial \hyperlink{group__group1_gad08dcd7d87414b8d7f7e9cf2689ea5d8}{servo\-\_\-ser} = \-Software\-Serial(7, tx\-Pin)
+\item 
+int \hyperlink{group__group1_gaf79de3204853b3b4101113683e74cd54}{rudder\-Dir} = -\/1
+\begin{DoxyCompactList}\small\item\em global for reversing rudder if we are parking lot testing \end{DoxyCompactList}\item 
+int \hyperlink{group__group1_gaf7f8f4a4e39e09fdb5e9f02330ecabef}{points}
+\begin{DoxyCompactList}\small\item\em max waypoints selected for travel \end{DoxyCompactList}\item 
+int \hyperlink{group__group1_ga2dee8b7fcecc7c2d190e9304b43ea886}{point}
+\begin{DoxyCompactList}\small\item\em point for sail to waypoint in menu \end{DoxyCompactList}\item 
+int \hyperlink{group__group1_ga9c43dea25777e23791d530b06f6715f1}{current\-Point} = 0
+\begin{DoxyCompactList}\small\item\em current waypoint on course of travel \end{DoxyCompactList}\item 
+int \hyperlink{group__group1_gac9d865c1411ae815f6b2394c45d604e7}{\-Straight\-Sail\-Direction}
+\item 
+int \hyperlink{group__group1_ga79863a7d6b31d0c89c5050c2cd931cfe}{\-Current\-Selection}
+\item 
+long \hyperlink{group__group1_ga8ad49a66e91d8658c5f1f7dbcbcbbd2f}{start\-Time}
+\item 
+int \hyperlink{group__group1_gaffc96d075c8796c3d5ef3dc5824c0819}{station\-Counter}
+\item 
+boolean \hyperlink{group__group1_gaf453f5fa6c0df67707ca308a2fc80ca1}{times\-Up}
+\item 
+int \hyperlink{group__group1_gabe157ddfb46568e2de8b041f54ac6d98}{\-Station\-Keeping\-Time\-In\-Box} = 270000
+\item 
+boolean \hyperlink{group__group1_gab23a7a79ede8d141fa92f4475d36fb24}{tacking}
+\item 
+int \hyperlink{group__group1_gabdfa4a25e22806c47eebd4c9826ef7a6}{tacking\-Side}
+\item 
+int \hyperlink{group__group1_ga332365589e9af9d8ec4d1c5663034132}{iron\-Time}
+\item 
+int \hyperlink{group__group1_gab675a39a0c7f0587be9ae6734db7ac80}{error\-Code}
+\end{DoxyCompactItemize}
+
+
+\subsection{\-Detailed \-Description}
+\-Variables for \-Serial \-Communications. \begin{DoxyWarning}{\-Warning}
+\-When testing by sending strings through the serial monitor, you need to select \char`\"{}newline\char`\"{} ending from the dropdown beside the baud 
+\end{DoxyWarning}
+
+
+\subsection{\-Variable \-Documentation}
+\hypertarget{group__group1_ga3c5844d05a57a968ed5686a10e4a5af8}{
+\index{\-Serial\-Data@{\-Serial\-Data}!bspeed@{bspeed}}
+\index{bspeed@{bspeed}!SerialData@{\-Serial\-Data}}
+\subsubsection[{bspeed}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf bspeed}}}
+\label{group__group1_ga3c5844d05a57a968ed5686a10e4a5af8}
+
+
+\-Boat's speed in km/h. 
+
+
+
+\-Definition at line 152 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga6ebc5b99dfacc747433709383f3bea8c}{
+\index{\-Serial\-Data@{\-Serial\-Data}!bspeedk@{bspeedk}}
+\index{bspeedk@{bspeedk}!SerialData@{\-Serial\-Data}}
+\subsubsection[{bspeedk}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf bspeedk}}}
+\label{group__group1_ga6ebc5b99dfacc747433709383f3bea8c}
+
+
+\-Boat's speed in knots. 
+
+
+
+\-Definition at line 153 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga9c43dea25777e23791d530b06f6715f1}{
+\index{\-Serial\-Data@{\-Serial\-Data}!current\-Point@{current\-Point}}
+\index{current\-Point@{current\-Point}!SerialData@{\-Serial\-Data}}
+\subsubsection[{current\-Point}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf current\-Point} = 0}}
+\label{group__group1_ga9c43dea25777e23791d530b06f6715f1}
+
+
+current waypoint on course of travel 
+
+
+
+\-Definition at line 180 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga79863a7d6b31d0c89c5050c2cd931cfe}{
+\index{\-Serial\-Data@{\-Serial\-Data}!\-Current\-Selection@{\-Current\-Selection}}
+\index{\-Current\-Selection@{\-Current\-Selection}!SerialData@{\-Serial\-Data}}
+\subsubsection[{\-Current\-Selection}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Current\-Selection}}}
+\label{group__group1_ga79863a7d6b31d0c89c5050c2cd931cfe}
+
+
+\-Definition at line 184 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gad20d9e23979c81b96a060830d0d460a6}{
+\index{\-Serial\-Data@{\-Serial\-Data}!deviation@{deviation}}
+\index{deviation@{deviation}!SerialData@{\-Serial\-Data}}
+\subsubsection[{deviation}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf deviation}}}
+\label{group__group1_gad20d9e23979c81b96a060830d0d460a6}
+
+
+deviation relative to true north; do we use this in our calculations? \-Nope 
+
+
+
+\-Definition at line 149 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga90176c4024ce3ce161b5feda285f97c5}{
+\index{\-Serial\-Data@{\-Serial\-Data}!distance\-Val@{distance\-Val}}
+\index{distance\-Val@{distance\-Val}!SerialData@{\-Serial\-Data}}
+\subsubsection[{distance\-Val}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf distance\-Val}}}
+\label{group__group1_ga90176c4024ce3ce161b5feda285f97c5}
+
+
+distance to next waypoint one-\/shots, no averaging, present conditions 
+
+
+
+\-Definition at line 170 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gab675a39a0c7f0587be9ae6734db7ac80}{
+\index{\-Serial\-Data@{\-Serial\-Data}!error\-Code@{error\-Code}}
+\index{error\-Code@{error\-Code}!SerialData@{\-Serial\-Data}}
+\subsubsection[{error\-Code}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf error\-Code}}}
+\label{group__group1_gab675a39a0c7f0587be9ae6734db7ac80}
+
+
+\-Definition at line 198 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gaafded9aee7842e71393cafc5ac68d921}{
+\index{\-Serial\-Data@{\-Serial\-Data}!extra\-Compass\-Data@{extra\-Compass\-Data}}
+\index{extra\-Compass\-Data@{extra\-Compass\-Data}!SerialData@{\-Serial\-Data}}
+\subsubsection[{extra\-Compass\-Data}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf extra\-Compass\-Data} = 0}}
+\label{group__group1_gaafded9aee7842e71393cafc5ac68d921}
+
+
+\-Definition at line 135 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga87dbc2b6143e295eae5c571f1b5f460d}{
+\index{\-Serial\-Data@{\-Serial\-Data}!extra\-Compass\-Data\-Array@{extra\-Compass\-Data\-Array}}
+\index{extra\-Compass\-Data\-Array@{extra\-Compass\-Data\-Array}!SerialData@{\-Serial\-Data}}
+\subsubsection[{extra\-Compass\-Data\-Array}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf extra\-Compass\-Data\-Array}\mbox{[}\-L\-O\-N\-G\-E\-S\-T\-\_\-\-N\-M\-E\-A\mbox{]}}}
+\label{group__group1_ga87dbc2b6143e295eae5c571f1b5f460d}
+
+
+\-Definition at line 144 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gaf9d919ceea98cf74d8ee327ca87871ee}{
+\index{\-Serial\-Data@{\-Serial\-Data}!extra\-Wind\-Data@{extra\-Wind\-Data}}
+\index{extra\-Wind\-Data@{extra\-Wind\-Data}!SerialData@{\-Serial\-Data}}
+\subsubsection[{extra\-Wind\-Data}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf extra\-Wind\-Data} = 0}}
+\label{group__group1_gaf9d919ceea98cf74d8ee327ca87871ee}
+
+
+\-Contains extra data from the \-Wind \-Sensor. 
+
+\begin{DoxyWarning}{\-Warning}
+'clear' the extra global data buffer, because any data wrapping around will be destroyed by clearing the buffer 
+\end{DoxyWarning}
+
+
+\-Definition at line 134 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga5a0e345949d7a23900298d33d0be150c}{
+\index{\-Serial\-Data@{\-Serial\-Data}!extra\-Wind\-Data\-Array@{extra\-Wind\-Data\-Array}}
+\index{extra\-Wind\-Data\-Array@{extra\-Wind\-Data\-Array}!SerialData@{\-Serial\-Data}}
+\subsubsection[{extra\-Wind\-Data\-Array}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf extra\-Wind\-Data\-Array}\mbox{[}\-L\-O\-N\-G\-E\-S\-T\-\_\-\-N\-M\-E\-A\mbox{]}}}
+\label{group__group1_ga5a0e345949d7a23900298d33d0be150c}
+
+
+a buffer to store roll-\/over data in case this data is fetched mid-\/line 
+
+
+
+\-Definition at line 143 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gac5682e48513a771560df50e3b213e61a}{
+\index{\-Serial\-Data@{\-Serial\-Data}!heading@{heading}}
+\index{heading@{heading}!SerialData@{\-Serial\-Data}}
+\subsubsection[{heading}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf heading}}}
+\label{group__group1_gac5682e48513a771560df50e3b213e61a}
+
+
+heading relative to true north, do not use, only updating 2 times a second 
+
+
+
+\-Definition at line 148 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga3c596663ba52aec96df1f504772914be}{
+\index{\-Serial\-Data@{\-Serial\-Data}!heading\-\_\-newest@{heading\-\_\-newest}}
+\index{heading\-\_\-newest@{heading\-\_\-newest}!SerialData@{\-Serial\-Data}}
+\subsubsection[{heading\-\_\-newest}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf heading\-\_\-newest}}}
+\label{group__group1_ga3c596663ba52aec96df1f504772914be}
+
+
+heading relative to true north 
+
+
+
+\-Definition at line 171 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga4736792191ccbbbb7b3d6933a3302336}{
+\index{\-Serial\-Data@{\-Serial\-Data}!headingc@{headingc}}
+\index{headingc@{headingc}!SerialData@{\-Serial\-Data}}
+\subsubsection[{headingc}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf headingc}}}
+\label{group__group1_ga4736792191ccbbbb7b3d6933a3302336}
+
+
+\-Heading from compass. 
+
+
+
+\-Definition at line 160 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga8d6cfa64e358c393d2d13c5a9803e052}{
+\index{\-Serial\-Data@{\-Serial\-Data}!heading\-Val@{heading\-Val}}
+\index{heading\-Val@{heading\-Val}!SerialData@{\-Serial\-Data}}
+\subsubsection[{heading\-Val}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf heading\-Val}}}
+\label{group__group1_ga8d6cfa64e358c393d2d13c5a9803e052}
+
+
+where we are going, temporary compass smoothing test 
+
+
+
+\-Definition at line 169 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga332365589e9af9d8ec4d1c5663034132}{
+\index{\-Serial\-Data@{\-Serial\-Data}!iron\-Time@{iron\-Time}}
+\index{iron\-Time@{iron\-Time}!SerialData@{\-Serial\-Data}}
+\subsubsection[{iron\-Time}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf iron\-Time}}}
+\label{group__group1_ga332365589e9af9d8ec4d1c5663034132}
+
+
+\-Definition at line 195 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga1fee0a7eb4ae243dcc5afe20f508990e}{
+\index{\-Serial\-Data@{\-Serial\-Data}!jib\-Val@{jib\-Val}}
+\index{jib\-Val@{jib\-Val}!SerialData@{\-Serial\-Data}}
+\subsubsection[{jib\-Val}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf jib\-Val}}}
+\label{group__group1_ga1fee0a7eb4ae243dcc5afe20f508990e}
+
+
+\-Definition at line 167 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga3c5dac52b53dc3642a843a7d6a9266ca}{
+\index{\-Serial\-Data@{\-Serial\-Data}!main\-Val@{main\-Val}}
+\index{main\-Val@{main\-Val}!SerialData@{\-Serial\-Data}}
+\subsubsection[{main\-Val}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf main\-Val}}}
+\label{group__group1_ga3c5dac52b53dc3642a843a7d6a9266ca}
+
+
+\-Definition at line 168 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga282e7d4378d4a18a805b8980295ac86c}{
+\index{\-Serial\-Data@{\-Serial\-Data}!pitch@{pitch}}
+\index{pitch@{pitch}!SerialData@{\-Serial\-Data}}
+\subsubsection[{pitch}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf pitch}}}
+\label{group__group1_ga282e7d4378d4a18a805b8980295ac86c}
+
+
+pitch 
+
+
+
+\-Definition at line 161 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga2dee8b7fcecc7c2d190e9304b43ea886}{
+\index{\-Serial\-Data@{\-Serial\-Data}!point@{point}}
+\index{point@{point}!SerialData@{\-Serial\-Data}}
+\subsubsection[{point}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf point}}}
+\label{group__group1_ga2dee8b7fcecc7c2d190e9304b43ea886}
+
+
+point for sail to waypoint in menu 
+
+
+
+\-Definition at line 179 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gaf7f8f4a4e39e09fdb5e9f02330ecabef}{
+\index{\-Serial\-Data@{\-Serial\-Data}!points@{points}}
+\index{points@{points}!SerialData@{\-Serial\-Data}}
+\subsubsection[{points}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf points}}}
+\label{group__group1_gaf7f8f4a4e39e09fdb5e9f02330ecabef}
+
+
+max waypoints selected for travel 
+
+
+
+\-Definition at line 178 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga26fd84d522945b6038221d9e38c7cc39}{
+\index{\-Serial\-Data@{\-Serial\-Data}!roll@{roll}}
+\index{roll@{roll}!SerialData@{\-Serial\-Data}}
+\subsubsection[{roll}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf roll}}}
+\label{group__group1_ga26fd84d522945b6038221d9e38c7cc39}
+
+
+roll 
+
+
+
+\-Definition at line 162 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gaf79de3204853b3b4101113683e74cd54}{
+\index{\-Serial\-Data@{\-Serial\-Data}!rudder\-Dir@{rudder\-Dir}}
+\index{rudder\-Dir@{rudder\-Dir}!SerialData@{\-Serial\-Data}}
+\subsubsection[{rudder\-Dir}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf rudder\-Dir} = -\/1}}
+\label{group__group1_gaf79de3204853b3b4101113683e74cd54}
+
+
+global for reversing rudder if we are parking lot testing 
+
+
+
+\-Definition at line 177 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga8b212bdc5d94214c0e3803a696f2f676}{
+\index{\-Serial\-Data@{\-Serial\-Data}!rudder\-Val@{rudder\-Val}}
+\index{rudder\-Val@{rudder\-Val}!SerialData@{\-Serial\-Data}}
+\subsubsection[{rudder\-Val}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf rudder\-Val}}}
+\label{group__group1_ga8b212bdc5d94214c0e3803a696f2f676}
+
+
+\-Definition at line 166 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga6e28e651127135816788318d7b473dc8}{
+\index{\-Serial\-Data@{\-Serial\-Data}!saved\-Compass\-Checksum@{saved\-Compass\-Checksum}}
+\index{saved\-Compass\-Checksum@{saved\-Compass\-Checksum}!SerialData@{\-Serial\-Data}}
+\subsubsection[{saved\-Compass\-Checksum}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf saved\-Compass\-Checksum} = 0}}
+\label{group__group1_ga6e28e651127135816788318d7b473dc8}
+
+
+\-Definition at line 140 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga766482b676879097212dc7aba1450aa0}{
+\index{\-Serial\-Data@{\-Serial\-Data}!saved\-Compass\-Xor\-State@{saved\-Compass\-Xor\-State}}
+\index{saved\-Compass\-Xor\-State@{saved\-Compass\-Xor\-State}!SerialData@{\-Serial\-Data}}
+\subsubsection[{saved\-Compass\-Xor\-State}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf saved\-Compass\-Xor\-State} = 0}}
+\label{group__group1_ga766482b676879097212dc7aba1450aa0}
+
+
+\-Definition at line 141 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gaf7ce3159cdebccf941f8db4e70f5764e}{
+\index{\-Serial\-Data@{\-Serial\-Data}!saved\-Wind\-Checksum@{saved\-Wind\-Checksum}}
+\index{saved\-Wind\-Checksum@{saved\-Wind\-Checksum}!SerialData@{\-Serial\-Data}}
+\subsubsection[{saved\-Wind\-Checksum}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf saved\-Wind\-Checksum} = 0}}
+\label{group__group1_gaf7ce3159cdebccf941f8db4e70f5764e}
+
+
+clear the global saved \-X\-O\-R value 
+
+
+
+\-Definition at line 137 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gabc070e9e6f6449471852bd233593d1d2}{
+\index{\-Serial\-Data@{\-Serial\-Data}!saved\-Wind\-Xor\-State@{saved\-Wind\-Xor\-State}}
+\index{saved\-Wind\-Xor\-State@{saved\-Wind\-Xor\-State}!SerialData@{\-Serial\-Data}}
+\subsubsection[{saved\-Wind\-Xor\-State}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf saved\-Wind\-Xor\-State} = 0}}
+\label{group__group1_gabc070e9e6f6449471852bd233593d1d2}
+
+
+clear the global saved \-X\-O\-Rstate value 
+
+
+
+\-Definition at line 139 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gad08dcd7d87414b8d7f7e9cf2689ea5d8}{
+\index{\-Serial\-Data@{\-Serial\-Data}!servo\-\_\-ser@{servo\-\_\-ser}}
+\index{servo\-\_\-ser@{servo\-\_\-ser}!SerialData@{\-Serial\-Data}}
+\subsubsection[{servo\-\_\-ser}]{\setlength{\rightskip}{0pt plus 5cm}\-Software\-Serial {\bf servo\-\_\-ser} = \-Software\-Serial(7, tx\-Pin)}}
+\label{group__group1_gad08dcd7d87414b8d7f7e9cf2689ea5d8}
+
+
+\-Definition at line 175 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga8ad49a66e91d8658c5f1f7dbcbcbbd2f}{
+\index{\-Serial\-Data@{\-Serial\-Data}!start\-Time@{start\-Time}}
+\index{start\-Time@{start\-Time}!SerialData@{\-Serial\-Data}}
+\subsubsection[{start\-Time}]{\setlength{\rightskip}{0pt plus 5cm}long {\bf start\-Time}}}
+\label{group__group1_ga8ad49a66e91d8658c5f1f7dbcbcbbd2f}
+
+
+\-Definition at line 187 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gaffc96d075c8796c3d5ef3dc5824c0819}{
+\index{\-Serial\-Data@{\-Serial\-Data}!station\-Counter@{station\-Counter}}
+\index{station\-Counter@{station\-Counter}!SerialData@{\-Serial\-Data}}
+\subsubsection[{station\-Counter}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf station\-Counter}}}
+\label{group__group1_gaffc96d075c8796c3d5ef3dc5824c0819}
+
+
+\-Definition at line 188 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gabe157ddfb46568e2de8b041f54ac6d98}{
+\index{\-Serial\-Data@{\-Serial\-Data}!\-Station\-Keeping\-Time\-In\-Box@{\-Station\-Keeping\-Time\-In\-Box}}
+\index{\-Station\-Keeping\-Time\-In\-Box@{\-Station\-Keeping\-Time\-In\-Box}!SerialData@{\-Serial\-Data}}
+\subsubsection[{\-Station\-Keeping\-Time\-In\-Box}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Station\-Keeping\-Time\-In\-Box} = 270000}}
+\label{group__group1_gabe157ddfb46568e2de8b041f54ac6d98}
+
+
+\-Definition at line 190 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gac9d865c1411ae815f6b2394c45d604e7}{
+\index{\-Serial\-Data@{\-Serial\-Data}!\-Straight\-Sail\-Direction@{\-Straight\-Sail\-Direction}}
+\index{\-Straight\-Sail\-Direction@{\-Straight\-Sail\-Direction}!SerialData@{\-Serial\-Data}}
+\subsubsection[{\-Straight\-Sail\-Direction}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf \-Straight\-Sail\-Direction}}}
+\label{group__group1_gac9d865c1411ae815f6b2394c45d604e7}
+
+
+\-Definition at line 183 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gab23a7a79ede8d141fa92f4475d36fb24}{
+\index{\-Serial\-Data@{\-Serial\-Data}!tacking@{tacking}}
+\index{tacking@{tacking}!SerialData@{\-Serial\-Data}}
+\subsubsection[{tacking}]{\setlength{\rightskip}{0pt plus 5cm}boolean {\bf tacking}}}
+\label{group__group1_gab23a7a79ede8d141fa92f4475d36fb24}
+
+
+\-Definition at line 193 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gabdfa4a25e22806c47eebd4c9826ef7a6}{
+\index{\-Serial\-Data@{\-Serial\-Data}!tacking\-Side@{tacking\-Side}}
+\index{tacking\-Side@{tacking\-Side}!SerialData@{\-Serial\-Data}}
+\subsubsection[{tacking\-Side}]{\setlength{\rightskip}{0pt plus 5cm}int {\bf tacking\-Side}}}
+\label{group__group1_gabdfa4a25e22806c47eebd4c9826ef7a6}
+
+
+\-Definition at line 194 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gaf453f5fa6c0df67707ca308a2fc80ca1}{
+\index{\-Serial\-Data@{\-Serial\-Data}!times\-Up@{times\-Up}}
+\index{times\-Up@{times\-Up}!SerialData@{\-Serial\-Data}}
+\subsubsection[{times\-Up}]{\setlength{\rightskip}{0pt plus 5cm}boolean {\bf times\-Up}}}
+\label{group__group1_gaf453f5fa6c0df67707ca308a2fc80ca1}
+
+
+\-Definition at line 189 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gaea221e98c9a7c4e63325dc52ab83c14d}{
+\index{\-Serial\-Data@{\-Serial\-Data}!true\-Wind@{true\-Wind}}
+\index{true\-Wind@{true\-Wind}!SerialData@{\-Serial\-Data}}
+\subsubsection[{true\-Wind}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf true\-Wind}}}
+\label{group__group1_gaea221e98c9a7c4e63325dc52ab83c14d}
+
+
+wind direction calculated at checkteck 
+
+
+
+\-Definition at line 163 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_gaec967762d2c44e3594070dca470ae334}{
+\index{\-Serial\-Data@{\-Serial\-Data}!variance@{variance}}
+\index{variance@{variance}!SerialData@{\-Serial\-Data}}
+\subsubsection[{variance}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf variance}}}
+\label{group__group1_gaec967762d2c44e3594070dca470ae334}
+
+
+variance relative to true north; do we use this in our calculations? \-Nope 
+
+
+
+\-Definition at line 150 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga6bc5259b7cc1cb6128495b28f55b0a5d}{
+\index{\-Serial\-Data@{\-Serial\-Data}!wind\-\_\-angl@{wind\-\_\-angl}}
+\index{wind\-\_\-angl@{wind\-\_\-angl}!SerialData@{\-Serial\-Data}}
+\subsubsection[{wind\-\_\-angl}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf wind\-\_\-angl}}}
+\label{group__group1_ga6bc5259b7cc1cb6128495b28f55b0a5d}
+
+
+wind angle, (relative to boat \-I believe, could be north, check this) 
+
+
+
+\-Definition at line 156 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga9fcee93bab7f0c81f67b99f8b8597e9c}{
+\index{\-Serial\-Data@{\-Serial\-Data}!wind\-\_\-angl\-\_\-newest@{wind\-\_\-angl\-\_\-newest}}
+\index{wind\-\_\-angl\-\_\-newest@{wind\-\_\-angl\-\_\-newest}!SerialData@{\-Serial\-Data}}
+\subsubsection[{wind\-\_\-angl\-\_\-newest}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf wind\-\_\-angl\-\_\-newest}}}
+\label{group__group1_ga9fcee93bab7f0c81f67b99f8b8597e9c}
+
+
+wind angle, (relative to boat) 
+
+
+
+\-Definition at line 172 of file sailcode\-\_\-alpha6.\-pde.
+
+\hypertarget{group__group1_ga641fd5e4834deb5465b1931b7645457d}{
+\index{\-Serial\-Data@{\-Serial\-Data}!wind\-\_\-velocity@{wind\-\_\-velocity}}
+\index{wind\-\_\-velocity@{wind\-\_\-velocity}!SerialData@{\-Serial\-Data}}
+\subsubsection[{wind\-\_\-velocity}]{\setlength{\rightskip}{0pt plus 5cm}float {\bf wind\-\_\-velocity}}}
+\label{group__group1_ga641fd5e4834deb5465b1931b7645457d}
+
+
+wind velocity in knots 
+
+
+
+\-Definition at line 157 of file sailcode\-\_\-alpha6.\-pde.
+
