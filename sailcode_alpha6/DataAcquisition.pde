@@ -1,6 +1,15 @@
-// 'c' = compass
-// 'w' = wind sensor
-// sensorData replaces Compass() and Wind() with one function.
+
+/** Really important function, having something to do with the sensors.
+ *
+ * sensorData replaces Compass() and Wind() with one function.
+ *
+ * @param[in] bufferLength Will vary based on the device being used
+ * @param[in] device Specify the device being used through a character code
+ *
+ * @note
+ * 'c' = compass
+ * 'w' = wind sensor
+ */
 void sensorData(int bufferLength, char device) {
 
 

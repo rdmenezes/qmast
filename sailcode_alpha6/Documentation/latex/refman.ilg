@@ -147,13 +147,13 @@ Scanning input file refman.tex...
 !! Input index error (file = refman.tex, line = 73):
    -- Unknown index keyword \input.
 !! Input index error (file = refman.tex, line = 74):
-   -- Unknown index keyword \input.
+   -- Unknown index keyword \include.
 !! Input index error (file = refman.tex, line = 75):
-   -- Unknown index keyword \input.
+   -- Unknown index keyword \chapter.
 !! Input index error (file = refman.tex, line = 76):
    -- Unknown index keyword \input.
 !! Input index error (file = refman.tex, line = 77):
-   -- Unknown index keyword \input.
+   -- Unknown index keyword \chapter.
 !! Input index error (file = refman.tex, line = 78):
    -- Unknown index keyword \input.
 !! Input index error (file = refman.tex, line = 79):
@@ -173,9 +173,19 @@ Scanning input file refman.tex...
 !! Input index error (file = refman.tex, line = 86):
    -- Unknown index keyword \input.
 !! Input index error (file = refman.tex, line = 87):
-   -- Missing arguments -- need two (premature LFD).
+   -- Unknown index keyword \input.
 !! Input index error (file = refman.tex, line = 88):
+   -- Unknown index keyword \input.
+!! Input index error (file = refman.tex, line = 89):
+   -- Unknown index keyword \input.
+!! Input index error (file = refman.tex, line = 90):
+   -- Unknown index keyword \input.
+!! Input index error (file = refman.tex, line = 91):
+   -- Unknown index keyword \input.
+!! Input index error (file = refman.tex, line = 92):
+   -- Missing arguments -- need two (premature LFD).
+!! Input index error (file = refman.tex, line = 93):
    -- Unknown index keyword \end.
-done (0 entries accepted, 88 rejected).
+done (0 entries accepted, 93 rejected).
 Nothing written in refman.ind.
 Transcript written in refman.ilg.

@@ -6,17 +6,17 @@
 \begin{DoxyCompactItemize}
 \item 
 void \hyperlink{_sailing_logic_8pde_aeaba10e3002bd9b9fd2ea1bdd5ab97ea}{sail\-Course} ()
-\item 
+\begin{DoxyCompactList}\small\item\em \-Alternate sailcourse code by laz. \end{DoxyCompactList}\item 
 void \hyperlink{_sailing_logic_8pde_a42829044eaaf781783f525dbf35eabc1}{sail\-To\-Waypoint} (struct \hyperlink{structpoints}{points} waypoint)
-\item 
+\begin{DoxyCompactList}\small\item\em \-Checks to see if the boat should sail or tack, thats it. \end{DoxyCompactList}\item 
 void \hyperlink{_sailing_logic_8pde_a8e7082b5e8ca95936e2afa33af9f6835}{sail} (int waypoint\-Dirn)
-\item 
+\begin{DoxyCompactList}\small\item\em \-Sails towards the waypoint\-Dirn passed, in which case it sails closehauled. \end{DoxyCompactList}\item 
 boolean \hyperlink{_sailing_logic_8pde_a1acad42611d693fa074f7dae5e5a5e3f}{check\-Tack} (int corridor\-Half\-Width, struct \hyperlink{structpoints}{points} waypoint)
-\item 
+\begin{DoxyCompactList}\small\item\em \-Check to see if tacking is necessary. \end{DoxyCompactList}\item 
 void \hyperlink{_sailing_logic_8pde_aae8de392da41d229212d9943d965690c}{sail\-Control} ()
-\item 
+\begin{DoxyCompactList}\small\item\em \-This function controls the sails, proportional to the wind direction with no consideration for wind strength. \end{DoxyCompactList}\item 
 int \hyperlink{_sailing_logic_8pde_aad7e4cc1e18478540e9c1d8c00390d24}{rudder\-Control} (int direction\-Error)
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em \-Controls the rudder movement, used to be part of sail. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{\-Function \-Documentation}
@@ -32,7 +32,20 @@ int \hyperlink{_sailing_logic_8pde_aad7e4cc1e18478540e9c1d8c00390d24}{rudder\-Co
 \label{_sailing_logic_8pde_a1acad42611d693fa074f7dae5e5a5e3f}
 
 
-\-Definition at line 63 of file \-Sailing\-Logic.\-pde.
+\-Check to see if tacking is necessary. 
+
+\-Looks to see if the boat is in the downwind corridor and if its angle to the wind is close-\/hauled then it will tack. \-This results in better turning and will allow for the safety of get\-Out\-Of\-Irons being called during any turn into the wind.
+
+
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em corridor\-Half\-Width} & \-Not sure what this is yet \\
+\hline
+\mbox{\tt in}  & {\em points} & \-Something to do with a waypoint? \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 92 of file \-Sailing\-Logic.\-pde.
 
 
 
@@ -67,7 +80,18 @@ int \hyperlink{_sailing_logic_8pde_aad7e4cc1e18478540e9c1d8c00390d24}{rudder\-Co
 \label{_sailing_logic_8pde_aad7e4cc1e18478540e9c1d8c00390d24}
 
 
-\-Definition at line 117 of file \-Sailing\-Logic.\-pde.
+\-Controls the rudder movement, used to be part of sail. 
+
+but is moved to a seperate function so it is easier to modify
+
+
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em direction\-Error} & \-This needs explanation. \\
+\hline
+\end{DoxyParams}
+
+
+\-Definition at line 165 of file \-Sailing\-Logic.\-pde.
 
 
 
@@ -102,7 +126,11 @@ int \hyperlink{_sailing_logic_8pde_aad7e4cc1e18478540e9c1d8c00390d24}{rudder\-Co
 \label{_sailing_logic_8pde_a8e7082b5e8ca95936e2afa33af9f6835}
 
 
-\-Definition at line 40 of file \-Sailing\-Logic.\-pde.
+\-Sails towards the waypoint\-Dirn passed, in which case it sails closehauled. 
+
+\-The other funtcion sail\-To\-Waypoint will take care of when tacking is necessary \-This function replaces straightsail which originally only controlled the rudder 
+
+\-Definition at line 63 of file \-Sailing\-Logic.\-pde.
 
 
 
@@ -137,7 +165,11 @@ int \hyperlink{_sailing_logic_8pde_aad7e4cc1e18478540e9c1d8c00390d24}{rudder\-Co
 \label{_sailing_logic_8pde_aae8de392da41d229212d9943d965690c}
 
 
-\-Definition at line 99 of file \-Sailing\-Logic.\-pde.
+\-This function controls the sails, proportional to the wind direction with no consideration for wind strength. 
+
+
+
+\-Definition at line 136 of file \-Sailing\-Logic.\-pde.
 
 
 
@@ -172,7 +204,11 @@ int \hyperlink{_sailing_logic_8pde_aad7e4cc1e18478540e9c1d8c00390d24}{rudder\-Co
 \label{_sailing_logic_8pde_aeaba10e3002bd9b9fd2ea1bdd5ab97ea}
 
 
-\-Definition at line 4 of file \-Sailing\-Logic.\-pde.
+\-Alternate sailcourse code by laz. 
+
+\-Works the same but does not use long loops for waypoint selection, less responsive but allows for menu usage while sailing. \-Instead of looping globals keep track of current waypoint, code updates that waypoint when reached and sets boat in the direction of the next one, this will be slightly less responsive as the time between each adjustment will include checking the menu but it should still be fast enough. \-Needs to be tested and compared to existing sailcourse function. \-Original in sailcode5 \-Sail the race course. \-Declare things static so that they persist after each call, eliminate globals $<$ the boat's distance to the present waypoint 
+
+\-Definition at line 17 of file \-Sailing\-Logic.\-pde.
 
 
 
@@ -207,7 +243,11 @@ int \hyperlink{_sailing_logic_8pde_aad7e4cc1e18478540e9c1d8c00390d24}{rudder\-Co
 \label{_sailing_logic_8pde_a42829044eaaf781783f525dbf35eabc1}
 
 
-\-Definition at line 21 of file \-Sailing\-Logic.\-pde.
+\-Checks to see if the boat should sail or tack, thats it. 
+
+\-This is a newer version of the original function with the same name. 
+
+\-Definition at line 37 of file \-Sailing\-Logic.\-pde.
 
 
 

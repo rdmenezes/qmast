@@ -66,9 +66,9 @@
 \begin{DoxyCompactItemize}
 \item 
 void \hyperlink{sailcode__alpha6_8pde_a4fc01d736fe50cf5b977f755b675f11d}{setup} ()
-\item 
+\begin{DoxyCompactList}\small\item\em \-Standard \-Setup function for \-Arduino, set pins and create object instances. \end{DoxyCompactList}\item 
 void \hyperlink{sailcode__alpha6_8pde_afe461d27b9c48d5921c00d521181f12f}{loop} ()
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em \-Main \-Function, handles menu input and calls the core functions. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{\-Variables}
 \begin{DoxyCompactItemize}
 \item 
@@ -111,11 +111,11 @@ float \hyperlink{group__group1_ga26fd84d522945b6038221d9e38c7cc39}{roll}
 float \hyperlink{group__group1_gaea221e98c9a7c4e63325dc52ab83c14d}{true\-Wind}
 \begin{DoxyCompactList}\small\item\em wind direction calculated at checkteck \end{DoxyCompactList}\item 
 int \hyperlink{group__group1_ga8b212bdc5d94214c0e3803a696f2f676}{rudder\-Val}
-\item 
+\begin{DoxyCompactList}\small\item\em variables for transmiting data \end{DoxyCompactList}\item 
 int \hyperlink{group__group1_ga1fee0a7eb4ae243dcc5afe20f508990e}{jib\-Val}
-\item 
+\begin{DoxyCompactList}\small\item\em variables for transmiting data \end{DoxyCompactList}\item 
 int \hyperlink{group__group1_ga3c5dac52b53dc3642a843a7d6a9266ca}{main\-Val}
-\item 
+\begin{DoxyCompactList}\small\item\em variables for transmiting data \end{DoxyCompactList}\item 
 float \hyperlink{group__group1_ga8d6cfa64e358c393d2d13c5a9803e052}{heading\-Val}
 \begin{DoxyCompactList}\small\item\em where we are going, temporary compass smoothing test \end{DoxyCompactList}\item 
 float \hyperlink{group__group1_ga90176c4024ce3ce161b5feda285f97c5}{distance\-Val}
@@ -125,7 +125,7 @@ float \hyperlink{group__group1_ga3c596663ba52aec96df1f504772914be}{heading\-\_\-
 float \hyperlink{group__group1_ga9fcee93bab7f0c81f67b99f8b8597e9c}{wind\-\_\-angl\-\_\-newest}
 \begin{DoxyCompactList}\small\item\em wind angle, (relative to boat) \end{DoxyCompactList}\item 
 \-Software\-Serial \hyperlink{group__group1_gad08dcd7d87414b8d7f7e9cf2689ea5d8}{servo\-\_\-ser} = \-Software\-Serial(7, tx\-Pin)
-\item 
+\begin{DoxyCompactList}\small\item\em \-Pololu for connecting via a nonbuffered serial port to pololu -\/output only. \end{DoxyCompactList}\item 
 int \hyperlink{group__group1_gaf79de3204853b3b4101113683e74cd54}{rudder\-Dir} = -\/1
 \begin{DoxyCompactList}\small\item\em global for reversing rudder if we are parking lot testing \end{DoxyCompactList}\item 
 int \hyperlink{group__group1_gaf7f8f4a4e39e09fdb5e9f02330ecabef}{points}
@@ -135,25 +135,25 @@ int \hyperlink{group__group1_ga2dee8b7fcecc7c2d190e9304b43ea886}{point}
 int \hyperlink{group__group1_ga9c43dea25777e23791d530b06f6715f1}{current\-Point} = 0
 \begin{DoxyCompactList}\small\item\em current waypoint on course of travel \end{DoxyCompactList}\item 
 int \hyperlink{group__group1_gac9d865c1411ae815f6b2394c45d604e7}{\-Straight\-Sail\-Direction}
-\item 
+\begin{DoxyCompactList}\small\item\em \-Menu hack globals. \end{DoxyCompactList}\item 
 int \hyperlink{group__group1_ga79863a7d6b31d0c89c5050c2cd931cfe}{\-Current\-Selection}
-\item 
+\begin{DoxyCompactList}\small\item\em \-Menu hack globals. \end{DoxyCompactList}\item 
 long \hyperlink{group__group1_ga8ad49a66e91d8658c5f1f7dbcbcbbd2f}{start\-Time}
-\item 
+\begin{DoxyCompactList}\small\item\em station-\/keeping global \end{DoxyCompactList}\item 
 int \hyperlink{group__group1_gaffc96d075c8796c3d5ef3dc5824c0819}{station\-Counter}
-\item 
+\begin{DoxyCompactList}\small\item\em station-\/keeping global \end{DoxyCompactList}\item 
 boolean \hyperlink{group__group1_gaf453f5fa6c0df67707ca308a2fc80ca1}{times\-Up}
-\item 
+\begin{DoxyCompactList}\small\item\em station-\/keeping global \end{DoxyCompactList}\item 
 int \hyperlink{group__group1_gabe157ddfb46568e2de8b041f54ac6d98}{\-Station\-Keeping\-Time\-In\-Box} = 270000
-\item 
+\begin{DoxyCompactList}\small\item\em \-The amount of time the boat should stay in the box before leaving (in millis). \end{DoxyCompactList}\item 
 boolean \hyperlink{group__group1_gab23a7a79ede8d141fa92f4475d36fb24}{tacking}
-\item 
+\begin{DoxyCompactList}\small\item\em tacking global \end{DoxyCompactList}\item 
 int \hyperlink{group__group1_gabdfa4a25e22806c47eebd4c9826ef7a6}{tacking\-Side}
-\item 
+\begin{DoxyCompactList}\small\item\em tacking global. \end{DoxyCompactList}\item 
 int \hyperlink{group__group1_ga332365589e9af9d8ec4d1c5663034132}{iron\-Time}
-\item 
+\begin{DoxyCompactList}\small\item\em tacking global \end{DoxyCompactList}\item 
 int \hyperlink{group__group1_gab675a39a0c7f0587be9ae6734db7ac80}{error\-Code}
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em error code \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{\-Function \-Documentation}
@@ -166,7 +166,11 @@ int \hyperlink{group__group1_gab675a39a0c7f0587be9ae6734db7ac80}{error\-Code}
 \end{DoxyParamCaption}
 )}}
 \label{sailcode__alpha6_8pde_afe461d27b9c48d5921c00d521181f12f}
-if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.\-g. setting \-R\-C mode)
+
+
+\-Main \-Function, handles menu input and calls the core functions. 
+
+\-A lot of documentation should probably be written for this, but all \-I know right now is that it contains the switch statement in order to call the functions. if menu returned 0, any updating happened in the menu function itself and we want the code to just keep doing what it was doing before (e.\-g. setting \-R\-C mode)
 
 \-Straight \-Sail towards \-N,\-S,\-E,\-W as 0, 180, 90, 270. \-No sail control.
 
@@ -174,7 +178,7 @@ if menu returned 0, any updating happened in the menu function itself and we wan
 
 stationskeeps around a single spot in the middle of the square 
 
-\-Definition at line 263 of file sailcode\-\_\-alpha6.\-pde.
+\-Definition at line 311 of file sailcode\-\_\-alpha6.\-pde.
 
 
 
@@ -196,9 +200,20 @@ stationskeeps around a single spot in the middle of the square
 \end{DoxyParamCaption}
 )}}
 \label{sailcode__alpha6_8pde_a4fc01d736fe50cf5b977f755b675f11d}
+
+
+\-Standard \-Setup function for \-Arduino, set pins and create object instances. 
+
+\-The setup function is the first function to be called. \-When it exits, the loop function is immediately called, where the program remains.
+
+\-Also sets up the compass through serial commands.
+
+\begin{DoxyWarning}{\-Warning}
+\-In order for \-Pololu to work, it needs to be manually reset within the code. \-Because of this, a 2 second delay is present to allow the board to start-\/up before the reset occurs. 
+\end{DoxyWarning}
 \-Change wind to send 5 times a second default for now, need to make sure we can get everything out of the buffer
 
-\-Definition at line 202 of file sailcode\-\_\-alpha6.\-pde.
+\-Definition at line 230 of file sailcode\-\_\-alpha6.\-pde.
 
 
 

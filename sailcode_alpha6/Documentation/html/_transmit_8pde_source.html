@@ -79,7 +79,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="contents">
 <a href="_transmit_8pde.html">Go to the documentation of this file.</a><div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 
-<a name="l00008"></a><a class="code" href="_transmit_8pde.html#a29ff55f7ca3b7d4a69af0648518423a3">00008</a> <span class="keywordtype">void</span> <a class="code" href="_transmit_8pde.html#a29ff55f7ca3b7d4a69af0648518423a3" title="The transmit function is used to communicate with LabView? through a series of preset strings...">transmit</a>(<span class="keywordtype">void</span>) {
+<a name="l00008"></a><a class="code" href="_transmit_8pde.html#a29ff55f7ca3b7d4a69af0648518423a3">00008</a> <span class="keywordtype">void</span> <a class="code" href="_transmit_8pde.html#a29ff55f7ca3b7d4a69af0648518423a3" title="The transmit function is used to communicate with LabView.">transmit</a>(<span class="keywordtype">void</span>) {
 <a name="l00009"></a>00009     <span class="keywordtype">long</span> boatLat; 
 <a name="l00010"></a>00010     <span class="keywordtype">long</span> boatLon; 
 <a name="l00011"></a>00011     boatLat = <a class="code" href="_location_struct_8h.html#a7101d8f006cf046f26304b4d14474910">boatLocation</a>.<a class="code" href="structpoints.html#a08f58fb014591a03cef3747723397dab">latDeg</a>*1000000+<a class="code" href="_location_struct_8h.html#a7101d8f006cf046f26304b4d14474910">boatLocation</a>.<a class="code" href="structpoints.html#ae91da8d14518e615ceaae957260204ba">latMin</a>*10000/0.6;
@@ -104,11 +104,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00030"></a>00030     Serial.print(<a class="code" href="group__group1.html#ga26fd84d522945b6038221d9e38c7cc39" title="roll">roll</a>);
 <a name="l00031"></a>00031     <span class="comment">// Navigation Control</span>
 <a name="l00032"></a>00032     Serial.print(<span class="stringliteral">&quot;MAIN:&quot;</span>);
-<a name="l00033"></a>00033     Serial.print(<a class="code" href="group__group1.html#ga3c5dac52b53dc3642a843a7d6a9266ca">mainVal</a>,DEC);
+<a name="l00033"></a>00033     Serial.print(<a class="code" href="group__group1.html#ga3c5dac52b53dc3642a843a7d6a9266ca" title="variables for transmiting data">mainVal</a>,DEC);
 <a name="l00034"></a>00034     Serial.print(<span class="stringliteral">&quot;JIB:&quot;</span>);
-<a name="l00035"></a>00035     Serial.print(<a class="code" href="group__group1.html#ga1fee0a7eb4ae243dcc5afe20f508990e">jibVal</a>,DEC);
+<a name="l00035"></a>00035     Serial.print(<a class="code" href="group__group1.html#ga1fee0a7eb4ae243dcc5afe20f508990e" title="variables for transmiting data">jibVal</a>,DEC);
 <a name="l00036"></a>00036     Serial.print(<span class="stringliteral">&quot;RUD:&quot;</span>);
-<a name="l00037"></a>00037     Serial.print(<a class="code" href="group__group1.html#ga8b212bdc5d94214c0e3803a696f2f676">rudderVal</a>,DEC);
+<a name="l00037"></a>00037     Serial.print(<a class="code" href="group__group1.html#ga8b212bdc5d94214c0e3803a696f2f676" title="variables for transmiting data">rudderVal</a>,DEC);
 <a name="l00038"></a>00038     <span class="comment">// What we are doing</span>
 <a name="l00039"></a>00039     Serial.print(<span class="stringliteral">&quot;vbthetaT:&quot;</span>);
 <a name="l00040"></a>00040     Serial.print(<a class="code" href="group__group1.html#ga4736792191ccbbbb7b3d6933a3302336" title="Heading from compass.">headingc</a>,2);
@@ -117,18 +117,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00043"></a>00043 
 <a name="l00044"></a>00044     <span class="comment">// Tacking</span>
 <a name="l00045"></a>00045     Serial.print(<span class="stringliteral">&quot;SID:&quot;</span>);
-<a name="l00046"></a>00046     Serial.print(<a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6">tackingSide</a>,DEC);
+<a name="l00046"></a>00046     Serial.print(<a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6" title="tacking global.">tackingSide</a>,DEC);
 <a name="l00047"></a>00047     Serial.print(<span class="stringliteral">&quot;IRON:&quot;</span>);
-<a name="l00048"></a>00048     Serial.print(<a class="code" href="group__group1.html#ga332365589e9af9d8ec4d1c5663034132">ironTime</a>,DEC);
+<a name="l00048"></a>00048     Serial.print(<a class="code" href="group__group1.html#ga332365589e9af9d8ec4d1c5663034132" title="tacking global">ironTime</a>,DEC);
 <a name="l00049"></a>00049     Serial.print(<span class="stringliteral">&quot;,DMD:&quot;</span>);
 <a name="l00050"></a>00050     Serial.print(<a class="code" href="group__group1.html#ga90176c4024ce3ce161b5feda285f97c5" title="distance to next waypoint one-shots, no averaging, present conditions">distanceVal</a>);  <span class="comment">// current distance</span>
 <a name="l00051"></a>00051     Serial.print(<span class="stringliteral">&quot;,ERR:&quot;</span>);
-<a name="l00052"></a>00052     Serial.print(<a class="code" href="group__group1.html#gab675a39a0c7f0587be9ae6734db7ac80">errorCode</a>);
+<a name="l00052"></a>00052     Serial.print(<a class="code" href="group__group1.html#gab675a39a0c7f0587be9ae6734db7ac80" title="error code">errorCode</a>);
 <a name="l00053"></a>00053     Serial.print(<span class="stringliteral">&quot;***&quot;</span>);
 <a name="l00054"></a>00054 }
 <a name="l00055"></a>00055 
-<a name="l00056"></a><a class="code" href="_transmit_8pde.html#a8b1a977963d6dc483e5ca8bd2ffde8c9">00056</a> <span class="keywordtype">void</span> <a class="code" href="_transmit_8pde.html#a8b1a977963d6dc483e5ca8bd2ffde8c9">relayData</a>() { <span class="comment">//sends data to shore</span>
-<a name="l00061"></a>00061 <span class="comment"></span>    Serial.println(millis());
+<a name="l00060"></a><a class="code" href="_transmit_8pde.html#a8b1a977963d6dc483e5ca8bd2ffde8c9">00060</a> <span class="keywordtype">void</span> <a class="code" href="_transmit_8pde.html#a8b1a977963d6dc483e5ca8bd2ffde8c9" title="Similar to the transmit function except the output contains information which is not read by LabView...">relayData</a>() { <span class="comment">//sends data to shore</span>
+<a name="l00061"></a>00061     Serial.println(millis());
 <a name="l00062"></a>00062         <span class="comment">// Send data to zigbee</span>
 <a name="l00063"></a>00063     Serial.println();
 <a name="l00064"></a>00064     Serial.print(<a class="code" href="_location_struct_8h.html#a7101d8f006cf046f26304b4d14474910">boatLocation</a>.<a class="code" href="structpoints.html#a08f58fb014591a03cef3747723397dab">latDeg</a>);
@@ -139,15 +139,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00071"></a>00071     Serial.print(<span class="stringliteral">&quot;,&quot;</span>);
 <a name="l00072"></a>00072     Serial.print(<a class="code" href="_location_struct_8h.html#a7101d8f006cf046f26304b4d14474910">boatLocation</a>.<a class="code" href="structpoints.html#a1122975e5c72c0ad3044620006a92ee5">lonMin</a>);
 <a name="l00073"></a>00073     Serial.print(<span class="stringliteral">&quot;,&quot;</span>);
-<a name="l00074"></a>00074     Serial.print(<a class="code" href="group__group1.html#ga3c5844d05a57a968ed5686a10e4a5af8" title="Boat&#39;s speed in km/h.">bspeed</a>); <span class="comment">//boat speed</span>
+<a name="l00074"></a>00074     Serial.print(<a class="code" href="group__group1.html#ga3c5844d05a57a968ed5686a10e4a5af8" title="Boat&#39;s speed in km/h.">bspeed</a>);        <span class="comment">// boat speed</span>
 <a name="l00075"></a>00075     Serial.print(<span class="stringliteral">&quot;,&quot;</span>);
-<a name="l00076"></a>00076     Serial.print(<a class="code" href="group__group1.html#gac5682e48513a771560df50e3b213e61a" title="heading relative to true north, do not use, only updating 2 times a second">heading</a>);  <span class="comment">//boat direction</span>
+<a name="l00076"></a>00076     Serial.print(<a class="code" href="group__group1.html#gac5682e48513a771560df50e3b213e61a" title="heading relative to true north, do not use, only updating 2 times a second">heading</a>);       <span class="comment">// boat direction</span>
 <a name="l00077"></a>00077     Serial.print(<span class="stringliteral">&quot;,&quot;</span>);
-<a name="l00078"></a>00078     Serial.print(<a class="code" href="group__group1.html#ga6bc5259b7cc1cb6128495b28f55b0a5d" title="wind angle, (relative to boat I believe, could be north, check this)">wind_angl</a>);  <span class="comment">//wind angle, (relative to boat or north?)</span>
+<a name="l00078"></a>00078     Serial.print(<a class="code" href="group__group1.html#ga6bc5259b7cc1cb6128495b28f55b0a5d" title="wind angle, (relative to boat I believe, could be north, check this)">wind_angl</a>);     <span class="comment">// wind angle, (relative to boat or north?)</span>
 <a name="l00079"></a>00079     Serial.print(<span class="stringliteral">&quot;,&quot;</span>);
-<a name="l00080"></a>00080     Serial.print(<a class="code" href="group__group1.html#ga641fd5e4834deb5465b1931b7645457d" title="wind velocity in knots">wind_velocity</a>);<span class="comment">//wind velocity in knots</span>
+<a name="l00080"></a>00080     Serial.print(<a class="code" href="group__group1.html#ga641fd5e4834deb5465b1931b7645457d" title="wind velocity in knots">wind_velocity</a>); <span class="comment">// wind velocity in knots</span>
 <a name="l00081"></a>00081     Serial.print(<span class="stringliteral">&quot;,&quot;</span>);
-<a name="l00082"></a>00082     Serial.println(<a class="code" href="group__group1.html#ga4736792191ccbbbb7b3d6933a3302336" title="Heading from compass.">headingc</a>);<span class="comment">//compass</span>
+<a name="l00082"></a>00082     Serial.println(<a class="code" href="group__group1.html#ga4736792191ccbbbb7b3d6933a3302336" title="Heading from compass.">headingc</a>);    <span class="comment">// compass</span>
 <a name="l00083"></a>00083 }
 <a name="l00084"></a>00084 
 </pre></div></div>
@@ -169,7 +169,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Sep 30 2011 21:11:01 for QMAST Source Code by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Oct 1 2011 01:00:37 for QMAST Source Code by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.7.5.1
 </small></address>

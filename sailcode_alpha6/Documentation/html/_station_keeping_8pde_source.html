@@ -155,27 +155,27 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00075"></a>00075     <a class="code" href="_station_keeping_8pde.html#a659621408d0c86bc3a5bc1d80214eaec">fillStationKeepingWaypoints</a>(centreLatMin, centreLonMin, windDirn);<span class="comment">//set global station keeping waypoints</span>
 <a name="l00076"></a>00076 
 <a name="l00077"></a>00077     <span class="comment">//sail between waypoints until 5 minute timer is up</span>
-<a name="l00078"></a>00078     <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gaf453f5fa6c0df67707ca308a2fc80ca1">timesUp</a> == <span class="keyword">true</span>) {        <span class="comment">//leave square; can either calculate the closest place to leave, or just head downwind as we do here:</span>
+<a name="l00078"></a>00078     <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gaf453f5fa6c0df67707ca308a2fc80ca1" title="station-keeping global">timesUp</a> == <span class="keyword">true</span>) {        <span class="comment">//leave square; can either calculate the closest place to leave, or just head downwind as we do here:</span>
 <a name="l00079"></a>00079         windDirn = <a class="code" href="_navigation_code_8pde.html#ae8999f3c7fe4fd1480b06dd5b60d78f5">getWindDirn</a>();
-<a name="l00080"></a>00080         <a class="code" href="_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835">sail</a>(windDirn+90); <span class="comment">//sail out of box in beam reach</span>
+<a name="l00080"></a>00080         <a class="code" href="_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835" title="Sails towards the waypointDirn passed, in which case it sails closehauled.">sail</a>(windDirn+90); <span class="comment">//sail out of box in beam reach</span>
 <a name="l00081"></a>00081         delay(100);<span class="comment">//give rudder time to adjust? this might not be necessary</span>
 <a name="l00082"></a>00082         <span class="keywordflow">return</span> 0;
 <a name="l00083"></a>00083     } <span class="keywordflow">else</span> {
-<a name="l00084"></a>00084         <a class="code" href="_location_struct_8h.html#a2772bf17555c11f8b0d4da815a2fec00">stayPoint</a> = <a class="code" href="_location_struct_8h.html#a268446ede920c289fe611e02aa0981de">floatingStationPoints</a>[<a class="code" href="group__group1.html#gaffc96d075c8796c3d5ef3dc5824c0819">stationCounter</a>];
+<a name="l00084"></a>00084         <a class="code" href="_location_struct_8h.html#a2772bf17555c11f8b0d4da815a2fec00">stayPoint</a> = <a class="code" href="_location_struct_8h.html#a268446ede920c289fe611e02aa0981de">floatingStationPoints</a>[<a class="code" href="group__group1.html#gaffc96d075c8796c3d5ef3dc5824c0819" title="station-keeping global">stationCounter</a>];
 <a name="l00085"></a>00085         distanceToWaypoint = <a class="code" href="_navigation_code_8pde.html#a5a81fac76ec3537d65664a394090479f">GPSdistance</a>(<a class="code" href="_location_struct_8h.html#a7101d8f006cf046f26304b4d14474910">boatLocation</a>, <a class="code" href="_location_struct_8h.html#a2772bf17555c11f8b0d4da815a2fec00">stayPoint</a>);<span class="comment">//returns in meters</span>
 <a name="l00086"></a>00086         <span class="comment">//set rudder and sails</span>
-<a name="l00087"></a>00087         <a class="code" href="_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1">sailToWaypoint</a>(<a class="code" href="_location_struct_8h.html#a2772bf17555c11f8b0d4da815a2fec00">stayPoint</a>); <span class="comment">//sets the rudder, stays in corridor if sailing upwind</span>
+<a name="l00087"></a>00087         <a class="code" href="_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1" title="Checks to see if the boat should sail or tack, thats it.">sailToWaypoint</a>(<a class="code" href="_location_struct_8h.html#a2772bf17555c11f8b0d4da815a2fec00">stayPoint</a>); <span class="comment">//sets the rudder, stays in corridor if sailing upwind</span>
 <a name="l00088"></a>00088         <span class="comment">//check timer</span>
 <a name="l00089"></a>00089         currentTime = millis(); <span class="comment">//get the Arduino clock time</span>
-<a name="l00090"></a>00090         elapsedTime = currentTime - <a class="code" href="group__group1.html#ga8ad49a66e91d8658c5f1f7dbcbcbbd2f">startTime</a>;<span class="comment">//calculate elapsed miliseconds since the start of the 5 minute loop</span>
-<a name="l00091"></a>00091         <span class="keywordflow">if</span>(elapsedTime &gt; <a class="code" href="group__group1.html#gabe157ddfb46568e2de8b041f54ac6d98">StationKeepingTimeInBox</a>) { <span class="comment">// (5min) * (60s/min) * (1000ms/s)</span>
-<a name="l00092"></a>00092             <a class="code" href="group__group1.html#gaf453f5fa6c0df67707ca308a2fc80ca1">timesUp</a> = <span class="keyword">true</span>;
+<a name="l00090"></a>00090         elapsedTime = currentTime - <a class="code" href="group__group1.html#ga8ad49a66e91d8658c5f1f7dbcbcbbd2f" title="station-keeping global">startTime</a>;<span class="comment">//calculate elapsed miliseconds since the start of the 5 minute loop</span>
+<a name="l00091"></a>00091         <span class="keywordflow">if</span>(elapsedTime &gt; <a class="code" href="group__group1.html#gabe157ddfb46568e2de8b041f54ac6d98" title="The amount of time the boat should stay in the box before leaving (in millis).">StationKeepingTimeInBox</a>) { <span class="comment">// (5min) * (60s/min) * (1000ms/s)</span>
+<a name="l00092"></a>00092             <a class="code" href="group__group1.html#gaf453f5fa6c0df67707ca308a2fc80ca1" title="station-keeping global">timesUp</a> = <span class="keyword">true</span>;
 <a name="l00093"></a>00093             distanceToWaypoint = <a class="code" href="_navigation_code_8pde.html#a5a81fac76ec3537d65664a394090479f">GPSdistance</a>(<a class="code" href="_location_struct_8h.html#a7101d8f006cf046f26304b4d14474910">boatLocation</a>, <a class="code" href="_location_struct_8h.html#a2772bf17555c11f8b0d4da815a2fec00">stayPoint</a>);<span class="comment">//returns in meters</span>
 <a name="l00094"></a>00094         } <span class="comment">//end go to waypoint</span>
 <a name="l00095"></a>00095         <span class="keywordflow">if</span>(distanceToWaypoint &lt; <a class="code" href="group__globalconstants.html#ga19af76681fc030672f41555a55f8e8db" title="Course Navigation constants.">MARK_DISTANCE</a>) {
-<a name="l00096"></a>00096             <a class="code" href="group__group1.html#gaffc96d075c8796c3d5ef3dc5824c0819">stationCounter</a>+=2;        <span class="comment">//make global</span>
-<a name="l00097"></a>00097             <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gaffc96d075c8796c3d5ef3dc5824c0819">stationCounter</a> == 5)
-<a name="l00098"></a>00098                 <a class="code" href="group__group1.html#gaffc96d075c8796c3d5ef3dc5824c0819">stationCounter</a> = 0;
+<a name="l00096"></a>00096             <a class="code" href="group__group1.html#gaffc96d075c8796c3d5ef3dc5824c0819" title="station-keeping global">stationCounter</a>+=2;        <span class="comment">//make global</span>
+<a name="l00097"></a>00097             <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gaffc96d075c8796c3d5ef3dc5824c0819" title="station-keeping global">stationCounter</a> == 5)
+<a name="l00098"></a>00098                 <a class="code" href="group__group1.html#gaffc96d075c8796c3d5ef3dc5824c0819" title="station-keeping global">stationCounter</a> = 0;
 <a name="l00099"></a>00099         }
 <a name="l00100"></a>00100         <span class="comment">//loop the whole go to waypoint, check sensors and go to next waypoint until the time is up</span>
 <a name="l00101"></a>00101     }
@@ -194,17 +194,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00114"></a>00114     stayPoint.<a class="code" href="structpoints.html#aa9d469451b350f942a352bf3a813fe81">lonDeg</a> = -76;
 <a name="l00115"></a>00115     stayPoint.<a class="code" href="structpoints.html#a1122975e5c72c0ad3044620006a92ee5">lonMin</a> = centreLonMin;
 <a name="l00116"></a>00116     <span class="keywordtype">long</span> currentTime = millis();
-<a name="l00117"></a>00117     <span class="keywordtype">long</span> elapsedTime = currentTime - <a class="code" href="group__group1.html#ga8ad49a66e91d8658c5f1f7dbcbcbbd2f">startTime</a>;
-<a name="l00118"></a>00118     <span class="keywordflow">if</span> (elapsedTime &gt; <a class="code" href="group__group1.html#gabe157ddfb46568e2de8b041f54ac6d98">StationKeepingTimeInBox</a>) { <span class="comment">// if the specified time has passed (4.5 minutes by default), start to exit</span>
-<a name="l00119"></a>00119         <a class="code" href="group__group1.html#gaf453f5fa6c0df67707ca308a2fc80ca1">timesUp</a> = <span class="keyword">true</span>;
+<a name="l00117"></a>00117     <span class="keywordtype">long</span> elapsedTime = currentTime - <a class="code" href="group__group1.html#ga8ad49a66e91d8658c5f1f7dbcbcbbd2f" title="station-keeping global">startTime</a>;
+<a name="l00118"></a>00118     <span class="keywordflow">if</span> (elapsedTime &gt; <a class="code" href="group__group1.html#gabe157ddfb46568e2de8b041f54ac6d98" title="The amount of time the boat should stay in the box before leaving (in millis).">StationKeepingTimeInBox</a>) { <span class="comment">// if the specified time has passed (4.5 minutes by default), start to exit</span>
+<a name="l00119"></a>00119         <a class="code" href="group__group1.html#gaf453f5fa6c0df67707ca308a2fc80ca1" title="station-keeping global">timesUp</a> = <span class="keyword">true</span>;
 <a name="l00120"></a>00120     }
 <a name="l00121"></a>00121 
-<a name="l00122"></a>00122     <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gaf453f5fa6c0df67707ca308a2fc80ca1">timesUp</a> == <span class="keyword">true</span>) {        <span class="comment">//leave square; can either calculate the closest place to leave, or just head in beam reach as we do here:</span>
+<a name="l00122"></a>00122     <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gaf453f5fa6c0df67707ca308a2fc80ca1" title="station-keeping global">timesUp</a> == <span class="keyword">true</span>) {        <span class="comment">//leave square; can either calculate the closest place to leave, or just head in beam reach as we do here:</span>
 <a name="l00123"></a>00123         windDirn = <a class="code" href="_navigation_code_8pde.html#ae8999f3c7fe4fd1480b06dd5b60d78f5">getWindDirn</a>();
-<a name="l00124"></a>00124         <a class="code" href="_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835">sail</a>(windDirn+90); <span class="comment">//sail out of box in beam reach</span>
+<a name="l00124"></a>00124         <a class="code" href="_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835" title="Sails towards the waypointDirn passed, in which case it sails closehauled.">sail</a>(windDirn+90); <span class="comment">//sail out of box in beam reach</span>
 <a name="l00125"></a>00125     } <span class="keywordflow">else</span> {
 <a name="l00126"></a>00126         <span class="comment">//set rudder and sails</span>
-<a name="l00127"></a>00127         <a class="code" href="_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1">sailToWaypoint</a>(stayPoint); <span class="comment">//sets the rudder, stays in corridor if sailing upwind</span>
+<a name="l00127"></a>00127         <a class="code" href="_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1" title="Checks to see if the boat should sail or tack, thats it.">sailToWaypoint</a>(stayPoint); <span class="comment">//sets the rudder, stays in corridor if sailing upwind</span>
 <a name="l00128"></a>00128         <span class="comment">//check timer</span>
 <a name="l00129"></a>00129         currentTime = millis(); <span class="comment">//get the Arduino clock time</span>
 <a name="l00130"></a>00130     } <span class="comment">//end go to waypoint</span>
@@ -229,7 +229,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Sep 30 2011 21:11:01 for QMAST Source Code by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Oct 1 2011 01:00:37 for QMAST Source Code by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.7.5.1
 </small></address>
