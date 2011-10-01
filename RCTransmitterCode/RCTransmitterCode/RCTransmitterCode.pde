@@ -7,6 +7,7 @@ code to take input from pots stolen from an old RC transmitter, and will send an
  Rudder sends values from 120 to 180 (centered at 150), sails sends value from 225 to 275 (centered at 250). 
  This is so that all values sent are 3 characters, and not negative.
  This is taken into account in super xbee RC mode in the actual menu code.
+ Note no extra serial data from controller, as there may be unexpected feedback loops!!!!!
  
  */
 
@@ -35,25 +36,32 @@ void loop()
   int normalizedsails;
   char signalchar;      //char to signal data spam
   static boolean RCTime = false;
+  static boolean sentR = false;
 
 
   digitalWrite(LEDPIN, !digitalRead(PANICPIN)); // have led represent whether panic button is being pressed
   if(digitalRead(PANICPIN) == LOW) //if panic button is being pressed
   {
-    delay(30);//eliminate debouncing
-      Serial.println("rrrr"); 
-    
+    if (RCTime == false){
+      if (sentR == false){
+        delay(200);//eliminate debouncing
+        sentR = true;
+        Serial.println("r"); //sends r in case program is allready in rc but controller isn't(ie you turned off controller while in rc)
+      }
+    }
+  }else{//panic button not pressed
+    sentR = false;
   }
 
 
   signalchar = Serial.read();
   if(signalchar == '~'){
     RCTime = true;
-    Serial.println("Entering RC mode");
+ //   Serial.println("Entering RC mode");
   }
   if(signalchar == '|'){
     RCTime = false;
-    Serial.println("Exiting RC mode");
+//    Serial.println("Exiting RC mode");
   }
 
   if (RCTime == true){
@@ -91,20 +99,20 @@ int analogToSails(int analog)
 }
 
 
-Hide details
-Change log
-30391bb36402 by Glen, Val on Sep 22 (6 days ago)   Diff
-update RC transmitter code to intergrate
-with power button. semi-permanent hardware
-to follow
-Go to: 	
-Double click a line to add a comment
-Older revisions
- 71dd5cb0a5c5 by Laszlo on Aug 23, 2011   Diff 
- 344f3808561d by Laszlo on Aug 4, 2011   Diff 
- 8facec2816da by Laszlo on Jul 29, 2011   Diff 
-All revisions of this file
-File info
-Size: 2628 bytes, 93 lines
-View raw file
+//Hide details
+//Change log
+//30391bb36402 by Glen, Val on Sep 22 (6 days ago)   Diff
+//update RC transmitter code to intergrate
+//with power button. semi-permanent hardware
+//to follow
+//Go to: 	
+//Double click a line to add a comment
+//Older revisions
+// 71dd5cb0a5c5 by Laszlo on Aug 23, 2011   Diff 
+// 344f3808561d by Laszlo on Aug 4, 2011   Diff 
+// 8facec2816da by Laszlo on Jul 29, 2011   Diff 
+//All revisions of this file
+//File info
+//Size: 2628 bytes, 93 lines
+//View raw file
 

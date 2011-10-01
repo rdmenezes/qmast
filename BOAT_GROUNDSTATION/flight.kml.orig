@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
 <Placemark>
-<name> SPD: HED:0.00vwR:0.00ROL:0.00MAIN:-1006JIB:-1006RUD:-2vbthetaT:0.00setPoint:0.00SID:0IRON:0</name>
+<name> SPD: HED:0.00vwR:0.00ROL:0.00MAIN:0JIB:0RUD:18vbthetaT:0.00setPoint:310.00SID:0IRON:0</name>
 <visibility>1</visibility>
 <description>Current Position</description>
 <Style>
