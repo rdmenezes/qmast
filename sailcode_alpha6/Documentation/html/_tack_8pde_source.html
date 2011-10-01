@@ -90,28 +90,28 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00010"></a>00010     <span class="keywordtype">int</span> dirn;
 <a name="l00011"></a>00011     <span class="keywordtype">boolean</span> inIrons = <span class="keyword">false</span>;
 <a name="l00012"></a>00012 
-<a name="l00013"></a>00013     <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gab23a7a79ede8d141fa92f4475d36fb24">tacking</a> == <span class="keyword">false</span>) {
+<a name="l00013"></a>00013     <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gab23a7a79ede8d141fa92f4475d36fb24" title="tacking global">tacking</a> == <span class="keyword">false</span>) {
 <a name="l00014"></a>00014         <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#ga6bc5259b7cc1cb6128495b28f55b0a5d" title="wind angle, (relative to boat I believe, could be north, check this)">wind_angl</a> &gt; 180) {
-<a name="l00015"></a>00015             <a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6">tackingSide</a> = 1;
+<a name="l00015"></a>00015             <a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6" title="tacking global.">tackingSide</a> = 1;
 <a name="l00016"></a>00016         } <span class="keywordflow">else</span>
-<a name="l00017"></a>00017             <a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6">tackingSide</a> = -1;
+<a name="l00017"></a>00017             <a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6" title="tacking global.">tackingSide</a> = -1;
 <a name="l00018"></a>00018     }
 <a name="l00019"></a>00019     Serial.println(<span class="stringliteral">&quot;tacking........&quot;</span>);
-<a name="l00020"></a>00020     <a class="code" href="group__group1.html#gab23a7a79ede8d141fa92f4475d36fb24">tacking</a> = <span class="keyword">true</span>;
-<a name="l00021"></a>00021     <a class="code" href="group__group1.html#ga332365589e9af9d8ec4d1c5663034132">ironTime</a>++;                  <span class="comment">//checks to see if turned far enough</span>
-<a name="l00022"></a>00022     <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#ga332365589e9af9d8ec4d1c5663034132">ironTime</a> &gt; 200) {          <span class="comment">//waits about 10 seconds to before assuming in irons</span>
-<a name="l00023"></a>00023         <a class="code" href="_tack_8pde.html#aa9b9ac04e546adfd9a330715867797de">getOutofIrons</a>(<a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6">tackingSide</a>);
+<a name="l00020"></a>00020     <a class="code" href="group__group1.html#gab23a7a79ede8d141fa92f4475d36fb24" title="tacking global">tacking</a> = <span class="keyword">true</span>;
+<a name="l00021"></a>00021     <a class="code" href="group__group1.html#ga332365589e9af9d8ec4d1c5663034132" title="tacking global">ironTime</a>++;                  <span class="comment">//checks to see if turned far enough</span>
+<a name="l00022"></a>00022     <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#ga332365589e9af9d8ec4d1c5663034132" title="tacking global">ironTime</a> &gt; 200) {          <span class="comment">//waits about 10 seconds to before assuming in irons</span>
+<a name="l00023"></a>00023         <a class="code" href="_tack_8pde.html#aa9b9ac04e546adfd9a330715867797de">getOutofIrons</a>(<a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6" title="tacking global.">tackingSide</a>);
 <a name="l00024"></a>00024         inIrons = <span class="keyword">true</span>;
 <a name="l00025"></a>00025     }
 <a name="l00026"></a>00026     <span class="keywordflow">if</span>(((<a class="code" href="group__group1.html#ga6bc5259b7cc1cb6128495b28f55b0a5d" title="wind angle, (relative to boat I believe, could be north, check this)">wind_angl</a> &gt; 180) &amp;&amp; (<a class="code" href="group__group1.html#ga6bc5259b7cc1cb6128495b28f55b0a5d" title="wind angle, (relative to boat I believe, could be north, check this)">wind_angl</a> &lt; 360-<a class="code" href="group__globalconstants.html#ga2cf0d7fd0783e401cdb0dc31e2179673" title="Boat parameter constants in globalconstants.">TACKING_ANGLE</a>-5)) || ((<a class="code" href="group__group1.html#ga6bc5259b7cc1cb6128495b28f55b0a5d" title="wind angle, (relative to boat I believe, could be north, check this)">wind_angl</a> &lt; 180) &amp;&amp; (<a class="code" href="group__group1.html#ga6bc5259b7cc1cb6128495b28f55b0a5d" title="wind angle, (relative to boat I believe, could be north, check this)">wind_angl</a> &gt; <a class="code" href="group__globalconstants.html#ga2cf0d7fd0783e401cdb0dc31e2179673" title="Boat parameter constants in globalconstants.">TACKING_ANGLE</a>+5))) {         <span class="comment">//check to see if still trying to tack</span>
-<a name="l00027"></a>00027         <a class="code" href="group__group1.html#gab23a7a79ede8d141fa92f4475d36fb24">tacking</a> = <span class="keyword">false</span>;        <span class="comment">//resets variables</span>
-<a name="l00028"></a>00028         <a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6">tackingSide</a> = 0;
+<a name="l00027"></a>00027         <a class="code" href="group__group1.html#gab23a7a79ede8d141fa92f4475d36fb24" title="tacking global">tacking</a> = <span class="keyword">false</span>;        <span class="comment">//resets variables</span>
+<a name="l00028"></a>00028         <a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6" title="tacking global.">tackingSide</a> = 0;
 <a name="l00029"></a>00029         dirn = <a class="code" href="_navigation_code_8pde.html#aff425444a43bfea4cccd00c915eff7a5">getCloseHauledDirn</a>();
-<a name="l00030"></a>00030         <a class="code" href="group__group1.html#ga332365589e9af9d8ec4d1c5663034132">ironTime</a> = 0;
+<a name="l00030"></a>00030         <a class="code" href="group__group1.html#ga332365589e9af9d8ec4d1c5663034132" title="tacking global">ironTime</a> = 0;
 <a name="l00031"></a>00031         inIrons = <span class="keyword">false</span>;
 <a name="l00032"></a>00032         Serial.println(<span class="stringliteral">&quot;done tacking&quot;</span>);
-<a name="l00033"></a>00033     } <span class="keywordflow">else</span> <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gab23a7a79ede8d141fa92f4475d36fb24">tacking</a> == <span class="keyword">true</span> &amp;&amp; inIrons == <span class="keyword">false</span>) {   <span class="comment">//tacks depending on the side the wind is aproaching from</span>
-<a name="l00034"></a>00034         <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6">tackingSide</a> == 1) {       <span class="comment">//nested if statements</span>
+<a name="l00033"></a>00033     } <span class="keywordflow">else</span> <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gab23a7a79ede8d141fa92f4475d36fb24" title="tacking global">tacking</a> == <span class="keyword">true</span> &amp;&amp; inIrons == <span class="keyword">false</span>) {   <span class="comment">//tacks depending on the side the wind is aproaching from</span>
+<a name="l00034"></a>00034         <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6" title="tacking global.">tackingSide</a> == 1) {       <span class="comment">//nested if statements</span>
 <a name="l00035"></a>00035             <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#ga6bc5259b7cc1cb6128495b28f55b0a5d" title="wind angle, (relative to boat I believe, could be north, check this)">wind_angl</a> &gt; 180) {
 <a name="l00036"></a>00036                 <a class="code" href="_motor_control_functions_8pde.html#a6e741ed9688f5a70307e8baabab9326a">setJib</a>(<a class="code" href="group__globalconstants.html#ga074485974be5a03e711020873d83fd90" title="Constant which defines when the boat is &quot;All Out&quot;.">ALL_OUT</a>);
 <a name="l00037"></a>00037                 <a class="code" href="_motor_control_functions_8pde.html#ab945c39b15584683f123bca1f5df6faa">setMain</a>(<a class="code" href="group__globalconstants.html#gaaadbf956e6981264e6bf369a08269821" title="Constant which defines when the boat is &quot;All In&quot;.">ALL_IN</a>);
@@ -123,7 +123,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00043"></a>00043             }      <span class="comment">//rudder angle cannot be too steep, this would stall the boat, rather than turn it</span>
 <a name="l00044"></a>00044         }
 <a name="l00045"></a>00045         <span class="comment">//mirror for other side</span>
-<a name="l00046"></a>00046         <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6">tackingSide</a> == -1) {
+<a name="l00046"></a>00046         <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#gabdfa4a25e22806c47eebd4c9826ef7a6" title="tacking global.">tackingSide</a> == -1) {
 <a name="l00047"></a>00047             <span class="keywordflow">if</span>(<a class="code" href="group__group1.html#ga6bc5259b7cc1cb6128495b28f55b0a5d" title="wind angle, (relative to boat I believe, could be north, check this)">wind_angl</a> &lt; 180) {
 <a name="l00048"></a>00048                 <a class="code" href="_motor_control_functions_8pde.html#a6e741ed9688f5a70307e8baabab9326a">setJib</a>(<a class="code" href="group__globalconstants.html#ga074485974be5a03e711020873d83fd90" title="Constant which defines when the boat is &quot;All Out&quot;.">ALL_OUT</a>);
 <a name="l00049"></a>00049                 <a class="code" href="_motor_control_functions_8pde.html#ab945c39b15584683f123bca1f5df6faa">setMain</a>(<a class="code" href="group__globalconstants.html#gaaadbf956e6981264e6bf369a08269821" title="Constant which defines when the boat is &quot;All In&quot;.">ALL_IN</a>);
@@ -166,7 +166,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Sep 30 2011 21:11:01 for QMAST Source Code by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Oct 1 2011 01:00:37 for QMAST Source Code by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.7.5.1
 </small></address>

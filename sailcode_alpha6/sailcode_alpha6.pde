@@ -1,10 +1,21 @@
 /** @mainpage The QMAST Alpha 6 Sailing Code
+ *
  * 	@par This Documentation
  * 	Is the same style as the JavaDoc documentation. The same commands are used in
  * 	the code, and generates these pages. For info on the program used check out a
- * 	program called Doxygen
+ * 	program called Doxygen.
  *
+ * 	@par
+ * 	Check the Doxygen site for info about the syntac used, but basically when you
+ * 	are writing the source code, you put certain patterns in the comments which
+ * 	doxygen can pick up later. It also scans through and figures out how all the
+ * 	functions are connected together.
  *
+ * 	@par
+ * 	You can use this documentation page to view all of the programs source code
+ * 	and figure out which function calls what. Much of the source code's original
+ * 	comments have been set to show up here, though clearer commenting is definitely
+ * 	necessary.
  *
  *  @par Revised by Laszlo 2011-05-13
  *  Ported to Arudino November 2010 by Christine and the supercool software team
@@ -137,8 +148,8 @@ int extraCompassData                                = 0;
 int savedWindChecksum                               = 0;
 /** @brief clear the global saved XORstate value */
 int savedWindXorState                               = 0;
-int	savedCompassChecksum                            = 0;
-int	savedCompassXorState                            = 0;
+int savedCompassChecksum                            = 0;
+int savedCompassXorState                            = 0;
  /** @brief  a buffer to store roll-over data in case this data is fetched mid-line */
 char extraWindDataArray[LONGEST_NMEA]; 
 char extraCompassDataArray[LONGEST_NMEA];
@@ -162,96 +173,127 @@ float pitch; 	///< pitch
 float roll; 	///< roll
 float trueWind; ///< wind direction calculated at checkteck
 
-//variables for transmiting data
-int rudderVal;
-int jibVal;
-int mainVal;
+
+int rudderVal; //!< variables for transmiting data
+int jibVal;    //!< variables for transmiting data
+int mainVal;   //!< variables for transmiting data
 float headingVal;       ///< where we are going, temporary compass smoothing test
 float distanceVal;      ///< distance to next waypoint one-shots, no averaging, present conditions
 float heading_newest;   ///< heading relative to true north
 float wind_angl_newest; ///< wind angle, (relative to boat)
 
-// Pololu
-SoftwareSerial servo_ser = SoftwareSerial(7, txPin); // for connecting via a nonbuffered serial port to pololu -output only
+/** Pololu for connecting via a nonbuffered serial port to pololu -output only. */
+SoftwareSerial servo_ser = SoftwareSerial(7, txPin);  
 
 int rudderDir = -1;   ///< global for reversing rudder if we are parking lot testing
 int points;           ///< max waypoints selected for travel
 int point;            ///< point for sail to waypoint in menu
 int currentPoint = 0; ///< current waypoint on course of travel
 
-// Menu hack globals
-int StraightSailDirection;
-int CurrentSelection;
 
-//stationkeepig globals
-long startTime;
-int stationCounter;
-boolean timesUp;
-int StationKeepingTimeInBox = 270000;//The amount of time the boat should stay in the box before leaving (in millis), to be adjusted based on intuition day of..
+int StraightSailDirection; //!< Menu hack globals
+int CurrentSelection;      //!< Menu hack globals
 
-//tacking globals
-boolean tacking;
-int tackingSide;    //1 for left -1 for right
-int ironTime;
 
-//error code
-int errorCode;
+long startTime;     //!< station-keeping global
+int stationCounter; //!< station-keeping global
+boolean timesUp;    //!< station-keeping global
 
-/** @} */
+/** The amount of time the boat should stay in the box before leaving (in millis). 
+ * To be adjusted based on intuition day of
+ */
+int StationKeepingTimeInBox = 270000;
 
+//
+boolean tacking; //!< tacking global
+/** tacking global.
+ * 1 for left -1 for right
+ */
+int tackingSide;
+int ironTime; //!< tacking global
+
+int errorCode; //!< error code
+
+/** @} End of the global constants grouping*/
+
+/** Standard Setup function for Arduino, set pins and create object instances.
+ *
+ * The setup function is the first function to be called. When it exits, the
+ * loop function is immediately called, where the program remains.
+ *
+ * Also sets up the compass through serial commands.
+ *
+ * @warning In order for Pololu to work, it needs to be manually reset within
+ * the code. Because of this, a 2 second delay is present to allow the board
+ * to start-up before the reset occurs.
+ */
 void setup() {
     Serial.begin(19200);
 
-    //for pololu
+    // set pins for pololu
     pinMode(txPin, OUTPUT);
     pinMode(resetPin, OUTPUT);
 
+	// initiate servo instance
     servo_ser.begin(4800);
+
     delay(2000);
-    //next NEED to explicitly reset the Pololu board using a separate pin
-    //else it times out and reports baud rate is too slow (red LED)
+    // next NEED to explicitly reset the Pololu board using a separate pin
+    // else it times out and reports baud rate is too slow (red LED)
     digitalWrite(resetPin, 0);
     delay(10);
     digitalWrite(resetPin, 1);
 
     Serial2.begin(19200);
     Serial3.begin(4800);
-    //
+
     delay(10);
 
-    //initialize all counters/variables
-    //current position from sensors
-    boatLocation = clearPoints;    //sets initial location of the boat to 0;
-    //Heading angle using wind sensor
-    heading = 0;//heading relative to true north
-    deviation = 0;//deviation relative to true north; do we use this in our calculations?
-    variance = 0;//variance relative to true north; do we use this in our calculations?
+    // Initialize all counters/variables and current position from sensors
+	// ---------------------------------------------------------------------------
+    boatLocation = clearPoints;    // sets initial location of the boat to 0;
+
+    // Heading angle using wind sensor
+	// See global declaration for explanation
+    heading = 0;
+    deviation = 0; 
+    variance = 0;
+
     //Boat's speed
-    bspeed = 0; //Boat's speed in km/h
-    bspeedk = 0; //Boat's speed in knots
-    //Wind data
-    wind_angl = 0;//wind angle, (relative to boat)
-    wind_velocity = 0;//wind velocity in knots
-    //Compass data
-    headingc = 0;//heading relative to true north
-    pitch = 0;//pitch relative to ??
-    roll = 0;//roll relative to ??
+    bspeed = 0;           // Boat's speed in km/h
+    bspeedk = 0;          // Boat's speed in knots
 
-    //Testing variables; present conditions, used for testing
-    heading_newest = 0;//heading relative to true north, newest
-    wind_angl_newest = 0;//wind angle relative to boat
+    // Wind data
+    wind_angl = 0;        // wind angle, (relative to boat)
+    wind_velocity = 0;    // wind velocity in knots
 
-    //compass setup code
-    delay(1000); //give everything some time to set up, especially the serial buffers
-    Serial2.println("$PTNT,HTM*63"); //request a data sample from the compass for heading/tilt/etc, and give it time to get it
+	// Compass data
+    headingc = 0;         // heading relative to true north
+    pitch = 0;            // pitch relative to ??
+    roll = 0;             // roll relative to ??
+
+    // Testing variables; present conditions, used for testing
+    heading_newest = 0;   // heading relative to true north, newest
+    wind_angl_newest = 0; // wind angle relative to boat
+
+    // Compass setup code
+	// ---------------------------------------------------------------------------
+	// Give everything some time to set up, especially the serial buffers
+    delay(1000); 
+	
+	// request a data sample from the compass for heading/tilt/etc, and give it 
+	// time to get it
+    Serial2.println("$PTNT,HTM*63"); 
     delay(200);
-    //wind sensor setup code, changes rates
-    Serial3.println("$PAMTC,EN,RMC,0,10");     //disable GPRMC
-    Serial3.println("$PAMTC,EN,GLL,1,3");      //change gps to send 3.3 times a second
-    Serial3.println("$PAMTC,EN,HDG,1,5");      //change heading to send 2 times a second
+    // wind sensor setup code, changes rates
+    Serial3.println("$PAMTC,EN,RMC,0,10");     // disable GPRMC
+	// change gps to send 3.3 times a second
+    Serial3.println("$PAMTC,EN,GLL,1,3");      
+	// change heading to send 2 times a second
+    Serial3.println("$PAMTC,EN,HDG,1,5");      
 
-	/** @brief Change wind to send 5 times a second default for now, need to make sure we can get 
-	 *  everything out of the buffer
+	/** @brief Change wind to send 5 times a second default for now, need to make 
+	 *  sure we can get everything out of the buffer
 	 */
     Serial.println("$PAMTC,EN,MWVR,1,2");      
 
@@ -260,6 +302,12 @@ void setup() {
     delay(2000);  //setup delay RCMode();
 }
 
+/** Main Function, handles menu input and calls the core functions.
+ * 
+ * A lot of documentation should probably be written for this, but
+ * all I know right now is that it contains the switch statement 
+ * in order to call the functions.
+ */
 void loop() {
     int menuReturn;
 
@@ -277,6 +325,7 @@ void loop() {
             CurrentSelection = menuReturn;
         }
     }
+
     switch (CurrentSelection) {
     case 0:
         break;

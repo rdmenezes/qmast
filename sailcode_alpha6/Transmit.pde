@@ -1,7 +1,7 @@
 /** 
- * The transmit function is used to communicate with LabView?
+ * The transmit function is used to communicate with LabView.
  * through a series of preset strings, which are represented by
- * the graphical gauages?
+ * the graphical gauges?
  *
  * Prints directly to the serial and takes input from global values
  */
@@ -53,11 +53,11 @@ void transmit(void) {
     Serial.print("***");
 }
 
-void relayData() { //sends data to shore
 /**
  * Similar to the transmit function except the output contains information
  * which is not read by LabView, so codes are not needed?
  */
+void relayData() { //sends data to shore
     Serial.println(millis());
 	// Send data to zigbee
     Serial.println();
@@ -71,14 +71,14 @@ void relayData() { //sends data to shore
     Serial.print(",");
     Serial.print(boatLocation.lonMin);
     Serial.print(",");
-    Serial.print(bspeed); //boat speed
+    Serial.print(bspeed);        // boat speed
     Serial.print(",");
-    Serial.print(heading);  //boat direction
+    Serial.print(heading);       // boat direction
     Serial.print(",");
-    Serial.print(wind_angl);  //wind angle, (relative to boat or north?)
+    Serial.print(wind_angl);     // wind angle, (relative to boat or north?)
     Serial.print(",");
-    Serial.print(wind_velocity);//wind velocity in knots
+    Serial.print(wind_velocity); // wind velocity in knots
     Serial.print(",");
-    Serial.println(headingc);//compass
+    Serial.println(headingc);    // compass
 }
 

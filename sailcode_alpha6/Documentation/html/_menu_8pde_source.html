@@ -323,19 +323,19 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00243"></a>00243                     <span class="keywordflow">switch</span>(sailDirection) {
 <a name="l00244"></a>00244                         <span class="comment">//the input char sailDirection</span>
 <a name="l00245"></a>00245                     <span class="keywordflow">case</span> <span class="charliteral">&#39;n&#39;</span>:
-<a name="l00246"></a>00246                         <a class="code" href="group__group1.html#gac9d865c1411ae815f6b2394c45d604e7">StraightSailDirection</a> = 0;
+<a name="l00246"></a>00246                         <a class="code" href="group__group1.html#gac9d865c1411ae815f6b2394c45d604e7" title="Menu hack globals.">StraightSailDirection</a> = 0;
 <a name="l00247"></a>00247                         hasValue = <span class="keyword">true</span>;
 <a name="l00248"></a>00248                         <span class="keywordflow">break</span>;
 <a name="l00249"></a>00249                     <span class="keywordflow">case</span> <span class="charliteral">&#39;s&#39;</span>:
-<a name="l00250"></a>00250                         <a class="code" href="group__group1.html#gac9d865c1411ae815f6b2394c45d604e7">StraightSailDirection</a> = 180;
+<a name="l00250"></a>00250                         <a class="code" href="group__group1.html#gac9d865c1411ae815f6b2394c45d604e7" title="Menu hack globals.">StraightSailDirection</a> = 180;
 <a name="l00251"></a>00251                         hasValue = <span class="keyword">true</span>;
 <a name="l00252"></a>00252                         <span class="keywordflow">break</span>;
 <a name="l00253"></a>00253                     <span class="keywordflow">case</span> <span class="charliteral">&#39;e&#39;</span>:
-<a name="l00254"></a>00254                         <a class="code" href="group__group1.html#gac9d865c1411ae815f6b2394c45d604e7">StraightSailDirection</a> = 90;
+<a name="l00254"></a>00254                         <a class="code" href="group__group1.html#gac9d865c1411ae815f6b2394c45d604e7" title="Menu hack globals.">StraightSailDirection</a> = 90;
 <a name="l00255"></a>00255                         hasValue = <span class="keyword">true</span>;
 <a name="l00256"></a>00256                         <span class="keywordflow">break</span>;
 <a name="l00257"></a>00257                     <span class="keywordflow">case</span> <span class="charliteral">&#39;w&#39;</span>:
-<a name="l00258"></a>00258                         <a class="code" href="group__group1.html#gac9d865c1411ae815f6b2394c45d604e7">StraightSailDirection</a> = 270;
+<a name="l00258"></a>00258                         <a class="code" href="group__group1.html#gac9d865c1411ae815f6b2394c45d604e7" title="Menu hack globals.">StraightSailDirection</a> = 270;
 <a name="l00259"></a>00259                         hasValue = <span class="keyword">true</span>;
 <a name="l00260"></a>00260                         <span class="keywordflow">break</span>;
 <a name="l00261"></a>00261                     <span class="keywordflow">default</span>:
@@ -345,7 +345,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00265"></a>00265                 }
 <a name="l00266"></a>00266             }
 <a name="l00267"></a>00267             Serial.print(<span class="stringliteral">&quot;Sailing towards: &quot;</span>);
-<a name="l00268"></a>00268             Serial.print(<a class="code" href="group__group1.html#gac9d865c1411ae815f6b2394c45d604e7">StraightSailDirection</a>, DEC);
+<a name="l00268"></a>00268             Serial.print(<a class="code" href="group__group1.html#gac9d865c1411ae815f6b2394c45d604e7" title="Menu hack globals.">StraightSailDirection</a>, DEC);
 <a name="l00269"></a>00269             Serial.println(<span class="stringliteral">&quot; degrees.&quot;</span>);
 <a name="l00270"></a>00270             <span class="keywordflow">return</span> 3;
 <a name="l00271"></a>00271             <span class="keywordflow">break</span>;
@@ -396,7 +396,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00316"></a>00316                     <a class="code" href="group__group1.html#gaf79de3204853b3b4101113683e74cd54" title="global for reversing rudder if we are parking lot testing">rudderDir</a> *= -1;
 <a name="l00317"></a>00317                     <span class="keywordflow">break</span>;
 <a name="l00318"></a>00318                 }
-<a name="l00319"></a>00319                 <a class="code" href="_sailing_logic_8pde.html#aae8de392da41d229212d9943d965690c">sailControl</a>();     <span class="comment">//calling this will cause a spamming of the Serial port, will have lag exiting</span>
+<a name="l00319"></a>00319                 <a class="code" href="_sailing_logic_8pde.html#aae8de392da41d229212d9943d965690c" title="This function controls the sails, proportional to the wind direction with no consideration for wind s...">sailControl</a>();     <span class="comment">//calling this will cause a spamming of the Serial port, will have lag exiting</span>
 <a name="l00320"></a>00320                 <span class="keywordflow">if</span> (Serial.available() &gt; 20)
 <a name="l00321"></a>00321                     Serial.flush();
 <a name="l00322"></a>00322             }
@@ -414,9 +414,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00334"></a>00334             <span class="keywordflow">for</span>(i = 0; i &lt; 4; i++) {
 <a name="l00335"></a>00335                 <a class="code" href="_location_struct_8h.html#aabb8589a083ce42da76e002537befdda">stationPoints</a>[i] = <a class="code" href="_location_struct_8h.html#a185b89e8bef2ec3a6ee2768d6c39a9c3">waypoints</a>[i];
 <a name="l00336"></a>00336             }
-<a name="l00337"></a>00337             <a class="code" href="group__group1.html#gaffc96d075c8796c3d5ef3dc5824c0819">stationCounter</a> = 2;
-<a name="l00338"></a>00338             <a class="code" href="group__group1.html#gaf453f5fa6c0df67707ca308a2fc80ca1">timesUp</a> = <span class="keyword">false</span>;
-<a name="l00339"></a>00339             <a class="code" href="group__group1.html#ga8ad49a66e91d8658c5f1f7dbcbcbbd2f">startTime</a> = millis();<span class="comment">//record the starting clock time</span>
+<a name="l00337"></a>00337             <a class="code" href="group__group1.html#gaffc96d075c8796c3d5ef3dc5824c0819" title="station-keeping global">stationCounter</a> = 2;
+<a name="l00338"></a>00338             <a class="code" href="group__group1.html#gaf453f5fa6c0df67707ca308a2fc80ca1" title="station-keeping global">timesUp</a> = <span class="keyword">false</span>;
+<a name="l00339"></a>00339             <a class="code" href="group__group1.html#ga8ad49a66e91d8658c5f1f7dbcbcbbd2f" title="station-keeping global">startTime</a> = millis();<span class="comment">//record the starting clock time</span>
 <a name="l00340"></a>00340             Serial.println(<span class="stringliteral">&quot;StationKeeping&quot;</span>);
 <a name="l00341"></a>00341             <span class="keywordflow">return</span> 1;
 <a name="l00342"></a>00342             <span class="keywordflow">break</span>;
@@ -514,7 +514,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00434"></a>00434             <a class="code" href="_motor_control_functions_8pde.html#ab945c39b15584683f123bca1f5df6faa">setMain</a>(<a class="code" href="group__globalconstants.html#gaaadbf956e6981264e6bf369a08269821" title="Constant which defines when the boat is &quot;All In&quot;.">ALL_IN</a>);
 <a name="l00435"></a>00435             delay(5000);
 <a name="l00436"></a>00436             Serial.println(<span class="stringliteral">&quot;testing compass&quot;</span>);
-<a name="l00437"></a>00437             <a class="code" href="_data_acquisition_8pde.html#a5e6370de6e960ff592044b790015ba48">sensorData</a>(<a class="code" href="group__globalconstants.html#ga2c1c653e45c4962f05cb6341f359707d" title="serial data constants">BUFF_MAX</a>,<span class="charliteral">&#39;c&#39;</span>);
+<a name="l00437"></a>00437             <a class="code" href="_data_acquisition_8pde.html#a5e6370de6e960ff592044b790015ba48" title="Really important function, having something to do with the sensors.">sensorData</a>(<a class="code" href="group__globalconstants.html#ga2c1c653e45c4962f05cb6341f359707d" title="serial data constants">BUFF_MAX</a>,<span class="charliteral">&#39;c&#39;</span>);
 <a name="l00438"></a>00438             <span class="keywordflow">if</span>(compassData == <span class="keyword">false</span>) {
 <a name="l00439"></a>00439                 Serial.println(<span class="stringliteral">&quot;Compass Data: &quot;</span>);
 <a name="l00440"></a>00440                 Serial.print(<span class="stringliteral">&quot;  Heading:  &quot;</span>);
@@ -527,7 +527,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00447"></a>00447                 Serial.println(<span class="stringliteral">&quot;Error fetching compass data&quot;</span>);
 <a name="l00448"></a>00448             }
 <a name="l00449"></a>00449             Serial.println(<span class="stringliteral">&quot;testing wind sensor&quot;</span>);
-<a name="l00450"></a>00450             <a class="code" href="_data_acquisition_8pde.html#a5e6370de6e960ff592044b790015ba48">sensorData</a>(<a class="code" href="group__globalconstants.html#ga2c1c653e45c4962f05cb6341f359707d" title="serial data constants">BUFF_MAX</a>,<span class="charliteral">&#39;w&#39;</span>);
+<a name="l00450"></a>00450             <a class="code" href="_data_acquisition_8pde.html#a5e6370de6e960ff592044b790015ba48" title="Really important function, having something to do with the sensors.">sensorData</a>(<a class="code" href="group__globalconstants.html#ga2c1c653e45c4962f05cb6341f359707d" title="serial data constants">BUFF_MAX</a>,<span class="charliteral">&#39;w&#39;</span>);
 <a name="l00451"></a>00451             Serial.println(<span class="stringliteral">&quot;Wind Sensor Data: &quot;</span>);
 <a name="l00452"></a>00452             Serial.print(<span class="stringliteral">&quot;  Wind Angle:  &quot;</span>);
 <a name="l00453"></a>00453             Serial.println(<a class="code" href="group__group1.html#ga6bc5259b7cc1cb6128495b28f55b0a5d" title="wind angle, (relative to boat I believe, could be north, check this)">wind_angl</a>);
@@ -539,7 +539,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00459"></a>00459         <span class="keywordflow">case</span> <span class="charliteral">&#39;p&#39;</span>:  <span class="comment">//returns your current position</span>
 <a name="l00460"></a>00460             Serial3.flush();
 <a name="l00461"></a>00461             delay(500);
-<a name="l00462"></a>00462             <a class="code" href="_data_acquisition_8pde.html#a5e6370de6e960ff592044b790015ba48">sensorData</a>(<a class="code" href="group__globalconstants.html#ga2c1c653e45c4962f05cb6341f359707d" title="serial data constants">BUFF_MAX</a>,<span class="charliteral">&#39;w&#39;</span>);
+<a name="l00462"></a>00462             <a class="code" href="_data_acquisition_8pde.html#a5e6370de6e960ff592044b790015ba48" title="Really important function, having something to do with the sensors.">sensorData</a>(<a class="code" href="group__globalconstants.html#ga2c1c653e45c4962f05cb6341f359707d" title="serial data constants">BUFF_MAX</a>,<span class="charliteral">&#39;w&#39;</span>);
 <a name="l00463"></a>00463             Serial.print(<a class="code" href="_location_struct_8h.html#a7101d8f006cf046f26304b4d14474910">boatLocation</a>.<a class="code" href="structpoints.html#a08f58fb014591a03cef3747723397dab">latDeg</a>,0);
 <a name="l00464"></a>00464             Serial.print(<a class="code" href="_location_struct_8h.html#a7101d8f006cf046f26304b4d14474910">boatLocation</a>.<a class="code" href="structpoints.html#ae91da8d14518e615ceaae957260204ba">latMin</a>,4);
 <a name="l00465"></a>00465             Serial.print(<span class="stringliteral">&quot; &quot;</span>);
@@ -689,11 +689,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00609"></a>00609                 <span class="keywordflow">if</span>(rudcount &gt; 30) {
 <a name="l00610"></a>00610                     rudVal = 0;
 <a name="l00611"></a>00611                 }
-<a name="l00612"></a>00612                 <a class="code" href="_data_acquisition_8pde.html#a5e6370de6e960ff592044b790015ba48">sensorData</a>(<a class="code" href="group__globalconstants.html#ga2c1c653e45c4962f05cb6341f359707d" title="serial data constants">BUFF_MAX</a>, <span class="charliteral">&#39;w&#39;</span>);
-<a name="l00613"></a>00613                 <a class="code" href="_data_acquisition_8pde.html#a5e6370de6e960ff592044b790015ba48">sensorData</a>(<a class="code" href="group__globalconstants.html#ga2c1c653e45c4962f05cb6341f359707d" title="serial data constants">BUFF_MAX</a>, <span class="charliteral">&#39;c&#39;</span>);
+<a name="l00612"></a>00612                 <a class="code" href="_data_acquisition_8pde.html#a5e6370de6e960ff592044b790015ba48" title="Really important function, having something to do with the sensors.">sensorData</a>(<a class="code" href="group__globalconstants.html#ga2c1c653e45c4962f05cb6341f359707d" title="serial data constants">BUFF_MAX</a>, <span class="charliteral">&#39;w&#39;</span>);
+<a name="l00613"></a>00613                 <a class="code" href="_data_acquisition_8pde.html#a5e6370de6e960ff592044b790015ba48" title="Really important function, having something to do with the sensors.">sensorData</a>(<a class="code" href="group__globalconstants.html#ga2c1c653e45c4962f05cb6341f359707d" title="serial data constants">BUFF_MAX</a>, <span class="charliteral">&#39;c&#39;</span>);
 <a name="l00614"></a>00614                 <a class="code" href="_motor_control_functions_8pde.html#ada2247ce798f57b0f35794901100c48b">setrudder</a>(rudVal);
 <a name="l00615"></a>00615                 <a class="code" href="_motor_control_functions_8pde.html#a3ee6de88bcd944f9cb1b7301769c8b7e">setSails</a>(sailsVal);
-<a name="l00616"></a>00616                 <a class="code" href="_transmit_8pde.html#a29ff55f7ca3b7d4a69af0648518423a3" title="The transmit function is used to communicate with LabView? through a series of preset strings...">transmit</a>();
+<a name="l00616"></a>00616                 <a class="code" href="_transmit_8pde.html#a29ff55f7ca3b7d4a69af0648518423a3" title="The transmit function is used to communicate with LabView.">transmit</a>();
 <a name="l00617"></a>00617             }
 <a name="l00618"></a>00618             <span class="keywordflow">return</span> 0;
 <a name="l00619"></a>00619             <span class="keywordflow">break</span>;
@@ -704,8 +704,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00624"></a>00624             <span class="keywordflow">for</span>(i = 0; i &lt; 4; i++) {
 <a name="l00625"></a>00625                 <a class="code" href="_location_struct_8h.html#aabb8589a083ce42da76e002537befdda">stationPoints</a>[i] = <a class="code" href="_location_struct_8h.html#a185b89e8bef2ec3a6ee2768d6c39a9c3">waypoints</a>[i];
 <a name="l00626"></a>00626             }
-<a name="l00627"></a>00627             <a class="code" href="group__group1.html#gaf453f5fa6c0df67707ca308a2fc80ca1">timesUp</a> = <span class="keyword">false</span>;
-<a name="l00628"></a>00628             <a class="code" href="group__group1.html#ga8ad49a66e91d8658c5f1f7dbcbcbbd2f">startTime</a> = millis();<span class="comment">//record the starting clock time</span>
+<a name="l00627"></a>00627             <a class="code" href="group__group1.html#gaf453f5fa6c0df67707ca308a2fc80ca1" title="station-keeping global">timesUp</a> = <span class="keyword">false</span>;
+<a name="l00628"></a>00628             <a class="code" href="group__group1.html#ga8ad49a66e91d8658c5f1f7dbcbcbbd2f" title="station-keeping global">startTime</a> = millis();<span class="comment">//record the starting clock time</span>
 <a name="l00629"></a>00629             Serial.println(<span class="stringliteral">&quot;StationKeeping&quot;</span>);
 <a name="l00630"></a>00630             <span class="keywordflow">return</span> 5;
 <a name="l00631"></a>00631             <span class="keywordflow">break</span>;
@@ -722,7 +722,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00642"></a>00642             timeFudge = timeFudge*10 + Serial.read() - <span class="charliteral">&#39;0&#39;</span>;
 <a name="l00643"></a>00643             Serial.print(<span class="stringliteral">&quot;entered:    &quot;</span>);
 <a name="l00644"></a>00644             Serial.println(timeFudge);
-<a name="l00645"></a>00645             <a class="code" href="group__group1.html#gabe157ddfb46568e2de8b041f54ac6d98">StationKeepingTimeInBox</a> = timeFudge;
+<a name="l00645"></a>00645             <a class="code" href="group__group1.html#gabe157ddfb46568e2de8b041f54ac6d98" title="The amount of time the boat should stay in the box before leaving (in millis).">StationKeepingTimeInBox</a> = timeFudge;
 <a name="l00646"></a>00646             <span class="keywordflow">return</span> 0;
 <a name="l00647"></a>00647             <span class="keywordflow">break</span>;
 <a name="l00648"></a>00648         <span class="keywordflow">case</span> <span class="charliteral">&#39;z&#39;</span>: <span class="comment">//If you press z it clears the serial buffer</span>
@@ -755,7 +755,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Sep 30 2011 21:11:01 for QMAST Source Code by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Oct 1 2011 01:00:37 for QMAST Source Code by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.7.5.1
 </small></address>

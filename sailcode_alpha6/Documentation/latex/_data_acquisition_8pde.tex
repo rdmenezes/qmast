@@ -6,7 +6,7 @@
 \begin{DoxyCompactItemize}
 \item 
 void \hyperlink{_data_acquisition_8pde_a5e6370de6e960ff592044b790015ba48}{sensor\-Data} (int buffer\-Length, char device)
-\item 
+\begin{DoxyCompactList}\small\item\em \-Really important function, having something to do with the sensors. \end{DoxyCompactList}\item 
 void \hyperlink{_data_acquisition_8pde_a7754ceed7ff85b4abd95a6ada7828b3d}{set\-Error\-Bit} (int a\-Bit)
 \item 
 void \hyperlink{_data_acquisition_8pde_a6e69d0b8b4d3517b8abba6d50cd3b8d0}{clear\-Error\-Bit} (int a\-Bit)
@@ -27,7 +27,7 @@ int \hyperlink{_data_acquisition_8pde_a5afc02c30b75cd4feda90bd6264e279a}{check\-
 \label{_data_acquisition_8pde_a5afc02c30b75cd4feda90bd6264e279a}
 
 
-\-Definition at line 213 of file \-Data\-Acquisition.\-pde.
+\-Definition at line 222 of file \-Data\-Acquisition.\-pde.
 
 \hypertarget{_data_acquisition_8pde_a6e69d0b8b4d3517b8abba6d50cd3b8d0}{
 \index{\-Data\-Acquisition.\-pde@{\-Data\-Acquisition.\-pde}!clear\-Error\-Bit@{clear\-Error\-Bit}}
@@ -40,7 +40,7 @@ int \hyperlink{_data_acquisition_8pde_a5afc02c30b75cd4feda90bd6264e279a}{check\-
 \label{_data_acquisition_8pde_a6e69d0b8b4d3517b8abba6d50cd3b8d0}
 
 
-\-Definition at line 208 of file \-Data\-Acquisition.\-pde.
+\-Definition at line 217 of file \-Data\-Acquisition.\-pde.
 
 
 
@@ -65,7 +65,23 @@ int \hyperlink{_data_acquisition_8pde_a5afc02c30b75cd4feda90bd6264e279a}{check\-
 \label{_data_acquisition_8pde_a5e6370de6e960ff592044b790015ba48}
 
 
-\-Definition at line 4 of file \-Data\-Acquisition.\-pde.
+\-Really important function, having something to do with the sensors. 
+
+sensor\-Data replaces \-Compass() and \-Wind() with one function.
+
+
+\begin{DoxyParams}[1]{\-Parameters}
+\mbox{\tt in}  & {\em buffer\-Length} & \-Will vary based on the device being used \\
+\hline
+\mbox{\tt in}  & {\em device} & \-Specify the device being used through a character code\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{\-Note}
+'c' = compass 'w' = wind sensor 
+\end{DoxyNote}
+
+
+\-Definition at line 13 of file \-Data\-Acquisition.\-pde.
 
 
 
@@ -100,7 +116,7 @@ int \hyperlink{_data_acquisition_8pde_a5afc02c30b75cd4feda90bd6264e279a}{check\-
 \label{_data_acquisition_8pde_a7754ceed7ff85b4abd95a6ada7828b3d}
 
 
-\-Definition at line 203 of file \-Data\-Acquisition.\-pde.
+\-Definition at line 212 of file \-Data\-Acquisition.\-pde.
 
 
 

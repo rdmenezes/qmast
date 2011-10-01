@@ -1,12 +1,12 @@
 <map id="G" name="G">
-<area shape="rect" id="node3" href="$_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835" title="sail" alt="" coords="139,101,178,127"/>
-<area shape="rect" id="node27" href="$_sailing_logic_8pde.html#a1acad42611d693fa074f7dae5e5a5e3f" title="checkTack" alt="" coords="120,177,197,203"/>
+<area shape="rect" id="node3" href="$_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835" title="Sails towards the waypointDirn passed, in which case it sails closehauled." alt="" coords="139,101,178,127"/>
+<area shape="rect" id="node27" href="$_sailing_logic_8pde.html#a1acad42611d693fa074f7dae5e5a5e3f" title="Check to see if tacking is necessary." alt="" coords="120,177,197,203"/>
 <area shape="rect" id="node5" href="$oldtack_8pde.html#aa56b9f04ea7c8c58f7a0030db9e58925" title="oldtack" alt="" coords="273,75,332,102"/>
 <area shape="rect" id="node7" href="$oldtack_8pde.html#a4785198fa045d7d139a5e682ac809e62" title="newer revision" alt="" coords="270,126,336,152"/>
 <area shape="rect" id="node9" href="$oldtack_8pde.html#a30dbce327552d96d2630fed7ec47bfe9" title="getOutofIronsOld" alt="" coords="246,177,359,203"/>
-<area shape="rect" id="node11" href="$sailcode__alpha6_8pde.html#afe461d27b9c48d5921c00d521181f12f" title="loop" alt="" coords="603,126,647,152"/>
-<area shape="rect" id="node13" href="$_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1" title="sailToWaypoint" alt="" coords="252,227,353,254"/>
+<area shape="rect" id="node11" href="$sailcode__alpha6_8pde.html#afe461d27b9c48d5921c00d521181f12f" title="Main Function, handles menu input and calls the core functions." alt="" coords="603,126,647,152"/>
+<area shape="rect" id="node13" href="$_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1" title="Checks to see if the boat should sail or tack, thats it." alt="" coords="252,227,353,254"/>
 <area shape="rect" id="node19" href="$_station_keeping_8pde.html#aa299757ffc71d051d673a238a5a4b387" title="stationKeep" alt="" coords="439,126,524,152"/>
 <area shape="rect" id="node22" href="$_station_keeping_8pde.html#a8582ebc297542fd91bbbdcb46b34cd24" title="stationKeepSinglePoint" alt="" coords="409,75,554,102"/>
-<area shape="rect" id="node16" href="$_sailing_logic_8pde.html#aeaba10e3002bd9b9fd2ea1bdd5ab97ea" title="sailCourse" alt="" coords="442,177,520,203"/>
+<area shape="rect" id="node16" href="$_sailing_logic_8pde.html#aeaba10e3002bd9b9fd2ea1bdd5ab97ea" title="Alternate sailcourse code by laz." alt="" coords="442,177,520,203"/>
 </map>

@@ -1,12 +1,12 @@
 <map id="G" name="G">
 <area shape="rect" id="node3" href="$_station_keeping_8pde.html#a8781730c6d0b63baad8958328d7721e1" title="getStationKeepingCentre" alt="" coords="201,5,356,32"/>
 <area shape="rect" id="node5" href="$_navigation_code_8pde.html#ae8999f3c7fe4fd1480b06dd5b60d78f5" title="getWindDirn" alt="" coords="726,259,813,285"/>
-<area shape="rect" id="node7" href="$_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835" title="sail" alt="" coords="424,157,464,184"/>
-<area shape="rect" id="node32" href="$_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1" title="sailToWaypoint" alt="" coords="228,341,329,368"/>
+<area shape="rect" id="node7" href="$_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835" title="Sails towards the waypointDirn passed, in which case it sails closehauled." alt="" coords="424,157,464,184"/>
+<area shape="rect" id="node32" href="$_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1" title="Checks to see if the boat should sail or tack, thats it." alt="" coords="228,341,329,368"/>
 <area shape="rect" id="node10" href="$_utilities_8pde.html#acf7fddcdef68f94ad48b357770aebac5" title="between" alt="" coords="563,208,629,235"/>
 <area shape="rect" id="node12" href="$_navigation_code_8pde.html#aff425444a43bfea4cccd00c915eff7a5" title="getCloseHauledDirn" alt="" coords="532,360,660,387"/>
-<area shape="rect" id="node15" href="$_sailing_logic_8pde.html#aad7e4cc1e18478540e9c1d8c00390d24" title="rudderControl" alt="" coords="549,157,643,184"/>
-<area shape="rect" id="node21" href="$_sailing_logic_8pde.html#aae8de392da41d229212d9943d965690c" title="sailControl" alt="" coords="557,5,635,32"/>
+<area shape="rect" id="node15" href="$_sailing_logic_8pde.html#aad7e4cc1e18478540e9c1d8c00390d24" title="Controls the rudder movement, used to be part of sail." alt="" coords="549,157,643,184"/>
+<area shape="rect" id="node21" href="$_sailing_logic_8pde.html#aae8de392da41d229212d9943d965690c" title="This function controls the sails, proportional to the wind direction with no consideration for wind s..." alt="" coords="557,5,635,32"/>
 <area shape="rect" id="node17" href="$_motor_control_functions_8pde.html#ada2247ce798f57b0f35794901100c48b" title="setrudder" alt="" coords="733,461,805,488"/>
 <area shape="rect" id="node19" href="$_motor_control_functions_8pde.html#a13167cafd07541f82a26312a556f5a7a" title="servo_command" alt="" coords="990,475,1100,501"/>
 <area shape="rect" id="node23" href="$_motor_control_functions_8pde.html#a3ee6de88bcd944f9cb1b7301769c8b7e" title="setSails" alt="" coords="738,208,801,235"/>
@@ -15,7 +15,7 @@
 <area shape="rect" id="node34" href="$_navigation_code_8pde.html#a5a81fac76ec3537d65664a394090479f" title="GPSdistance" alt="" coords="550,461,642,488"/>
 <area shape="rect" id="node36" href="$_navigation_code_8pde.html#a4fffe1cc3f2386b3364495749dfebc9e" title="getWaypointDirn" alt="" coords="541,411,651,437"/>
 <area shape="rect" id="node40" href="$_tack_8pde.html#a6687f149db3a26da0af4bcb2c61fc9a3" title="tack" alt="" coords="422,537,466,564"/>
-<area shape="rect" id="node51" href="$_sailing_logic_8pde.html#a1acad42611d693fa074f7dae5e5a5e3f" title="checkTack" alt="" coords="405,316,483,343"/>
+<area shape="rect" id="node51" href="$_sailing_logic_8pde.html#a1acad42611d693fa074f7dae5e5a5e3f" title="Check to see if tacking is necessary." alt="" coords="405,316,483,343"/>
 <area shape="rect" id="node38" href="$_utilities_8pde.html#abcc11dba11f0d39f4ab19c05f1d5fe75" title="radiansToDegrees" alt="" coords="710,411,829,437"/>
 <area shape="rect" id="node42" href="$_tack_8pde.html#aa9b9ac04e546adfd9a330715867797de" title="getOutofIrons" alt="" coords="549,563,643,589"/>
 <area shape="rect" id="node57" href="$_utilities_8pde.html#afe25c7411bef33d33beaa8f6bf6e07e7" title="degreesToRadians" alt="" coords="535,309,657,336"/>

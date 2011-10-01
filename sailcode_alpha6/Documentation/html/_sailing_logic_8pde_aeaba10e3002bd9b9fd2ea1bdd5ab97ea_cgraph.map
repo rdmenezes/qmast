@@ -1,10 +1,10 @@
 <map id="G" name="G">
 <area shape="rect" id="node3" href="$_navigation_code_8pde.html#a5a81fac76ec3537d65664a394090479f" title="GPSdistance" alt="" coords="428,4,519,31"/>
-<area shape="rect" id="node5" href="$_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1" title="sailToWaypoint" alt="" coords="133,131,235,157"/>
+<area shape="rect" id="node5" href="$_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1" title="Checks to see if the boat should sail or tack, thats it." alt="" coords="133,131,235,157"/>
 <area shape="rect" id="node8" href="$_navigation_code_8pde.html#a4fffe1cc3f2386b3364495749dfebc9e" title="getWaypointDirn" alt="" coords="419,156,528,183"/>
 <area shape="rect" id="node12" href="$_tack_8pde.html#a6687f149db3a26da0af4bcb2c61fc9a3" title="tack" alt="" coords="300,485,343,512"/>
-<area shape="rect" id="node33" href="$_sailing_logic_8pde.html#a1acad42611d693fa074f7dae5e5a5e3f" title="checkTack" alt="" coords="283,105,360,132"/>
-<area shape="rect" id="node42" href="$_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835" title="sail" alt="" coords="302,283,341,309"/>
+<area shape="rect" id="node33" href="$_sailing_logic_8pde.html#a1acad42611d693fa074f7dae5e5a5e3f" title="Check to see if tacking is necessary." alt="" coords="283,105,360,132"/>
+<area shape="rect" id="node42" href="$_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835" title="Sails towards the waypointDirn passed, in which case it sails closehauled." alt="" coords="302,283,341,309"/>
 <area shape="rect" id="node10" href="$_utilities_8pde.html#abcc11dba11f0d39f4ab19c05f1d5fe75" title="radiansToDegrees" alt="" coords="587,156,706,183"/>
 <area shape="rect" id="node14" href="$_tack_8pde.html#aa9b9ac04e546adfd9a330715867797de" title="getOutofIrons" alt="" coords="426,561,520,588"/>
 <area shape="rect" id="node16" href="$_motor_control_functions_8pde.html#ab945c39b15584683f123bca1f5df6faa" title="setMain" alt="" coords="755,460,818,487"/>
@@ -15,7 +15,7 @@
 <area shape="rect" id="node28" href="$_navigation_code_8pde.html#ae8999f3c7fe4fd1480b06dd5b60d78f5" title="getWindDirn" alt="" coords="603,257,690,284"/>
 <area shape="rect" id="node36" href="$_utilities_8pde.html#acf7fddcdef68f94ad48b357770aebac5" title="between" alt="" coords="440,207,507,233"/>
 <area shape="rect" id="node40" href="$_utilities_8pde.html#afe25c7411bef33d33beaa8f6bf6e07e7" title="degreesToRadians" alt="" coords="413,105,534,132"/>
-<area shape="rect" id="node47" href="$_sailing_logic_8pde.html#aad7e4cc1e18478540e9c1d8c00390d24" title="rudderControl" alt="" coords="426,409,521,436"/>
-<area shape="rect" id="node50" href="$_sailing_logic_8pde.html#aae8de392da41d229212d9943d965690c" title="sailControl" alt="" coords="434,359,512,385"/>
+<area shape="rect" id="node47" href="$_sailing_logic_8pde.html#aad7e4cc1e18478540e9c1d8c00390d24" title="Controls the rudder movement, used to be part of sail." alt="" coords="426,409,521,436"/>
+<area shape="rect" id="node50" href="$_sailing_logic_8pde.html#aae8de392da41d229212d9943d965690c" title="This function controls the sails, proportional to the wind direction with no consideration for wind s..." alt="" coords="434,359,512,385"/>
 <area shape="rect" id="node52" href="$_motor_control_functions_8pde.html#a3ee6de88bcd944f9cb1b7301769c8b7e" title="setSails" alt="" coords="615,460,678,487"/>
 </map>

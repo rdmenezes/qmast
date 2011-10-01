@@ -1,16 +1,16 @@
 <map id="G" name="G">
 <area shape="rect" id="node3" href="$_menu_8pde.html#aad9ed7a055a99883645739e4bfca0e5e" title="displayMenu" alt="" coords="374,47,463,73"/>
 <area shape="rect" id="node7" href="$_motor_control_functions_8pde.html#a3ee6de88bcd944f9cb1b7301769c8b7e" title="setSails" alt="" coords="118,72,181,99"/>
-<area shape="rect" id="node10" href="$_sailing_logic_8pde.html#aae8de392da41d229212d9943d965690c" title="sailControl" alt="" coords="238,123,316,149"/>
+<area shape="rect" id="node10" href="$_sailing_logic_8pde.html#aae8de392da41d229212d9943d965690c" title="This function controls the sails, proportional to the wind direction with no consideration for wind s..." alt="" coords="238,123,316,149"/>
 <area shape="rect" id="node15" href="$oldtack_8pde.html#aa56b9f04ea7c8c58f7a0030db9e58925" title="oldtack" alt="" coords="540,275,599,301"/>
 <area shape="rect" id="node17" href="$oldtack_8pde.html#a4785198fa045d7d139a5e682ac809e62" title="newer revision" alt="" coords="536,376,602,403"/>
 <area shape="rect" id="node19" href="$oldtack_8pde.html#a30dbce327552d96d2630fed7ec47bfe9" title="getOutofIronsOld" alt="" coords="513,174,626,200"/>
 <area shape="rect" id="node40" href="$_tack_8pde.html#a6687f149db3a26da0af4bcb2c61fc9a3" title="tack" alt="" coords="397,224,440,251"/>
 <area shape="rect" id="node43" href="$_tack_8pde.html#aa9b9ac04e546adfd9a330715867797de" title="getOutofIrons" alt="" coords="230,326,324,352"/>
-<area shape="rect" id="node5" href="$sailcode__alpha6_8pde.html#afe461d27b9c48d5921c00d521181f12f" title="loop" alt="" coords="870,98,914,124"/>
-<area shape="rect" id="node13" href="$_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835" title="sail" alt="" coords="399,123,438,149"/>
-<area shape="rect" id="node22" href="$_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1" title="sailToWaypoint" alt="" coords="519,224,620,251"/>
+<area shape="rect" id="node5" href="$sailcode__alpha6_8pde.html#afe461d27b9c48d5921c00d521181f12f" title="Main Function, handles menu input and calls the core functions." alt="" coords="870,98,914,124"/>
+<area shape="rect" id="node13" href="$_sailing_logic_8pde.html#a8e7082b5e8ca95936e2afa33af9f6835" title="Sails towards the waypointDirn passed, in which case it sails closehauled." alt="" coords="399,123,438,149"/>
+<area shape="rect" id="node22" href="$_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1" title="Checks to see if the boat should sail or tack, thats it." alt="" coords="519,224,620,251"/>
 <area shape="rect" id="node28" href="$_station_keeping_8pde.html#aa299757ffc71d051d673a238a5a4b387" title="stationKeep" alt="" coords="706,72,790,99"/>
 <area shape="rect" id="node31" href="$_station_keeping_8pde.html#a8582ebc297542fd91bbbdcb46b34cd24" title="stationKeepSinglePoint" alt="" coords="675,123,821,149"/>
-<area shape="rect" id="node25" href="$_sailing_logic_8pde.html#aeaba10e3002bd9b9fd2ea1bdd5ab97ea" title="sailCourse" alt="" coords="709,224,787,251"/>
+<area shape="rect" id="node25" href="$_sailing_logic_8pde.html#aeaba10e3002bd9b9fd2ea1bdd5ab97ea" title="Alternate sailcourse code by laz." alt="" coords="709,224,787,251"/>
 </map>

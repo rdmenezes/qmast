@@ -1,154 +1,162 @@
 \contentsline {chapter}{\numberline {1}\discretionary {-}{}{}The \discretionary {-}{}{}Q\discretionary {-}{}{}M\discretionary {-}{}{}A\discretionary {-}{}{}S\discretionary {-}{}{}T \discretionary {-}{}{}Alpha 6 \discretionary {-}{}{}Sailing \discretionary {-}{}{}Code}{1}{chapter.1}
-\contentsline {chapter}{\numberline {2}\discretionary {-}{}{}Data \discretionary {-}{}{}Structure \discretionary {-}{}{}Index}{3}{chapter.2}
-\contentsline {section}{\numberline {2.1}\discretionary {-}{}{}Data \discretionary {-}{}{}Structures}{3}{section.2.1}
-\contentsline {chapter}{\numberline {3}\discretionary {-}{}{}File \discretionary {-}{}{}Index}{5}{chapter.3}
-\contentsline {section}{\numberline {3.1}\discretionary {-}{}{}File \discretionary {-}{}{}List}{5}{section.3.1}
-\contentsline {chapter}{\numberline {4}\discretionary {-}{}{}Data \discretionary {-}{}{}Structure \discretionary {-}{}{}Documentation}{7}{chapter.4}
-\contentsline {section}{\numberline {4.1}points \discretionary {-}{}{}Struct \discretionary {-}{}{}Reference}{7}{section.4.1}
-\contentsline {subsection}{\numberline {4.1.1}\discretionary {-}{}{}Field \discretionary {-}{}{}Documentation}{7}{subsection.4.1.1}
-\contentsline {subsubsection}{\numberline {4.1.1.1}lat\discretionary {-}{}{}Deg}{7}{subsubsection.4.1.1.1}
-\contentsline {subsubsection}{\numberline {4.1.1.2}lat\discretionary {-}{}{}Min}{7}{subsubsection.4.1.1.2}
-\contentsline {subsubsection}{\numberline {4.1.1.3}lon\discretionary {-}{}{}Deg}{7}{subsubsection.4.1.1.3}
-\contentsline {subsubsection}{\numberline {4.1.1.4}lon\discretionary {-}{}{}Min}{7}{subsubsection.4.1.1.4}
-\contentsline {chapter}{\numberline {5}\discretionary {-}{}{}File \discretionary {-}{}{}Documentation}{9}{chapter.5}
-\contentsline {section}{\numberline {5.1}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Data\discretionary {-}{}{}Acquisition.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{9}{section.5.1}
-\contentsline {subsection}{\numberline {5.1.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{9}{subsection.5.1.1}
-\contentsline {subsubsection}{\numberline {5.1.1.1}check\discretionary {-}{}{}Error\discretionary {-}{}{}Bit}{9}{subsubsection.5.1.1.1}
-\contentsline {subsubsection}{\numberline {5.1.1.2}clear\discretionary {-}{}{}Error\discretionary {-}{}{}Bit}{9}{subsubsection.5.1.1.2}
-\contentsline {subsubsection}{\numberline {5.1.1.3}sensor\discretionary {-}{}{}Data}{9}{subsubsection.5.1.1.3}
-\contentsline {subsubsection}{\numberline {5.1.1.4}set\discretionary {-}{}{}Error\discretionary {-}{}{}Bit}{9}{subsubsection.5.1.1.4}
-\contentsline {section}{\numberline {5.2}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Location\discretionary {-}{}{}Struct.h \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{9}{section.5.2}
-\contentsline {subsection}{\numberline {5.2.1}\discretionary {-}{}{}Variable \discretionary {-}{}{}Documentation}{10}{subsection.5.2.1}
-\contentsline {subsubsection}{\numberline {5.2.1.1}boat\discretionary {-}{}{}Location}{10}{subsubsection.5.2.1.1}
-\contentsline {subsubsection}{\numberline {5.2.1.2}clear\discretionary {-}{}{}Points}{10}{subsubsection.5.2.1.2}
-\contentsline {subsubsection}{\numberline {5.2.1.3}course\discretionary {-}{}{}Points}{10}{subsubsection.5.2.1.3}
-\contentsline {subsubsection}{\numberline {5.2.1.4}floating\discretionary {-}{}{}Station\discretionary {-}{}{}Points}{10}{subsubsection.5.2.1.4}
-\contentsline {subsubsection}{\numberline {5.2.1.5}station\discretionary {-}{}{}Points}{10}{subsubsection.5.2.1.5}
-\contentsline {subsubsection}{\numberline {5.2.1.6}stay\discretionary {-}{}{}Point}{10}{subsubsection.5.2.1.6}
-\contentsline {subsubsection}{\numberline {5.2.1.7}waypoints}{10}{subsubsection.5.2.1.7}
-\contentsline {section}{\numberline {5.3}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Menu.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{11}{section.5.3}
-\contentsline {subsection}{\numberline {5.3.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{11}{subsection.5.3.1}
-\contentsline {subsubsection}{\numberline {5.3.1.1}display\discretionary {-}{}{}Menu}{11}{subsubsection.5.3.1.1}
-\contentsline {section}{\numberline {5.4}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Motor\discretionary {-}{}{}Control\discretionary {-}{}{}Functions.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{11}{section.5.4}
-\contentsline {subsection}{\numberline {5.4.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{11}{subsection.5.4.1}
-\contentsline {subsubsection}{\numberline {5.4.1.1}servo\discretionary {-}{}{}\_\discretionary {-}{}{}command}{11}{subsubsection.5.4.1.1}
-\contentsline {subsubsection}{\numberline {5.4.1.2}set\discretionary {-}{}{}Jib}{11}{subsubsection.5.4.1.2}
-\contentsline {subsubsection}{\numberline {5.4.1.3}set\discretionary {-}{}{}Main}{11}{subsubsection.5.4.1.3}
-\contentsline {subsubsection}{\numberline {5.4.1.4}setrudder}{11}{subsubsection.5.4.1.4}
-\contentsline {subsubsection}{\numberline {5.4.1.5}set\discretionary {-}{}{}Sails}{11}{subsubsection.5.4.1.5}
-\contentsline {section}{\numberline {5.5}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Navigation\discretionary {-}{}{}Code.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{11}{section.5.5}
-\contentsline {subsection}{\numberline {5.5.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{12}{subsection.5.5.1}
-\contentsline {subsubsection}{\numberline {5.5.1.1}get\discretionary {-}{}{}Close\discretionary {-}{}{}Hauled\discretionary {-}{}{}Dirn}{12}{subsubsection.5.5.1.1}
-\contentsline {subsubsection}{\numberline {5.5.1.2}get\discretionary {-}{}{}Opposite\discretionary {-}{}{}Close\discretionary {-}{}{}Hauled\discretionary {-}{}{}Dirn}{12}{subsubsection.5.5.1.2}
-\contentsline {subsubsection}{\numberline {5.5.1.3}get\discretionary {-}{}{}Waypoint\discretionary {-}{}{}Dirn}{12}{subsubsection.5.5.1.3}
-\contentsline {subsubsection}{\numberline {5.5.1.4}get\discretionary {-}{}{}Wind\discretionary {-}{}{}Dirn}{12}{subsubsection.5.5.1.4}
-\contentsline {subsubsection}{\numberline {5.5.1.5}\discretionary {-}{}{}G\discretionary {-}{}{}P\discretionary {-}{}{}Sdistance}{12}{subsubsection.5.5.1.5}
-\contentsline {section}{\numberline {5.6}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/oldtack.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{12}{section.5.6}
-\contentsline {subsection}{\numberline {5.6.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{12}{subsection.5.6.1}
-\contentsline {subsubsection}{\numberline {5.6.1.1}get\discretionary {-}{}{}Outof\discretionary {-}{}{}Irons\discretionary {-}{}{}Old}{12}{subsubsection.5.6.1.1}
-\contentsline {subsubsection}{\numberline {5.6.1.2}oldtack}{12}{subsubsection.5.6.1.2}
-\contentsline {subsubsection}{\numberline {5.6.1.3}oldtack2}{12}{subsubsection.5.6.1.3}
-\contentsline {section}{\numberline {5.7}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Parsing\discretionary {-}{}{}Functions.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{12}{section.5.7}
-\contentsline {subsection}{\numberline {5.7.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{13}{subsection.5.7.1}
-\contentsline {subsubsection}{\numberline {5.7.1.1}\discretionary {-}{}{}Data\discretionary {-}{}{}Valid}{13}{subsubsection.5.7.1.1}
-\contentsline {subsubsection}{\numberline {5.7.1.2}\discretionary {-}{}{}Parse\discretionary {-}{}{}G\discretionary {-}{}{}P\discretionary {-}{}{}G\discretionary {-}{}{}L\discretionary {-}{}{}L}{13}{subsubsection.5.7.1.2}
-\contentsline {subsubsection}{\numberline {5.7.1.3}\discretionary {-}{}{}Parser}{13}{subsubsection.5.7.1.3}
-\contentsline {section}{\numberline {5.8}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{13}{section.5.8}
-\contentsline {subsection}{\numberline {5.8.1}\discretionary {-}{}{}Define \discretionary {-}{}{}Documentation}{15}{subsection.5.8.1}
-\contentsline {subsubsection}{\numberline {5.8.1.1}\discretionary {-}{}{}A\discretionary {-}{}{}L\discretionary {-}{}{}L\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}I\discretionary {-}{}{}N}{15}{subsubsection.5.8.1.1}
-\contentsline {subsubsection}{\numberline {5.8.1.2}\discretionary {-}{}{}A\discretionary {-}{}{}L\discretionary {-}{}{}L\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}O\discretionary {-}{}{}U\discretionary {-}{}{}T}{15}{subsubsection.5.8.1.2}
-\contentsline {subsubsection}{\numberline {5.8.1.3}bad\discretionary {-}{}{}Compass\discretionary {-}{}{}Data\discretionary {-}{}{}Bit}{15}{subsubsection.5.8.1.3}
-\contentsline {subsubsection}{\numberline {5.8.1.4}bad\discretionary {-}{}{}Gps\discretionary {-}{}{}Data}{15}{subsubsection.5.8.1.4}
-\contentsline {subsubsection}{\numberline {5.8.1.5}bad\discretionary {-}{}{}Wind\discretionary {-}{}{}Data}{15}{subsubsection.5.8.1.5}
-\contentsline {subsubsection}{\numberline {5.8.1.6}\discretionary {-}{}{}B\discretionary {-}{}{}U\discretionary {-}{}{}F\discretionary {-}{}{}F\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}M\discretionary {-}{}{}A\discretionary {-}{}{}X}{15}{subsubsection.5.8.1.6}
-\contentsline {subsubsection}{\numberline {5.8.1.7}checksum\discretionary {-}{}{}Bad\discretionary {-}{}{}Bit}{15}{subsubsection.5.8.1.7}
-\contentsline {subsubsection}{\numberline {5.8.1.8}\discretionary {-}{}{}D\discretionary {-}{}{}E\discretionary {-}{}{}G\discretionary {-}{}{}R\discretionary {-}{}{}E\discretionary {-}{}{}E\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}T\discretionary {-}{}{}O\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}M\discretionary {-}{}{}I\discretionary {-}{}{}N\discretionary {-}{}{}U\discretionary {-}{}{}T\discretionary {-}{}{}E}{15}{subsubsection.5.8.1.8}
-\contentsline {subsubsection}{\numberline {5.8.1.9}\discretionary {-}{}{}L\discretionary {-}{}{}A\discretionary {-}{}{}T\discretionary {-}{}{}I\discretionary {-}{}{}T\discretionary {-}{}{}U\discretionary {-}{}{}D\discretionary {-}{}{}E\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}T\discretionary {-}{}{}O\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}M\discretionary {-}{}{}E\discretionary {-}{}{}T\discretionary {-}{}{}E\discretionary {-}{}{}R}{15}{subsubsection.5.8.1.9}
-\contentsline {subsubsection}{\numberline {5.8.1.10}\discretionary {-}{}{}L\discretionary {-}{}{}O\discretionary {-}{}{}N\discretionary {-}{}{}G\discretionary {-}{}{}E\discretionary {-}{}{}S\discretionary {-}{}{}T\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}N\discretionary {-}{}{}M\discretionary {-}{}{}E\discretionary {-}{}{}A}{15}{subsubsection.5.8.1.10}
-\contentsline {subsubsection}{\numberline {5.8.1.11}\discretionary {-}{}{}L\discretionary {-}{}{}O\discretionary {-}{}{}N\discretionary {-}{}{}G\discretionary {-}{}{}I\discretionary {-}{}{}T\discretionary {-}{}{}U\discretionary {-}{}{}D\discretionary {-}{}{}E\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}T\discretionary {-}{}{}O\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}M\discretionary {-}{}{}E\discretionary {-}{}{}T\discretionary {-}{}{}E\discretionary {-}{}{}R}{15}{subsubsection.5.8.1.11}
-\contentsline {subsubsection}{\numberline {5.8.1.12}\discretionary {-}{}{}M\discretionary {-}{}{}A\discretionary {-}{}{}R\discretionary {-}{}{}K\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}D\discretionary {-}{}{}I\discretionary {-}{}{}S\discretionary {-}{}{}T\discretionary {-}{}{}A\discretionary {-}{}{}N\discretionary {-}{}{}C\discretionary {-}{}{}E}{15}{subsubsection.5.8.1.12}
-\contentsline {subsubsection}{\numberline {5.8.1.13}no\discretionary {-}{}{}Data\discretionary {-}{}{}Bit}{15}{subsubsection.5.8.1.13}
-\contentsline {subsubsection}{\numberline {5.8.1.14}old\discretionary {-}{}{}Data\discretionary {-}{}{}Bit}{15}{subsubsection.5.8.1.14}
-\contentsline {subsubsection}{\numberline {5.8.1.15}reset\discretionary {-}{}{}Pin}{15}{subsubsection.5.8.1.15}
-\contentsline {subsubsection}{\numberline {5.8.1.16}rollover\discretionary {-}{}{}Data\discretionary {-}{}{}Bit}{15}{subsubsection.5.8.1.16}
-\contentsline {subsubsection}{\numberline {5.8.1.17}\discretionary {-}{}{}S\discretionary {-}{}{}H\discretionary {-}{}{}O\discretionary {-}{}{}R\discretionary {-}{}{}T\discretionary {-}{}{}E\discretionary {-}{}{}S\discretionary {-}{}{}T\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}N\discretionary {-}{}{}M\discretionary {-}{}{}E\discretionary {-}{}{}A}{15}{subsubsection.5.8.1.17}
-\contentsline {subsubsection}{\numberline {5.8.1.18}\discretionary {-}{}{}S\discretionary {-}{}{}T\discretionary {-}{}{}A\discretionary {-}{}{}T\discretionary {-}{}{}I\discretionary {-}{}{}O\discretionary {-}{}{}N\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}K\discretionary {-}{}{}E\discretionary {-}{}{}E\discretionary {-}{}{}P\discretionary {-}{}{}I\discretionary {-}{}{}N\discretionary {-}{}{}G\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}R\discretionary {-}{}{}A\discretionary {-}{}{}D\discretionary {-}{}{}I\discretionary {-}{}{}U\discretionary {-}{}{}S}{15}{subsubsection.5.8.1.18}
-\contentsline {subsubsection}{\numberline {5.8.1.19}\discretionary {-}{}{}T\discretionary {-}{}{}A\discretionary {-}{}{}C\discretionary {-}{}{}K\discretionary {-}{}{}I\discretionary {-}{}{}N\discretionary {-}{}{}G\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}A\discretionary {-}{}{}N\discretionary {-}{}{}G\discretionary {-}{}{}L\discretionary {-}{}{}E}{15}{subsubsection.5.8.1.19}
-\contentsline {subsubsection}{\numberline {5.8.1.20}too\discretionary {-}{}{}Much\discretionary {-}{}{}Roll\discretionary {-}{}{}Bit}{15}{subsubsection.5.8.1.20}
-\contentsline {subsubsection}{\numberline {5.8.1.21}two\discretionary {-}{}{}Commas\discretionary {-}{}{}Bit}{15}{subsubsection.5.8.1.21}
-\contentsline {subsubsection}{\numberline {5.8.1.22}tx\discretionary {-}{}{}Pin}{16}{subsubsection.5.8.1.22}
-\contentsline {subsubsection}{\numberline {5.8.1.23}\discretionary {-}{}{}W\discretionary {-}{}{}I\discretionary {-}{}{}N\discretionary {-}{}{}D\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}C\discretionary {-}{}{}H\discretionary {-}{}{}A\discretionary {-}{}{}N\discretionary {-}{}{}G\discretionary {-}{}{}E\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}T\discretionary {-}{}{}H\discretionary {-}{}{}R\discretionary {-}{}{}E\discretionary {-}{}{}S\discretionary {-}{}{}H\discretionary {-}{}{}O\discretionary {-}{}{}L\discretionary {-}{}{}D}{16}{subsubsection.5.8.1.23}
-\contentsline {subsection}{\numberline {5.8.2}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{16}{subsection.5.8.2}
-\contentsline {subsubsection}{\numberline {5.8.2.1}loop}{16}{subsubsection.5.8.2.1}
-\contentsline {subsubsection}{\numberline {5.8.2.2}setup}{16}{subsubsection.5.8.2.2}
-\contentsline {subsection}{\numberline {5.8.3}\discretionary {-}{}{}Variable \discretionary {-}{}{}Documentation}{16}{subsection.5.8.3}
-\contentsline {subsubsection}{\numberline {5.8.3.1}bspeed}{16}{subsubsection.5.8.3.1}
-\contentsline {subsubsection}{\numberline {5.8.3.2}bspeedk}{16}{subsubsection.5.8.3.2}
-\contentsline {subsubsection}{\numberline {5.8.3.3}current\discretionary {-}{}{}Point}{16}{subsubsection.5.8.3.3}
-\contentsline {subsubsection}{\numberline {5.8.3.4}\discretionary {-}{}{}Current\discretionary {-}{}{}Selection}{16}{subsubsection.5.8.3.4}
-\contentsline {subsubsection}{\numberline {5.8.3.5}deviation}{16}{subsubsection.5.8.3.5}
-\contentsline {subsubsection}{\numberline {5.8.3.6}distance\discretionary {-}{}{}Val}{16}{subsubsection.5.8.3.6}
-\contentsline {subsubsection}{\numberline {5.8.3.7}error\discretionary {-}{}{}Code}{16}{subsubsection.5.8.3.7}
-\contentsline {subsubsection}{\numberline {5.8.3.8}extra\discretionary {-}{}{}Compass\discretionary {-}{}{}Data}{16}{subsubsection.5.8.3.8}
-\contentsline {subsubsection}{\numberline {5.8.3.9}extra\discretionary {-}{}{}Compass\discretionary {-}{}{}Data\discretionary {-}{}{}Array}{16}{subsubsection.5.8.3.9}
-\contentsline {subsubsection}{\numberline {5.8.3.10}extra\discretionary {-}{}{}Wind\discretionary {-}{}{}Data}{16}{subsubsection.5.8.3.10}
-\contentsline {subsubsection}{\numberline {5.8.3.11}extra\discretionary {-}{}{}Wind\discretionary {-}{}{}Data\discretionary {-}{}{}Array}{17}{subsubsection.5.8.3.11}
-\contentsline {subsubsection}{\numberline {5.8.3.12}heading}{17}{subsubsection.5.8.3.12}
-\contentsline {subsubsection}{\numberline {5.8.3.13}heading\discretionary {-}{}{}\_\discretionary {-}{}{}newest}{17}{subsubsection.5.8.3.13}
-\contentsline {subsubsection}{\numberline {5.8.3.14}headingc}{17}{subsubsection.5.8.3.14}
-\contentsline {subsubsection}{\numberline {5.8.3.15}heading\discretionary {-}{}{}Val}{17}{subsubsection.5.8.3.15}
-\contentsline {subsubsection}{\numberline {5.8.3.16}iron\discretionary {-}{}{}Time}{17}{subsubsection.5.8.3.16}
-\contentsline {subsubsection}{\numberline {5.8.3.17}jib\discretionary {-}{}{}Val}{17}{subsubsection.5.8.3.17}
-\contentsline {subsubsection}{\numberline {5.8.3.18}main\discretionary {-}{}{}Val}{17}{subsubsection.5.8.3.18}
-\contentsline {subsubsection}{\numberline {5.8.3.19}pitch}{17}{subsubsection.5.8.3.19}
-\contentsline {subsubsection}{\numberline {5.8.3.20}point}{17}{subsubsection.5.8.3.20}
-\contentsline {subsubsection}{\numberline {5.8.3.21}points}{17}{subsubsection.5.8.3.21}
-\contentsline {subsubsection}{\numberline {5.8.3.22}roll}{17}{subsubsection.5.8.3.22}
-\contentsline {subsubsection}{\numberline {5.8.3.23}rudder\discretionary {-}{}{}Dir}{17}{subsubsection.5.8.3.23}
-\contentsline {subsubsection}{\numberline {5.8.3.24}rudder\discretionary {-}{}{}Val}{17}{subsubsection.5.8.3.24}
-\contentsline {subsubsection}{\numberline {5.8.3.25}saved\discretionary {-}{}{}Compass\discretionary {-}{}{}Checksum}{17}{subsubsection.5.8.3.25}
-\contentsline {subsubsection}{\numberline {5.8.3.26}saved\discretionary {-}{}{}Compass\discretionary {-}{}{}Xor\discretionary {-}{}{}State}{17}{subsubsection.5.8.3.26}
-\contentsline {subsubsection}{\numberline {5.8.3.27}saved\discretionary {-}{}{}Wind\discretionary {-}{}{}Checksum}{17}{subsubsection.5.8.3.27}
-\contentsline {subsubsection}{\numberline {5.8.3.28}saved\discretionary {-}{}{}Wind\discretionary {-}{}{}Xor\discretionary {-}{}{}State}{17}{subsubsection.5.8.3.28}
-\contentsline {subsubsection}{\numberline {5.8.3.29}servo\discretionary {-}{}{}\_\discretionary {-}{}{}ser}{17}{subsubsection.5.8.3.29}
-\contentsline {subsubsection}{\numberline {5.8.3.30}start\discretionary {-}{}{}Time}{17}{subsubsection.5.8.3.30}
-\contentsline {subsubsection}{\numberline {5.8.3.31}station\discretionary {-}{}{}Counter}{17}{subsubsection.5.8.3.31}
-\contentsline {subsubsection}{\numberline {5.8.3.32}\discretionary {-}{}{}Station\discretionary {-}{}{}Keeping\discretionary {-}{}{}Time\discretionary {-}{}{}In\discretionary {-}{}{}Box}{17}{subsubsection.5.8.3.32}
-\contentsline {subsubsection}{\numberline {5.8.3.33}\discretionary {-}{}{}Straight\discretionary {-}{}{}Sail\discretionary {-}{}{}Direction}{17}{subsubsection.5.8.3.33}
-\contentsline {subsubsection}{\numberline {5.8.3.34}tacking}{17}{subsubsection.5.8.3.34}
-\contentsline {subsubsection}{\numberline {5.8.3.35}tacking\discretionary {-}{}{}Side}{18}{subsubsection.5.8.3.35}
-\contentsline {subsubsection}{\numberline {5.8.3.36}times\discretionary {-}{}{}Up}{18}{subsubsection.5.8.3.36}
-\contentsline {subsubsection}{\numberline {5.8.3.37}true\discretionary {-}{}{}Wind}{18}{subsubsection.5.8.3.37}
-\contentsline {subsubsection}{\numberline {5.8.3.38}variance}{18}{subsubsection.5.8.3.38}
-\contentsline {subsubsection}{\numberline {5.8.3.39}wind\discretionary {-}{}{}\_\discretionary {-}{}{}angl}{18}{subsubsection.5.8.3.39}
-\contentsline {subsubsection}{\numberline {5.8.3.40}wind\discretionary {-}{}{}\_\discretionary {-}{}{}angl\discretionary {-}{}{}\_\discretionary {-}{}{}newest}{18}{subsubsection.5.8.3.40}
-\contentsline {subsubsection}{\numberline {5.8.3.41}wind\discretionary {-}{}{}\_\discretionary {-}{}{}velocity}{18}{subsubsection.5.8.3.41}
-\contentsline {section}{\numberline {5.9}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Sailing\discretionary {-}{}{}Logic.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{18}{section.5.9}
-\contentsline {subsection}{\numberline {5.9.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{18}{subsection.5.9.1}
-\contentsline {subsubsection}{\numberline {5.9.1.1}check\discretionary {-}{}{}Tack}{18}{subsubsection.5.9.1.1}
-\contentsline {subsubsection}{\numberline {5.9.1.2}rudder\discretionary {-}{}{}Control}{18}{subsubsection.5.9.1.2}
-\contentsline {subsubsection}{\numberline {5.9.1.3}sail}{18}{subsubsection.5.9.1.3}
-\contentsline {subsubsection}{\numberline {5.9.1.4}sail\discretionary {-}{}{}Control}{18}{subsubsection.5.9.1.4}
-\contentsline {subsubsection}{\numberline {5.9.1.5}sail\discretionary {-}{}{}Course}{18}{subsubsection.5.9.1.5}
-\contentsline {subsubsection}{\numberline {5.9.1.6}sail\discretionary {-}{}{}To\discretionary {-}{}{}Waypoint}{18}{subsubsection.5.9.1.6}
-\contentsline {section}{\numberline {5.10}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Station\discretionary {-}{}{}Keeping.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{18}{section.5.10}
-\contentsline {subsection}{\numberline {5.10.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{19}{subsection.5.10.1}
-\contentsline {subsubsection}{\numberline {5.10.1.1}fill\discretionary {-}{}{}Station\discretionary {-}{}{}Keeping\discretionary {-}{}{}Waypoints}{19}{subsubsection.5.10.1.1}
-\contentsline {subsubsection}{\numberline {5.10.1.2}get\discretionary {-}{}{}Station\discretionary {-}{}{}Keeping\discretionary {-}{}{}Centre}{19}{subsubsection.5.10.1.2}
-\contentsline {subsubsection}{\numberline {5.10.1.3}station\discretionary {-}{}{}Keep}{19}{subsubsection.5.10.1.3}
-\contentsline {subsubsection}{\numberline {5.10.1.4}station\discretionary {-}{}{}Keep\discretionary {-}{}{}Single\discretionary {-}{}{}Point}{19}{subsubsection.5.10.1.4}
-\contentsline {section}{\numberline {5.11}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Tack.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{19}{section.5.11}
-\contentsline {subsection}{\numberline {5.11.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{19}{subsection.5.11.1}
-\contentsline {subsubsection}{\numberline {5.11.1.1}get\discretionary {-}{}{}Outof\discretionary {-}{}{}Irons}{19}{subsubsection.5.11.1.1}
-\contentsline {subsubsection}{\numberline {5.11.1.2}tack}{19}{subsubsection.5.11.1.2}
-\contentsline {section}{\numberline {5.12}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Testing\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}Functions.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{19}{section.5.12}
-\contentsline {section}{\numberline {5.13}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Transmit.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{19}{section.5.13}
-\contentsline {subsection}{\numberline {5.13.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{20}{subsection.5.13.1}
-\contentsline {subsubsection}{\numberline {5.13.1.1}relay\discretionary {-}{}{}Data}{20}{subsubsection.5.13.1.1}
-\contentsline {subsubsection}{\numberline {5.13.1.2}transmit}{20}{subsubsection.5.13.1.2}
-\contentsline {section}{\numberline {5.14}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Utilities.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{20}{section.5.14}
-\contentsline {subsection}{\numberline {5.14.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{20}{subsection.5.14.1}
-\contentsline {subsubsection}{\numberline {5.14.1.1}between}{20}{subsubsection.5.14.1.1}
-\contentsline {subsubsection}{\numberline {5.14.1.2}convert\discretionary {-}{}{}A\discretionary {-}{}{}S\discretionary {-}{}{}C\discretionary {-}{}{}I\discretionary {-}{}{}Ito\discretionary {-}{}{}Hex}{20}{subsubsection.5.14.1.2}
-\contentsline {subsubsection}{\numberline {5.14.1.3}degrees\discretionary {-}{}{}To\discretionary {-}{}{}Radians}{20}{subsubsection.5.14.1.3}
-\contentsline {subsubsection}{\numberline {5.14.1.4}radians\discretionary {-}{}{}To\discretionary {-}{}{}Degrees}{20}{subsubsection.5.14.1.4}
+\contentsline {chapter}{\numberline {2}\discretionary {-}{}{}Module \discretionary {-}{}{}Index}{3}{chapter.2}
+\contentsline {section}{\numberline {2.1}\discretionary {-}{}{}Modules}{3}{section.2.1}
+\contentsline {chapter}{\numberline {3}\discretionary {-}{}{}Data \discretionary {-}{}{}Structure \discretionary {-}{}{}Index}{5}{chapter.3}
+\contentsline {section}{\numberline {3.1}\discretionary {-}{}{}Data \discretionary {-}{}{}Structures}{5}{section.3.1}
+\contentsline {chapter}{\numberline {4}\discretionary {-}{}{}File \discretionary {-}{}{}Index}{7}{chapter.4}
+\contentsline {section}{\numberline {4.1}\discretionary {-}{}{}File \discretionary {-}{}{}List}{7}{section.4.1}
+\contentsline {chapter}{\numberline {5}\discretionary {-}{}{}Module \discretionary {-}{}{}Documentation}{9}{chapter.5}
+\contentsline {section}{\numberline {5.1}\discretionary {-}{}{}Globalconstants}{9}{section.5.1}
+\contentsline {subsection}{\numberline {5.1.1}\discretionary {-}{}{}Detailed \discretionary {-}{}{}Description}{10}{subsection.5.1.1}
+\contentsline {subsection}{\numberline {5.1.2}\discretionary {-}{}{}Define \discretionary {-}{}{}Documentation}{10}{subsection.5.1.2}
+\contentsline {subsubsection}{\numberline {5.1.2.1}\discretionary {-}{}{}A\discretionary {-}{}{}L\discretionary {-}{}{}L\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}I\discretionary {-}{}{}N}{10}{subsubsection.5.1.2.1}
+\contentsline {subsubsection}{\numberline {5.1.2.2}\discretionary {-}{}{}A\discretionary {-}{}{}L\discretionary {-}{}{}L\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}O\discretionary {-}{}{}U\discretionary {-}{}{}T}{10}{subsubsection.5.1.2.2}
+\contentsline {subsubsection}{\numberline {5.1.2.3}bad\discretionary {-}{}{}Compass\discretionary {-}{}{}Data\discretionary {-}{}{}Bit}{11}{subsubsection.5.1.2.3}
+\contentsline {subsubsection}{\numberline {5.1.2.4}bad\discretionary {-}{}{}Gps\discretionary {-}{}{}Data}{11}{subsubsection.5.1.2.4}
+\contentsline {subsubsection}{\numberline {5.1.2.5}bad\discretionary {-}{}{}Wind\discretionary {-}{}{}Data}{11}{subsubsection.5.1.2.5}
+\contentsline {subsubsection}{\numberline {5.1.2.6}\discretionary {-}{}{}B\discretionary {-}{}{}U\discretionary {-}{}{}F\discretionary {-}{}{}F\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}M\discretionary {-}{}{}A\discretionary {-}{}{}X}{11}{subsubsection.5.1.2.6}
+\contentsline {subsubsection}{\numberline {5.1.2.7}checksum\discretionary {-}{}{}Bad\discretionary {-}{}{}Bit}{11}{subsubsection.5.1.2.7}
+\contentsline {subsubsection}{\numberline {5.1.2.8}\discretionary {-}{}{}D\discretionary {-}{}{}E\discretionary {-}{}{}G\discretionary {-}{}{}R\discretionary {-}{}{}E\discretionary {-}{}{}E\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}T\discretionary {-}{}{}O\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}M\discretionary {-}{}{}I\discretionary {-}{}{}N\discretionary {-}{}{}U\discretionary {-}{}{}T\discretionary {-}{}{}E}{11}{subsubsection.5.1.2.8}
+\contentsline {subsubsection}{\numberline {5.1.2.9}\discretionary {-}{}{}L\discretionary {-}{}{}A\discretionary {-}{}{}T\discretionary {-}{}{}I\discretionary {-}{}{}T\discretionary {-}{}{}U\discretionary {-}{}{}D\discretionary {-}{}{}E\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}T\discretionary {-}{}{}O\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}M\discretionary {-}{}{}E\discretionary {-}{}{}T\discretionary {-}{}{}E\discretionary {-}{}{}R}{11}{subsubsection.5.1.2.9}
+\contentsline {subsubsection}{\numberline {5.1.2.10}\discretionary {-}{}{}L\discretionary {-}{}{}O\discretionary {-}{}{}N\discretionary {-}{}{}G\discretionary {-}{}{}E\discretionary {-}{}{}S\discretionary {-}{}{}T\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}N\discretionary {-}{}{}M\discretionary {-}{}{}E\discretionary {-}{}{}A}{12}{subsubsection.5.1.2.10}
+\contentsline {subsubsection}{\numberline {5.1.2.11}\discretionary {-}{}{}L\discretionary {-}{}{}O\discretionary {-}{}{}N\discretionary {-}{}{}G\discretionary {-}{}{}I\discretionary {-}{}{}T\discretionary {-}{}{}U\discretionary {-}{}{}D\discretionary {-}{}{}E\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}T\discretionary {-}{}{}O\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}M\discretionary {-}{}{}E\discretionary {-}{}{}T\discretionary {-}{}{}E\discretionary {-}{}{}R}{12}{subsubsection.5.1.2.11}
+\contentsline {subsubsection}{\numberline {5.1.2.12}\discretionary {-}{}{}M\discretionary {-}{}{}A\discretionary {-}{}{}R\discretionary {-}{}{}K\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}D\discretionary {-}{}{}I\discretionary {-}{}{}S\discretionary {-}{}{}T\discretionary {-}{}{}A\discretionary {-}{}{}N\discretionary {-}{}{}C\discretionary {-}{}{}E}{12}{subsubsection.5.1.2.12}
+\contentsline {subsubsection}{\numberline {5.1.2.13}no\discretionary {-}{}{}Data\discretionary {-}{}{}Bit}{12}{subsubsection.5.1.2.13}
+\contentsline {subsubsection}{\numberline {5.1.2.14}old\discretionary {-}{}{}Data\discretionary {-}{}{}Bit}{12}{subsubsection.5.1.2.14}
+\contentsline {subsubsection}{\numberline {5.1.2.15}reset\discretionary {-}{}{}Pin}{12}{subsubsection.5.1.2.15}
+\contentsline {subsubsection}{\numberline {5.1.2.16}rollover\discretionary {-}{}{}Data\discretionary {-}{}{}Bit}{12}{subsubsection.5.1.2.16}
+\contentsline {subsubsection}{\numberline {5.1.2.17}\discretionary {-}{}{}S\discretionary {-}{}{}H\discretionary {-}{}{}O\discretionary {-}{}{}R\discretionary {-}{}{}T\discretionary {-}{}{}E\discretionary {-}{}{}S\discretionary {-}{}{}T\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}N\discretionary {-}{}{}M\discretionary {-}{}{}E\discretionary {-}{}{}A}{12}{subsubsection.5.1.2.17}
+\contentsline {subsubsection}{\numberline {5.1.2.18}\discretionary {-}{}{}S\discretionary {-}{}{}T\discretionary {-}{}{}A\discretionary {-}{}{}T\discretionary {-}{}{}I\discretionary {-}{}{}O\discretionary {-}{}{}N\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}K\discretionary {-}{}{}E\discretionary {-}{}{}E\discretionary {-}{}{}P\discretionary {-}{}{}I\discretionary {-}{}{}N\discretionary {-}{}{}G\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}R\discretionary {-}{}{}A\discretionary {-}{}{}D\discretionary {-}{}{}I\discretionary {-}{}{}U\discretionary {-}{}{}S}{13}{subsubsection.5.1.2.18}
+\contentsline {subsubsection}{\numberline {5.1.2.19}\discretionary {-}{}{}T\discretionary {-}{}{}A\discretionary {-}{}{}C\discretionary {-}{}{}K\discretionary {-}{}{}I\discretionary {-}{}{}N\discretionary {-}{}{}G\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}A\discretionary {-}{}{}N\discretionary {-}{}{}G\discretionary {-}{}{}L\discretionary {-}{}{}E}{13}{subsubsection.5.1.2.19}
+\contentsline {subsubsection}{\numberline {5.1.2.20}too\discretionary {-}{}{}Much\discretionary {-}{}{}Roll\discretionary {-}{}{}Bit}{13}{subsubsection.5.1.2.20}
+\contentsline {subsubsection}{\numberline {5.1.2.21}two\discretionary {-}{}{}Commas\discretionary {-}{}{}Bit}{13}{subsubsection.5.1.2.21}
+\contentsline {subsubsection}{\numberline {5.1.2.22}tx\discretionary {-}{}{}Pin}{13}{subsubsection.5.1.2.22}
+\contentsline {subsubsection}{\numberline {5.1.2.23}\discretionary {-}{}{}W\discretionary {-}{}{}I\discretionary {-}{}{}N\discretionary {-}{}{}D\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}C\discretionary {-}{}{}H\discretionary {-}{}{}A\discretionary {-}{}{}N\discretionary {-}{}{}G\discretionary {-}{}{}E\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}T\discretionary {-}{}{}H\discretionary {-}{}{}R\discretionary {-}{}{}E\discretionary {-}{}{}S\discretionary {-}{}{}H\discretionary {-}{}{}O\discretionary {-}{}{}L\discretionary {-}{}{}D}{13}{subsubsection.5.1.2.23}
+\contentsline {section}{\numberline {5.2}\discretionary {-}{}{}Serial\discretionary {-}{}{}Data}{14}{section.5.2}
+\contentsline {subsection}{\numberline {5.2.1}\discretionary {-}{}{}Detailed \discretionary {-}{}{}Description}{15}{subsection.5.2.1}
+\contentsline {subsection}{\numberline {5.2.2}\discretionary {-}{}{}Variable \discretionary {-}{}{}Documentation}{16}{subsection.5.2.2}
+\contentsline {subsubsection}{\numberline {5.2.2.1}bspeed}{16}{subsubsection.5.2.2.1}
+\contentsline {subsubsection}{\numberline {5.2.2.2}bspeedk}{16}{subsubsection.5.2.2.2}
+\contentsline {subsubsection}{\numberline {5.2.2.3}current\discretionary {-}{}{}Point}{16}{subsubsection.5.2.2.3}
+\contentsline {subsubsection}{\numberline {5.2.2.4}\discretionary {-}{}{}Current\discretionary {-}{}{}Selection}{16}{subsubsection.5.2.2.4}
+\contentsline {subsubsection}{\numberline {5.2.2.5}deviation}{16}{subsubsection.5.2.2.5}
+\contentsline {subsubsection}{\numberline {5.2.2.6}distance\discretionary {-}{}{}Val}{16}{subsubsection.5.2.2.6}
+\contentsline {subsubsection}{\numberline {5.2.2.7}error\discretionary {-}{}{}Code}{16}{subsubsection.5.2.2.7}
+\contentsline {subsubsection}{\numberline {5.2.2.8}extra\discretionary {-}{}{}Compass\discretionary {-}{}{}Data}{16}{subsubsection.5.2.2.8}
+\contentsline {subsubsection}{\numberline {5.2.2.9}extra\discretionary {-}{}{}Compass\discretionary {-}{}{}Data\discretionary {-}{}{}Array}{17}{subsubsection.5.2.2.9}
+\contentsline {subsubsection}{\numberline {5.2.2.10}extra\discretionary {-}{}{}Wind\discretionary {-}{}{}Data}{17}{subsubsection.5.2.2.10}
+\contentsline {subsubsection}{\numberline {5.2.2.11}extra\discretionary {-}{}{}Wind\discretionary {-}{}{}Data\discretionary {-}{}{}Array}{17}{subsubsection.5.2.2.11}
+\contentsline {subsubsection}{\numberline {5.2.2.12}heading}{17}{subsubsection.5.2.2.12}
+\contentsline {subsubsection}{\numberline {5.2.2.13}heading\discretionary {-}{}{}\_\discretionary {-}{}{}newest}{17}{subsubsection.5.2.2.13}
+\contentsline {subsubsection}{\numberline {5.2.2.14}headingc}{17}{subsubsection.5.2.2.14}
+\contentsline {subsubsection}{\numberline {5.2.2.15}heading\discretionary {-}{}{}Val}{17}{subsubsection.5.2.2.15}
+\contentsline {subsubsection}{\numberline {5.2.2.16}iron\discretionary {-}{}{}Time}{17}{subsubsection.5.2.2.16}
+\contentsline {subsubsection}{\numberline {5.2.2.17}jib\discretionary {-}{}{}Val}{18}{subsubsection.5.2.2.17}
+\contentsline {subsubsection}{\numberline {5.2.2.18}main\discretionary {-}{}{}Val}{18}{subsubsection.5.2.2.18}
+\contentsline {subsubsection}{\numberline {5.2.2.19}pitch}{18}{subsubsection.5.2.2.19}
+\contentsline {subsubsection}{\numberline {5.2.2.20}point}{18}{subsubsection.5.2.2.20}
+\contentsline {subsubsection}{\numberline {5.2.2.21}points}{18}{subsubsection.5.2.2.21}
+\contentsline {subsubsection}{\numberline {5.2.2.22}roll}{18}{subsubsection.5.2.2.22}
+\contentsline {subsubsection}{\numberline {5.2.2.23}rudder\discretionary {-}{}{}Dir}{18}{subsubsection.5.2.2.23}
+\contentsline {subsubsection}{\numberline {5.2.2.24}rudder\discretionary {-}{}{}Val}{18}{subsubsection.5.2.2.24}
+\contentsline {subsubsection}{\numberline {5.2.2.25}saved\discretionary {-}{}{}Compass\discretionary {-}{}{}Checksum}{19}{subsubsection.5.2.2.25}
+\contentsline {subsubsection}{\numberline {5.2.2.26}saved\discretionary {-}{}{}Compass\discretionary {-}{}{}Xor\discretionary {-}{}{}State}{19}{subsubsection.5.2.2.26}
+\contentsline {subsubsection}{\numberline {5.2.2.27}saved\discretionary {-}{}{}Wind\discretionary {-}{}{}Checksum}{19}{subsubsection.5.2.2.27}
+\contentsline {subsubsection}{\numberline {5.2.2.28}saved\discretionary {-}{}{}Wind\discretionary {-}{}{}Xor\discretionary {-}{}{}State}{19}{subsubsection.5.2.2.28}
+\contentsline {subsubsection}{\numberline {5.2.2.29}servo\discretionary {-}{}{}\_\discretionary {-}{}{}ser}{19}{subsubsection.5.2.2.29}
+\contentsline {subsubsection}{\numberline {5.2.2.30}start\discretionary {-}{}{}Time}{19}{subsubsection.5.2.2.30}
+\contentsline {subsubsection}{\numberline {5.2.2.31}station\discretionary {-}{}{}Counter}{19}{subsubsection.5.2.2.31}
+\contentsline {subsubsection}{\numberline {5.2.2.32}\discretionary {-}{}{}Station\discretionary {-}{}{}Keeping\discretionary {-}{}{}Time\discretionary {-}{}{}In\discretionary {-}{}{}Box}{19}{subsubsection.5.2.2.32}
+\contentsline {subsubsection}{\numberline {5.2.2.33}\discretionary {-}{}{}Straight\discretionary {-}{}{}Sail\discretionary {-}{}{}Direction}{19}{subsubsection.5.2.2.33}
+\contentsline {subsubsection}{\numberline {5.2.2.34}tacking}{20}{subsubsection.5.2.2.34}
+\contentsline {subsubsection}{\numberline {5.2.2.35}tacking\discretionary {-}{}{}Side}{20}{subsubsection.5.2.2.35}
+\contentsline {subsubsection}{\numberline {5.2.2.36}times\discretionary {-}{}{}Up}{20}{subsubsection.5.2.2.36}
+\contentsline {subsubsection}{\numberline {5.2.2.37}true\discretionary {-}{}{}Wind}{20}{subsubsection.5.2.2.37}
+\contentsline {subsubsection}{\numberline {5.2.2.38}variance}{20}{subsubsection.5.2.2.38}
+\contentsline {subsubsection}{\numberline {5.2.2.39}wind\discretionary {-}{}{}\_\discretionary {-}{}{}angl}{20}{subsubsection.5.2.2.39}
+\contentsline {subsubsection}{\numberline {5.2.2.40}wind\discretionary {-}{}{}\_\discretionary {-}{}{}angl\discretionary {-}{}{}\_\discretionary {-}{}{}newest}{20}{subsubsection.5.2.2.40}
+\contentsline {subsubsection}{\numberline {5.2.2.41}wind\discretionary {-}{}{}\_\discretionary {-}{}{}velocity}{20}{subsubsection.5.2.2.41}
+\contentsline {chapter}{\numberline {6}\discretionary {-}{}{}Data \discretionary {-}{}{}Structure \discretionary {-}{}{}Documentation}{21}{chapter.6}
+\contentsline {section}{\numberline {6.1}points \discretionary {-}{}{}Struct \discretionary {-}{}{}Reference}{21}{section.6.1}
+\contentsline {subsection}{\numberline {6.1.1}\discretionary {-}{}{}Detailed \discretionary {-}{}{}Description}{21}{subsection.6.1.1}
+\contentsline {subsection}{\numberline {6.1.2}\discretionary {-}{}{}Field \discretionary {-}{}{}Documentation}{21}{subsection.6.1.2}
+\contentsline {subsubsection}{\numberline {6.1.2.1}lat\discretionary {-}{}{}Deg}{21}{subsubsection.6.1.2.1}
+\contentsline {subsubsection}{\numberline {6.1.2.2}lat\discretionary {-}{}{}Min}{21}{subsubsection.6.1.2.2}
+\contentsline {subsubsection}{\numberline {6.1.2.3}lon\discretionary {-}{}{}Deg}{21}{subsubsection.6.1.2.3}
+\contentsline {subsubsection}{\numberline {6.1.2.4}lon\discretionary {-}{}{}Min}{22}{subsubsection.6.1.2.4}
+\contentsline {chapter}{\numberline {7}\discretionary {-}{}{}File \discretionary {-}{}{}Documentation}{23}{chapter.7}
+\contentsline {section}{\numberline {7.1}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Data\discretionary {-}{}{}Acquisition.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{23}{section.7.1}
+\contentsline {subsection}{\numberline {7.1.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{23}{subsection.7.1.1}
+\contentsline {subsubsection}{\numberline {7.1.1.1}check\discretionary {-}{}{}Error\discretionary {-}{}{}Bit}{23}{subsubsection.7.1.1.1}
+\contentsline {subsubsection}{\numberline {7.1.1.2}clear\discretionary {-}{}{}Error\discretionary {-}{}{}Bit}{23}{subsubsection.7.1.1.2}
+\contentsline {subsubsection}{\numberline {7.1.1.3}sensor\discretionary {-}{}{}Data}{24}{subsubsection.7.1.1.3}
+\contentsline {subsubsection}{\numberline {7.1.1.4}set\discretionary {-}{}{}Error\discretionary {-}{}{}Bit}{25}{subsubsection.7.1.1.4}
+\contentsline {section}{\numberline {7.2}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Location\discretionary {-}{}{}Struct.h \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{26}{section.7.2}
+\contentsline {subsection}{\numberline {7.2.1}\discretionary {-}{}{}Variable \discretionary {-}{}{}Documentation}{26}{subsection.7.2.1}
+\contentsline {subsubsection}{\numberline {7.2.1.1}boat\discretionary {-}{}{}Location}{26}{subsubsection.7.2.1.1}
+\contentsline {subsubsection}{\numberline {7.2.1.2}clear\discretionary {-}{}{}Points}{26}{subsubsection.7.2.1.2}
+\contentsline {subsubsection}{\numberline {7.2.1.3}course\discretionary {-}{}{}Points}{27}{subsubsection.7.2.1.3}
+\contentsline {subsubsection}{\numberline {7.2.1.4}floating\discretionary {-}{}{}Station\discretionary {-}{}{}Points}{27}{subsubsection.7.2.1.4}
+\contentsline {subsubsection}{\numberline {7.2.1.5}station\discretionary {-}{}{}Points}{27}{subsubsection.7.2.1.5}
+\contentsline {subsubsection}{\numberline {7.2.1.6}stay\discretionary {-}{}{}Point}{27}{subsubsection.7.2.1.6}
+\contentsline {subsubsection}{\numberline {7.2.1.7}waypoints}{27}{subsubsection.7.2.1.7}
+\contentsline {section}{\numberline {7.3}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Menu.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{27}{section.7.3}
+\contentsline {subsection}{\numberline {7.3.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{28}{subsection.7.3.1}
+\contentsline {subsubsection}{\numberline {7.3.1.1}display\discretionary {-}{}{}Menu}{28}{subsubsection.7.3.1.1}
+\contentsline {section}{\numberline {7.4}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Motor\discretionary {-}{}{}Control\discretionary {-}{}{}Functions.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{28}{section.7.4}
+\contentsline {subsection}{\numberline {7.4.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{29}{subsection.7.4.1}
+\contentsline {subsubsection}{\numberline {7.4.1.1}servo\discretionary {-}{}{}\_\discretionary {-}{}{}command}{29}{subsubsection.7.4.1.1}
+\contentsline {subsubsection}{\numberline {7.4.1.2}set\discretionary {-}{}{}Jib}{29}{subsubsection.7.4.1.2}
+\contentsline {subsubsection}{\numberline {7.4.1.3}set\discretionary {-}{}{}Main}{30}{subsubsection.7.4.1.3}
+\contentsline {subsubsection}{\numberline {7.4.1.4}setrudder}{31}{subsubsection.7.4.1.4}
+\contentsline {subsubsection}{\numberline {7.4.1.5}set\discretionary {-}{}{}Sails}{32}{subsubsection.7.4.1.5}
+\contentsline {section}{\numberline {7.5}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Navigation\discretionary {-}{}{}Code.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{33}{section.7.5}
+\contentsline {subsection}{\numberline {7.5.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{33}{subsection.7.5.1}
+\contentsline {subsubsection}{\numberline {7.5.1.1}get\discretionary {-}{}{}Close\discretionary {-}{}{}Hauled\discretionary {-}{}{}Dirn}{33}{subsubsection.7.5.1.1}
+\contentsline {subsubsection}{\numberline {7.5.1.2}get\discretionary {-}{}{}Opposite\discretionary {-}{}{}Close\discretionary {-}{}{}Hauled\discretionary {-}{}{}Dirn}{34}{subsubsection.7.5.1.2}
+\contentsline {subsubsection}{\numberline {7.5.1.3}get\discretionary {-}{}{}Waypoint\discretionary {-}{}{}Dirn}{34}{subsubsection.7.5.1.3}
+\contentsline {subsubsection}{\numberline {7.5.1.4}get\discretionary {-}{}{}Wind\discretionary {-}{}{}Dirn}{35}{subsubsection.7.5.1.4}
+\contentsline {subsubsection}{\numberline {7.5.1.5}\discretionary {-}{}{}G\discretionary {-}{}{}P\discretionary {-}{}{}Sdistance}{36}{subsubsection.7.5.1.5}
+\contentsline {section}{\numberline {7.6}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/oldtack.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{36}{section.7.6}
+\contentsline {subsection}{\numberline {7.6.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{36}{subsection.7.6.1}
+\contentsline {subsubsection}{\numberline {7.6.1.1}get\discretionary {-}{}{}Outof\discretionary {-}{}{}Irons\discretionary {-}{}{}Old}{36}{subsubsection.7.6.1.1}
+\contentsline {subsubsection}{\numberline {7.6.1.2}oldtack}{37}{subsubsection.7.6.1.2}
+\contentsline {subsubsection}{\numberline {7.6.1.3}oldtack2}{38}{subsubsection.7.6.1.3}
+\contentsline {section}{\numberline {7.7}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Parsing\discretionary {-}{}{}Functions.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{39}{section.7.7}
+\contentsline {subsection}{\numberline {7.7.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{39}{subsection.7.7.1}
+\contentsline {subsubsection}{\numberline {7.7.1.1}\discretionary {-}{}{}Data\discretionary {-}{}{}Valid}{39}{subsubsection.7.7.1.1}
+\contentsline {subsubsection}{\numberline {7.7.1.2}\discretionary {-}{}{}Parse\discretionary {-}{}{}G\discretionary {-}{}{}P\discretionary {-}{}{}G\discretionary {-}{}{}L\discretionary {-}{}{}L}{40}{subsubsection.7.7.1.2}
+\contentsline {subsubsection}{\numberline {7.7.1.3}\discretionary {-}{}{}Parser}{40}{subsubsection.7.7.1.3}
+\contentsline {section}{\numberline {7.8}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{41}{section.7.8}
+\contentsline {subsection}{\numberline {7.8.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{45}{subsection.7.8.1}
+\contentsline {subsubsection}{\numberline {7.8.1.1}loop}{45}{subsubsection.7.8.1.1}
+\contentsline {subsubsection}{\numberline {7.8.1.2}setup}{46}{subsubsection.7.8.1.2}
+\contentsline {section}{\numberline {7.9}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Sailing\discretionary {-}{}{}Logic.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{47}{section.7.9}
+\contentsline {subsection}{\numberline {7.9.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{47}{subsection.7.9.1}
+\contentsline {subsubsection}{\numberline {7.9.1.1}check\discretionary {-}{}{}Tack}{47}{subsubsection.7.9.1.1}
+\contentsline {subsubsection}{\numberline {7.9.1.2}rudder\discretionary {-}{}{}Control}{48}{subsubsection.7.9.1.2}
+\contentsline {subsubsection}{\numberline {7.9.1.3}sail}{49}{subsubsection.7.9.1.3}
+\contentsline {subsubsection}{\numberline {7.9.1.4}sail\discretionary {-}{}{}Control}{51}{subsubsection.7.9.1.4}
+\contentsline {subsubsection}{\numberline {7.9.1.5}sail\discretionary {-}{}{}Course}{51}{subsubsection.7.9.1.5}
+\contentsline {subsubsection}{\numberline {7.9.1.6}sail\discretionary {-}{}{}To\discretionary {-}{}{}Waypoint}{52}{subsubsection.7.9.1.6}
+\contentsline {section}{\numberline {7.10}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Station\discretionary {-}{}{}Keeping.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{54}{section.7.10}
+\contentsline {subsection}{\numberline {7.10.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{54}{subsection.7.10.1}
+\contentsline {subsubsection}{\numberline {7.10.1.1}fill\discretionary {-}{}{}Station\discretionary {-}{}{}Keeping\discretionary {-}{}{}Waypoints}{54}{subsubsection.7.10.1.1}
+\contentsline {subsubsection}{\numberline {7.10.1.2}get\discretionary {-}{}{}Station\discretionary {-}{}{}Keeping\discretionary {-}{}{}Centre}{54}{subsubsection.7.10.1.2}
+\contentsline {subsubsection}{\numberline {7.10.1.3}station\discretionary {-}{}{}Keep}{55}{subsubsection.7.10.1.3}
+\contentsline {subsubsection}{\numberline {7.10.1.4}station\discretionary {-}{}{}Keep\discretionary {-}{}{}Single\discretionary {-}{}{}Point}{55}{subsubsection.7.10.1.4}
+\contentsline {section}{\numberline {7.11}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Tack.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{56}{section.7.11}
+\contentsline {subsection}{\numberline {7.11.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{56}{subsection.7.11.1}
+\contentsline {subsubsection}{\numberline {7.11.1.1}get\discretionary {-}{}{}Outof\discretionary {-}{}{}Irons}{56}{subsubsection.7.11.1.1}
+\contentsline {subsubsection}{\numberline {7.11.1.2}tack}{57}{subsubsection.7.11.1.2}
+\contentsline {section}{\numberline {7.12}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Testing\discretionary {-}{}{}\_\discretionary {-}{}{}\discretionary {-}{}{}Functions.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{58}{section.7.12}
+\contentsline {section}{\numberline {7.13}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Transmit.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{58}{section.7.13}
+\contentsline {subsection}{\numberline {7.13.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{59}{subsection.7.13.1}
+\contentsline {subsubsection}{\numberline {7.13.1.1}relay\discretionary {-}{}{}Data}{59}{subsubsection.7.13.1.1}
+\contentsline {subsubsection}{\numberline {7.13.1.2}transmit}{59}{subsubsection.7.13.1.2}
+\contentsline {section}{\numberline {7.14}/\discretionary {-}{}{}Users/allgood38/\discretionary {-}{}{}Desktop/qmast/sailcode\discretionary {-}{}{}\_\discretionary {-}{}{}alpha6/\discretionary {-}{}{}Utilities.pde \discretionary {-}{}{}File \discretionary {-}{}{}Reference}{59}{section.7.14}
+\contentsline {subsection}{\numberline {7.14.1}\discretionary {-}{}{}Function \discretionary {-}{}{}Documentation}{60}{subsection.7.14.1}
+\contentsline {subsubsection}{\numberline {7.14.1.1}between}{60}{subsubsection.7.14.1.1}
+\contentsline {subsubsection}{\numberline {7.14.1.2}convert\discretionary {-}{}{}A\discretionary {-}{}{}S\discretionary {-}{}{}C\discretionary {-}{}{}I\discretionary {-}{}{}Ito\discretionary {-}{}{}Hex}{60}{subsubsection.7.14.1.2}
+\contentsline {subsubsection}{\numberline {7.14.1.3}degrees\discretionary {-}{}{}To\discretionary {-}{}{}Radians}{61}{subsubsection.7.14.1.3}
+\contentsline {subsubsection}{\numberline {7.14.1.4}radians\discretionary {-}{}{}To\discretionary {-}{}{}Degrees}{61}{subsubsection.7.14.1.4}
