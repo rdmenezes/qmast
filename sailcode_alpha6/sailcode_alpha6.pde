@@ -30,8 +30,8 @@
 // sailcode
 
 // All bearing calculations in this code assume that the compass returns True North
-// readings. ie it is adjusted for declination. If this is not true: adjust for 
-// declination in the Parse() function, as compass data is decoded add or subtract 
+// readings. ie it is adjusted for declination. If this is not true: adjust for
+// declination in the Parse() function, as compass data is decoded add or subtract
 // the declination
 
 #include "LocationStruct.h"
@@ -56,57 +56,57 @@
 #define TACKING_ANGLE 40 //the highest angle we can point
 
 /** @brief Course Navigation constants */
-#define MARK_DISTANCE 4 
-// the distance we have to be to a mark before moving to the next one, in meters 
+#define MARK_DISTANCE 4
+// the distance we have to be to a mark before moving to the next one, in meters
 
 /** @brief Station keeping navigation constants */
-#define STATION_KEEPING_RADIUS 15 
-// The radius we want to stay around the centre-point of the station-keeping course; 
+#define STATION_KEEPING_RADIUS 15
+// The radius we want to stay around the centre-point of the station-keeping course;
 // full width is 40 meters
 
-#define WIND_CHANGE_THRESHOLD 10 
-// the angle in degrees that the wind is allowed to shift by before we recalculate 
+#define WIND_CHANGE_THRESHOLD 10
+// the angle in degrees that the wind is allowed to shift by before we recalculate
 // the waypoint locations (to avoid tacking)
 
 /** @brief serial data constants */
-#define BUFF_MAX 511 
-// serial buffer length, set in HardwareSerial.cpp in 
+#define BUFF_MAX 511
+// serial buffer length, set in HardwareSerial.cpp in
 // arduino0022/hardware/arduino/cores/arduino
 
 /** @brief Calculation constantes */
-#define DEGREE_TO_MINUTE 60 	
- /** 
- * There are (approximately) 1855 meters in a minute of latitude everywhere; 
- * This isn't true for longitude, as it depends on the latitude. There are 
- * approximately 1314 m in a minute of longitude at 45 degrees north (Kingston); 
- * this difference will mean that if we just use deltax over deltay in minutes to 
- * find an angle it will be wrong
- * 
- * there are 60 minutes in one degree
- */
-#define LATITUDE_TO_METER 1855 
+#define DEGREE_TO_MINUTE 60
+/**
+* There are (approximately) 1855 meters in a minute of latitude everywhere;
+* This isn't true for longitude, as it depends on the latitude. There are
+* approximately 1314 m in a minute of longitude at 45 degrees north (Kingston);
+* this difference will mean that if we just use deltax over deltay in minutes to
+* find an angle it will be wrong
+*
+* there are 60 minutes in one degree
+*/
+#define LATITUDE_TO_METER 1855
 #define LONGITUDE_TO_METER 1314 // For Kingston; change for Annapolis 1314 was Kingston value
 
 // Error bit constants
 /** @brief no data, error error bit */
-#define noDataBit  0 
+#define noDataBit  0
 /** @brief there is data, but buffer is full, error bit */
-#define oldDataBit 1 
+#define oldDataBit 1
 /** @brief  indicates checksum fail on data */
-#define checksumBadBit 2 
+#define checksumBadBit 2
 /** @brief indicates that there were two commas in the data, and it has been discarded
  * and not parsed */
-#define twoCommasBit 3 
+#define twoCommasBit 3
 /** @brief Indicates data rolled over, not fast enough */
-#define rolloverDataBit 4 
+#define rolloverDataBit 4
 /** @brief indicates that strtok did not return PTNTHTM, so we probably got bad data */
-#define badCompassDataBit 5 
+#define badCompassDataBit 5
 /** @brief indicates the boat is falling over */
-#define tooMuchRollBit 6    
+#define tooMuchRollBit 6
 /** @brief indicates an error from the wind sensor */
-#define badWindData 7    
+#define badWindData 7
 /** @brief indicates error in gps data */
-#define badGpsData 8    
+#define badGpsData 8
 
 // Sail control constants
 /** @brief Constant which defines when the boat is "All In" */
@@ -116,11 +116,11 @@
 
 // Pololu pins
 /** @brief Pololu reset (digital pin on arduino) */
-#define resetPin 8 
+#define resetPin 8
 /** @brief Pololu serial pin (with SoftwareSerial library) */
-#define txPin 9 
+#define txPin 9
 
-// For serial data acquisition 
+// For serial data acquisition
 /** @brief The shortest possible NMEA String */
 #define SHORTEST_NMEA 5
 /** @brief The longest possible NMEA String */
@@ -128,7 +128,7 @@
 
 /** @} */
 
-/** @warning When testing by sending strings through the serial monitor, you need to select 
+/** @warning When testing by sending strings through the serial monitor, you need to select
  * "newline" ending from the dropdown beside the baud
  */
 
@@ -139,8 +139,8 @@
  * @{
  */
 /** Contains extra data from the Wind Sensor.
- * @warning 'clear' the extra global data buffer, because 
- * any data wrapping around will be destroyed by clearing the buffer 
+ * @warning 'clear' the extra global data buffer, because
+ * any data wrapping around will be destroyed by clearing the buffer
  */
 int extraWindData                                   = 0;
 int extraCompassData                                = 0;
@@ -150,8 +150,8 @@ int savedWindChecksum                               = 0;
 int savedWindXorState                               = 0;
 int savedCompassChecksum                            = 0;
 int savedCompassXorState                            = 0;
- /** @brief  a buffer to store roll-over data in case this data is fetched mid-line */
-char extraWindDataArray[LONGEST_NMEA]; 
+/** @brief  a buffer to store roll-over data in case this data is fetched mid-line */
+char extraWindDataArray[LONGEST_NMEA];
 char extraCompassDataArray[LONGEST_NMEA];
 
 //Sensor data
@@ -183,7 +183,7 @@ float heading_newest;   ///< heading relative to true north
 float wind_angl_newest; ///< wind angle, (relative to boat)
 
 /** Pololu for connecting via a nonbuffered serial port to pololu -output only. */
-SoftwareSerial servo_ser = SoftwareSerial(7, txPin);  
+SoftwareSerial servo_ser = SoftwareSerial(7, txPin);
 
 int rudderDir = -1;   ///< global for reversing rudder if we are parking lot testing
 int points;           ///< max waypoints selected for travel
@@ -199,7 +199,7 @@ long startTime;     //!< station-keeping global
 int stationCounter; //!< station-keeping global
 boolean timesUp;    //!< station-keeping global
 
-/** The amount of time the boat should stay in the box before leaving (in millis). 
+/** The amount of time the boat should stay in the box before leaving (in millis).
  * To be adjusted based on intuition day of
  */
 int StationKeepingTimeInBox = 270000;
@@ -234,7 +234,7 @@ void setup() {
     pinMode(txPin, OUTPUT);
     pinMode(resetPin, OUTPUT);
 
-	// initiate servo instance
+    // initiate servo instance
     servo_ser.begin(4800);
 
     delay(2000);
@@ -250,13 +250,13 @@ void setup() {
     delay(10);
 
     // Initialize all counters/variables and current position from sensors
-	// ---------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------
     boatLocation = clearPoints;    // sets initial location of the boat to 0;
 
     // Heading angle using wind sensor
-	// See global declaration for explanation
+    // See global declaration for explanation
     heading = 0;
-    deviation = 0; 
+    deviation = 0;
     variance = 0;
 
     //Boat's speed
@@ -267,7 +267,7 @@ void setup() {
     wind_angl = 0;        // wind angle, (relative to boat)
     wind_velocity = 0;    // wind velocity in knots
 
-	// Compass data
+    // Compass data
     headingc = 0;         // heading relative to true north
     pitch = 0;            // pitch relative to ??
     roll = 0;             // roll relative to ??
@@ -277,25 +277,25 @@ void setup() {
     wind_angl_newest = 0; // wind angle relative to boat
 
     // Compass setup code
-	// ---------------------------------------------------------------------------
-	// Give everything some time to set up, especially the serial buffers
-    delay(1000); 
-	
-	// request a data sample from the compass for heading/tilt/etc, and give it 
-	// time to get it
-    Serial2.println("$PTNT,HTM*63"); 
+    // ---------------------------------------------------------------------------
+    // Give everything some time to set up, especially the serial buffers
+    delay(1000);
+
+    // request a data sample from the compass for heading/tilt/etc, and give it
+    // time to get it
+    Serial2.println("$PTNT,HTM*63");
     delay(200);
     // wind sensor setup code, changes rates
     Serial3.println("$PAMTC,EN,RMC,0,10");     // disable GPRMC
-	// change gps to send 3.3 times a second
-    Serial3.println("$PAMTC,EN,GLL,1,3");      
-	// change heading to send 2 times a second
-    Serial3.println("$PAMTC,EN,HDG,1,5");      
+    // change gps to send 3.3 times a second
+    Serial3.println("$PAMTC,EN,GLL,1,3");
+    // change heading to send 2 times a second
+    Serial3.println("$PAMTC,EN,HDG,1,5");
 
-	/** @brief Change wind to send 5 times a second default for now, need to make 
-	 *  sure we can get everything out of the buffer
-	 */
-    Serial.println("$PAMTC,EN,MWVR,1,2");      
+    /** @brief Change wind to send 5 times a second default for now, need to make
+     *  sure we can get everything out of the buffer
+     */
+    Serial.println("$PAMTC,EN,MWVR,1,2");
 
     delay(500);
     setrudder(0);
@@ -303,9 +303,9 @@ void setup() {
 }
 
 /** Main Function, handles menu input and calls the core functions.
- * 
+ *
  * A lot of documentation should probably be written for this, but
- * all I know right now is that it contains the switch statement 
+ * all I know right now is that it contains the switch statement
  * in order to call the functions.
  */
 void loop() {
@@ -318,10 +318,10 @@ void loop() {
     if(Serial.available()) {
         menuReturn = displayMenu();
         if(menuReturn != 0) {
-		/** @brief if menu returned 0, any updating happened in the menu function 
-		 * itself and we want the code to just keep doing what it was doing before 
-		 * (e.g. setting RC mode)
-		 */
+            /** @brief if menu returned 0, any updating happened in the menu function
+             * itself and we want the code to just keep doing what it was doing before
+             * (e.g. setting RC mode)
+             */
             CurrentSelection = menuReturn;
         }
     }
@@ -329,29 +329,29 @@ void loop() {
     switch (CurrentSelection) {
     case 0:
         break;
-    case 1:        
-		// this will be station keeping
+    case 1:
+        // this will be station keeping
         stationKeep();
         break;
     case 2:
         sailCourse();
         break;
     case 3:
-		/** @brief Straight Sail towards N,S,E,W as 0, 180, 90, 270. 
-		 * No sail control. 
-		 *
-		 * Straightsail can no longer be called in 
-		 * isolation, needs sailtoWaypoint which keeps track of when 
-		 * tacking is necessary
-		 */
-		 sail(StraightSailDirection); 
+        /** @brief Straight Sail towards N,S,E,W as 0, 180, 90, 270.
+         * No sail control.
+         *
+         * Straightsail can no longer be called in
+         * isolation, needs sailtoWaypoint which keeps track of when
+         * tacking is necessary
+         */
+        sail(StraightSailDirection);
         break;
     case 4:
         sailToWaypoint(waypoints[point]);
         break;
     case 5:
-        stationKeepSinglePoint();      
-		/** stationskeeps around a single spot in the middle of the square */
+        stationKeepSinglePoint();
+        /** stationskeeps around a single spot in the middle of the square */
         break;
     default:
         Serial.println("Invalid menu return. Press any key");

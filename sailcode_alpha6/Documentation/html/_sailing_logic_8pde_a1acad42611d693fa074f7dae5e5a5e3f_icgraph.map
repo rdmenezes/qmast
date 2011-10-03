@@ -1,7 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="node3" href="$_sailing_logic_8pde.html#a42829044eaaf781783f525dbf35eabc1" title="Checks to see if the boat should sail or tack, thats it." alt="" coords="131,55,232,81"/>
-<area shape="rect" id="node5" href="$sailcode__alpha6_8pde.html#afe461d27b9c48d5921c00d521181f12f" title="Main Function, handles menu input and calls the core functions." alt="" coords="475,55,519,81"/>
-<area shape="rect" id="node7" href="$_sailing_logic_8pde.html#aeaba10e3002bd9b9fd2ea1bdd5ab97ea" title="Alternate sailcourse code by laz." alt="" coords="314,30,392,56"/>
-<area shape="rect" id="node10" href="$_station_keeping_8pde.html#aa299757ffc71d051d673a238a5a4b387" title="stationKeep" alt="" coords="311,80,396,107"/>
-<area shape="rect" id="node13" href="$_station_keeping_8pde.html#a8582ebc297542fd91bbbdcb46b34cd24" title="stationKeepSinglePoint" alt="" coords="281,131,426,157"/>
-</map>

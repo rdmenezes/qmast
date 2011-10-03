@@ -1,7 +1,13 @@
-
-/** Really important function, having something to do with the sensors.
+/** This file polls input from the compass and wind sensor, and more.
  *
  * sensorData replaces Compass() and Wind() with one function.
+ *
+ * This file contains a couple other supporting functions, but most of the
+ * work is performed by this function. This function takes care of pulling
+ * the NMEA Sentences from the Serial Buffer, and performing a checksum
+ *
+ * This function is actually doing a lot of things at once and would be
+ * better suited to being broken down into many smaller functions.
  *
  * @param[in] bufferLength Will vary based on the device being used
  * @param[in] device Specify the device being used through a character code
@@ -9,81 +15,110 @@
  * @note
  * 'c' = compass
  * 'w' = wind sensor
+ * The wind sensor is connected to Serial3
+ * The compass is connected to Serial2
  */
 void sensorData(int bufferLength, char device) {
+    // The number of bytes are available on the serial port
+    int dataAvailable;
+    /* Array to hold data from serial port before parsing;
+     * (2*longest) might be too long and inefficient */
+    char array[LONGEST_NMEA];
 
+    char checksum;    // Computed checksum for the NMEA data between $ and *
+    char endCheckSum; // The HEX checksum that is added by the NMEA device
+    int xorState;     // Holds the XOR  state (whether to use the next data in
+    // the xor checksum) from global
+    int j;            // j is a counter for the number of bytes which have been
+    // stored but not parsed yet
+    int i;            // counter
 
-//compass connects to serial2
-    int dataAvailable; // how many bytes are available on the serial port
-    char array[LONGEST_NMEA];//array to hold data from serial port before parsing; 2* longest might be too long and inefficient
+    int error;        // Error flag for parser
+    /* If there are two commas present, strtok will choke on the delimiters
+     * bool variable will cause sentence to be dropped later on */
+    bool twoCommasPresent = false;
 
-    char checksum; //computed checksum for the NMEA data between $ and *
-    char endCheckSum; //the HEX checksum that is added by the NMEA device
-    int xorState; //holds the XOR  state (whether to use the next data in the xor checksum) from global
-    int j; //j is a counter for the number of bytes which have been stored but not parsed yet
-
-    int i; //counter
-
-    int error;//error flag for parser
-    bool twoCommasPresent = false; //Alright, this flag will be set if the data being read in has two commas in a row. This is needed since
-    //it will crash the program as strtok will have trouble with the delimiters later.
-    if(device == 'c')
-        dataAvailable = Serial2.available(); //check how many bytes are in the buffer
-    else if (device == 'w')
-        dataAvailable = Serial3.available(); //check how many bytes are in the buffer
+    if(device == 'c') {
+        dataAvailable = Serial2.available(); // check how many bytes are in the buffer
+    } else if(device == 'w') {
+        dataAvailable = Serial3.available(); // check how many bytes are in the buffer
+    }
 
     if(!dataAvailable) {
-        setErrorBit(noDataBit);  //set a global flag that there's no data in the buffer; either the loop is running too fast or theres something broken
+        // Set a global flag that there's no data in the buffer; either the loop is
+        // running too fast or theres something broken
+        setErrorBit(noDataBit);
         setErrorBit(badCompassDataBit);
     } else {
         clearErrorBit(oldDataBit);
         clearErrorBit(noDataBit);
-        if (dataAvailable > bufferLength) { //the buffer has filled up; the data is likely corrupt;
-            //may need to reduce this number, as the buffer will still fill up as we read out data and dont want it to wraparound between here an
-            //when we get the data out
+        if (dataAvailable > bufferLength) {
+            /*The buffer has filled up; the data is likely corrupt;
+            * We may need to reduce this number, as the buffer will still fill up
+            * as we read out data and don't want it to wraparound between here an
+            * when we get the data out */
             setErrorBit(oldDataBit);
             setErrorBit(badCompassDataBit);
-            //flushing data is probably not the best; the data will not be corrupt since the port blocks, it will justbe old, so accept it.
-//      Serial.flush(); //clear the serial buffer
-//    extraWindData = 0; //'clear' the extra data buffer, because any data wrapping around will be destroyed by clearing the buffer
-//    savedChecksum=0;//clear the saved XOR value
-//    savedXorState=0;//clear the saved XORstate value
-//    lostData = 1;//set a global flag to indicate that the loop isnt running fast enough to keep ahead of the data
+            // Flushing data is probably not the best; the data will not be corrupt
+            // since the port blocks, it will just be old, so accept it.
+            // Serial.flush();    // clear the serial buffer
+            // extraWindData = 0; // 'clear' the extra data buffer, because any data wrapping
+            // around will be destroyed by clearing the buffer
+            // savedChecksum=0;   // clear the saved XOR value
+            // savedXorState=0;   // clear the saved XORstate value
+            // lostData = 1;      // set a global flag to indicate that the loop
+            // isnt running fast enough to keep ahead of the data
 
-            //Serial.println("You filled the buffer, data old. ");
-        }
-        //first copy all the leftover data into array from the buffer;  //!!! this has to depend on if it's wind or compass, and different arrays for them!
+            // Serial.println("You filled the buffer, data old. ");
+        } // End dataAvailible if statement
+
+        // This has to depend on if it's wind or compass, and
+        // different arrays for them!
         if(device == 'w') {
             for (i = 0; i < extraWindData; i++) {
-                array[i] = extraWindDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
-                //probably actually don't need the second global array
+                /* the extraWindData array was created the last time the buffer was
+                 * emptied probably actually don't need the second global array
+                 */
+                array[i] = extraWindDataArray[i];
             }
         } else if (device == 'c') {
             for (i = 0; i < extraCompassData; i++) {
-                array[i] = extraCompassDataArray[i]; //the extraWindData array was created the last time the buffer was emptied
-                //probably actually don't need the second global array
+                /* the extraWindData array was created the last time the buffer was
+                 * emptied probably actually don't need the second global array
+                 */
+                array[i] = extraCompassDataArray[i];
             }
         }
 
         //now continue filling array from the serial port
 
         if(device == 'w') {
-            checksum = savedWindChecksum;//set the xor error checksum to the saved value (only xor if between $ and *)
-            xorState = savedWindXorState;//set the XOR state (whether to use the next data in the xor checksum) from global
-            j = extraWindData; //j is a counter for the number of bytes which have been stored but not parsed yet
-            extraWindData = 0;//reset for the next time, in case there isn't any extraData; could optimize these variable declarations
-            savedWindChecksum = 0;//reset for the next time
-            savedWindXorState = 0;//reset for next time
+            // set the xor error checksum to the saved value (only xor if between $
+            // and *)
+            checksum = savedWindChecksum;
+            // set the XOR state (whether to use the next data in the xor checksum)
+            // from global
+            xorState = savedWindXorState;
+            // j is a counter for the number of bytes which have been stored but not
+            // parsed yet
+            j = extraWindData;
+            //reset for the next time, in case there isn't any extraData; could
+            //optimize these variable declarations
+            extraWindData = 0;
+            savedWindChecksum = 0; // reset for next time
+            savedWindXorState = 0; // reset for next time
         } else if (device == 'c') {
-            checksum = savedCompassChecksum;//set the xor error checksum to the saved value (only xor if between $ and *)
-            xorState = savedCompassXorState;//set the XOR state (whether to use the next data in the xor checksum) from global
-            j = extraCompassData; //j is a counter for the number of bytes which have been stored but not parsed yet
-            extraCompassData = 0;//reset for the next time, in case there isn't any extraData; could optimize these variable declarations
-            savedCompassChecksum = 0;//reset for the next time
-            savedCompassXorState = 0;//reset for next time
+            checksum = savedCompassChecksum;
+            xorState = savedCompassXorState;
+            j = extraCompassData;
+            extraCompassData = 0;
+            savedCompassChecksum = 0;
+            savedCompassXorState = 0;
         }
 
-        while(dataAvailable) { //this loop empties the whole serial buffer, and parses every time there is a newline
+        // This loop empties the whole serial buffer, and parses every time there
+        // is a newline
+        while(dataAvailable) {
             if(device == 'c')
                 array[j] = Serial2.read();
             else  if(device == 'w')
@@ -100,11 +135,16 @@ void sensorData(int bufferLength, char device) {
                 clearErrorBit(badCompassDataBit);
                 clearErrorBit(twoCommasBit);
             }
-            if ((array[j] == '\n') && j > SHORTEST_NMEA) {//check the size of the array before bothering with the checksum
-                //if you're not getting here and using serial monitor, make sure to select newline from the line ending dropdown near the baud rate
-                //  Serial.print("read slash n, checksum is:  ");
-                //compass strings seem to end with *<checksum>\r\n (carriage return, linefeed = 0x0D, 0x0A) so there's an extra j index between the two checksum values (j-3, j-2) and the current j.
-                //just skip over it when checking the checksum
+
+            /* Check the size of the array before bothering with the checksum
+            * if you're not getting here and using serial monitor, make sure
+            * to select newline from the line ending drop down near the baud rate
+            * Serial.print("read slash n, checksum is:  ");
+            * compass strings seem to end with *<checksum>\r\n (carriage return,
+            * linefeed = 0x0D, 0x0A) so there's an extra j index between the two
+            * checksum values (j-3, j-2) and the current j.
+            * just skip over it when checking the checksum */
+            if ((array[j] == '\n') && j > SHORTEST_NMEA) {
                 endCheckSum = (convertASCIItoHex(array[j-3]) << 4) | convertASCIItoHex(array[j-2]); //calculate the checksum by converting from the ASCII to HEX
                 //   Serial.print(endCheckSum,HEX);
                 //    Serial.print("  , checksum calculated is  ");

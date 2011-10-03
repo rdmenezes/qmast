@@ -1,9 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="node3" href="$_parsing_functions_8pde.html#a9cf045f6db34fd4e2388047fe8045294" title="Parser" alt="" coords="148,105,204,132"/>
-<area shape="rect" id="node5" href="$_data_acquisition_8pde.html#a5e6370de6e960ff592044b790015ba48" title="Really important function, having something to do with the sensors." alt="" coords="253,105,336,132"/>
-<area shape="rect" id="node7" href="$_menu_8pde.html#aad9ed7a055a99883645739e4bfca0e5e" title="displayMenu" alt="" coords="397,4,486,31"/>
-<area shape="rect" id="node9" href="$sailcode__alpha6_8pde.html#afe461d27b9c48d5921c00d521181f12f" title="Main Function, handles menu input and calls the core functions." alt="" coords="547,29,591,56"/>
-<area shape="rect" id="node11" href="$oldtack_8pde.html#aa56b9f04ea7c8c58f7a0030db9e58925" title="oldtack" alt="" coords="412,105,471,132"/>
-<area shape="rect" id="node13" href="$oldtack_8pde.html#a4785198fa045d7d139a5e682ac809e62" title="newer revision" alt="" coords="408,156,474,183"/>
-<area shape="rect" id="node15" href="$oldtack_8pde.html#a30dbce327552d96d2630fed7ec47bfe9" title="getOutofIronsOld" alt="" coords="385,207,498,233"/>
-</map>
