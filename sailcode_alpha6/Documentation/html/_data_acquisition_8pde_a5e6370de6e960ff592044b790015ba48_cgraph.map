@@ -1,8 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="node3" href="$_data_acquisition_8pde.html#a7754ceed7ff85b4abd95a6ada7828b3d" title="setErrorBit" alt="" coords="317,4,395,31"/>
-<area shape="rect" id="node5" href="$_data_acquisition_8pde.html#a6e69d0b8b4d3517b8abba6d50cd3b8d0" title="clearErrorBit" alt="" coords="312,55,400,81"/>
-<area shape="rect" id="node7" href="$_utilities_8pde.html#acdb581c51e99361f7c3f648a9ee7e862" title="convertASCIItoHex" alt="" coords="137,156,260,183"/>
-<area shape="rect" id="node9" href="$_parsing_functions_8pde.html#a9cf045f6db34fd4e2388047fe8045294" title="Parser" alt="" coords="170,105,227,132"/>
-<area shape="rect" id="node11" href="$_parsing_functions_8pde.html#adba7fa397be479bf3c2b345e05969c10" title="DataValid" alt="" coords="320,105,392,132"/>
-<area shape="rect" id="node14" href="$_parsing_functions_8pde.html#a601e25d1a7636238ce5083c54461a17f" title="ParseGPGLL" alt="" coords="310,156,402,183"/>
-</map>

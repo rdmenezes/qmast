@@ -1,4 +1,4 @@
-/** 
+/**
  * The transmit function is used to communicate with LabView.
  * through a series of preset strings, which are represented by
  * the graphical gauges?
@@ -6,12 +6,12 @@
  * Prints directly to the serial and takes input from global values
  */
 void transmit(void) {
-    long boatLat; 
-    long boatLon; 
+    long boatLat;
+    long boatLon;
     boatLat = boatLocation.latDeg*1000000+boatLocation.latMin*10000/0.6;
     boatLon = boatLocation.lonDeg*1000000+boatLocation.lonMin*10000/0.6;
     Serial.print("###");
-    // GPS 
+    // GPS
     Serial.print("LAT:");
     Serial.print(boatLat,DEC);
     Serial.print("LON:");
@@ -59,15 +59,15 @@ void transmit(void) {
  */
 void relayData() { //sends data to shore
     Serial.println(millis());
-	// Send data to zigbee
+    // Send data to zigbee
     Serial.println();
     Serial.print(boatLocation.latDeg);
     Serial.print(",");
     Serial.print(boatLocation.latMin);
     Serial.print(",");
-    Serial.print(boatLocation.lonDeg); 
-	/// Latitude and longitude of boat's location, split into more precise 
-	/// degrees and minutes, to fit into a float
+    Serial.print(boatLocation.lonDeg);
+    /// Latitude and longitude of boat's location, split into more precise
+    /// degrees and minutes, to fit into a float
     Serial.print(",");
     Serial.print(boatLocation.lonMin);
     Serial.print(",");
