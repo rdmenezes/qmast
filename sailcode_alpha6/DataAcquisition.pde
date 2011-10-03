@@ -145,54 +145,83 @@ void sensorData(int bufferLength, char device) {
             * checksum values (j-3, j-2) and the current j.
             * just skip over it when checking the checksum */
             if ((array[j] == '\n') && j > SHORTEST_NMEA) {
-                endCheckSum = (convertASCIItoHex(array[j-3]) << 4) | convertASCIItoHex(array[j-2]); //calculate the checksum by converting from the ASCII to HEX
-                //   Serial.print(endCheckSum,HEX);
-                //    Serial.print("  , checksum calculated is  ");
-                //   Serial.println(checksum,HEX);
-                //check the XOR before bothering to parse; if its ok, reset the xor and parse, reset j
-                if (checksum==endCheckSum) {
-                    //since hex values only take 4 bits, shift the more significant half to the left by 4 bits, the bitwise or it with the least significant half
-                    //then check if this value matches the calculated checksum (this part has been tested and should work)
-                    //      Serial.println("checksum good, parsing.");
+                // calculate the checksum by converting from the ASCII to HEX
+                endCheckSum = (convertASCIItoHex(array[j-3]) << 4) \
+                              | convertASCIItoHex(array[j-2]);
 
-                    //Before parsing the valid string, check to see if the string contains two consecutive commas as indicated by the twoCommasPresent flag
+                // Serial.print(endCheckSum,HEX);
+                // Serial.print("  , checksum calculated is  ");
+                // Serial.println(checksum,HEX);
+
+                // check the XOR before bothering to parse; if its ok,
+                // reset the xor and parse, reset j
+                if (checksum==endCheckSum) {
+                    // since hex values only take 4 bits, shift the more significant
+                    // half to the left by 4 bits, the bitwise or it with the least
+                    // significant half then check if this value matches the
+                    // calculated checksum (this part has been tested and should work)
+
+                    // Serial.println("checksum good, parsing.");
+
+                    // Before parsing the valid string, check to see if the string
+                    // contains two consecutive commas as indicated by the
+                    // twoCommasPresent flag
                     if (!twoCommasPresent) {
-                        // Serial.println(array[0]); //print first character (should be $)
-                        array[j+1] = '\0';//append the end of string character
+                        // print first character (should be $)
+                        // Serial.println(array[0]);
+
+                        // append the end of string character
+                        array[j+1] = '\0';
                         clearErrorBit(twoCommasBit);
-                        //            Serial.println("Good string, about to parse");
+
+                        // Serial.println("Good string, about to parse");
                         error = Parser(array); //checksum was successful, so parse
                     } else {
                         twoCommasPresent = false;
-                        //      Serial.println("Two commas present, didnt parse");
+                        // Serial.println("Two commas present, didnt parse");
 
-                        //This will be where we handle the presence of twoCommas, since it means that the boat is doing something strange
-                        //AKA tilted two far, bad compass data
-                        //GPS can't locate satellites, lots of commas, no values.
+                        // This will be where we handle the presence of twoCommas,
+                        // since it means that the boat is doing something strange
+                        // AKA tilted two far, bad compass data
+                        // GPS can't locate satellites, lots of commas, no values.
                     }
                     clearErrorBit(checksumBadBit);
                 } else {
                     setErrorBit(checksumBadBit);
                     setErrorBit(badCompassDataBit);
                 }
-                //regardless of checksum, reset array to beginning and reset checksum
-                j = -1;//this will start writing over the old data, need -1 because we add to j
-                //should be fine how we parse presently to have old data tagged on the end,
-                //but watch out if we change how we parse
-                checksum=0;//set the xor checksum back to zero
-                twoCommasPresent = false; // there isnt any data, so reset the twoCommasPresent
-            } //end if we're at the end of the data
+                // regardless of checksum, reset array to beginning and reset
+                // checksum
+                // this will start writing over the old data, need -1 because we
+                // add to j
+                j = -1;
+                // should be fine how we parse presently to have old data tagged on
+                // the end,
+                // but watch out if we change how we parse
+                checksum=0; //set the xor checksum back to zero
+                // there isnt any data, so reset the twoCommasPresent
+                twoCommasPresent = false;
+                // end if we're at the end of the data
+            } else if (array[j] == '$') {
+                // if we encounter $ its the start of new data, so restart the data
 
-            else if (array[j] == '$') {//if we encounter $ its the start of new data, so restart the data
                 //  Serial.println("found a $, restarting...");
-                //if its not in the 0 position there's been an error so get rid of the data and start a new line anyways
-                array[0] = '$'; //move the $ to the first character
-                j = 0;//start at the first byte to fill the array
-                checksum=0;//set the xor checksum back to zero
-                xorState = 1;//start the Xoring for the checksum once a new $ character is found
-                twoCommasPresent = false; // there isnt any data, so reset the twoCommasPresent
-            } else if (j > LONGEST_NMEA) { //if over the maximum data size, there's been corrupted data so just start at 0 and wait for $
-//        Serial.println("string too long, clearing some stuff");
+
+                // if its not in the 0 position there's been an error so get rid
+                // of the data and start a new line anyways
+                array[0] = '$'; // move the $ to the first character
+                j = 0;          // start at the first byte to fill the array
+                checksum=0;     // set the xor checksum back to zero
+                // start the Xoring for the checksum once a
+                // new $ character is found
+                xorState = 1;
+                // there isnt any data, so reset the twoCommasPresent
+                twoCommasPresent = false;
+            } else if (j > LONGEST_NMEA) {
+                //if over the maximum data size, there's been corrupted data so just
+                //start at 0 and wait for $
+//	        	Serial.println("string too long, clearing some stuff");
+
                 j = -1;//start at the first byte to fill the array
                 // Serial2.flush(); //dont flush because there might be good data at the end
                 checksum=0;//set the xor checksum back to zero
