@@ -143,7 +143,10 @@ void sensorData(int bufferLength, char device) {
             * compass strings seem to end with *<checksum>\r\n (carriage return,
             * linefeed = 0x0D, 0x0A) so there's an extra j index between the two
             * checksum values (j-3, j-2) and the current j.
-            * just skip over it when checking the checksum */
+            * just skip over it when checking the checksum 
+			*
+			* The | is the bitwise or operator
+			* The ^= is the XOR then assign operator*/
             if ((array[j] == '\n') && j > SHORTEST_NMEA) {
                 // calculate the checksum by converting from the ASCII to HEX
                 endCheckSum = (convertASCIItoHex(array[j-3]) << 4) \
@@ -222,38 +225,42 @@ void sensorData(int bufferLength, char device) {
                 //start at 0 and wait for $
 //	        	Serial.println("string too long, clearing some stuff");
 
-                j = -1;//start at the first byte to fill the array
-                // Serial2.flush(); //dont flush because there might be good data at the end
-                checksum=0;//set the xor checksum back to zero
-                xorState = 0;//only start the Xoring for the checksum once a new $ character is found, not here
+                j = -1;                   // start at the first byte to fill the array
+                                          // dont flush because there might be good data at the end
+                                          // Serial2.flush();
+                checksum=0;               // set the xor checksum back to zero
+                xorState = 0;             // only start the Xoring for the checksum once a new $ character is found, not here
                 twoCommasPresent = false; // there isnt any data, so reset the twoCommasPresent
                 setErrorBit(badCompassDataBit);
-            } else if (array[j] == '*') { //if find a * within a reasonable length, stop XORing and wait for \n
-                //could set a flag to stop XORing
-                //  Serial.println("found a *");
+            } else if (array[j] == '*') { // if find a * within a reasonable length, stop XORing and wait for \n
+                                          // could set a flag to stop XORing
+                                          // Serial.println("found a *");
                 xorState = 0;
             } else if (xorState) //for all other cases, xor unless it's after *
                 checksum^=array[j];
 
-            //removed this because it can be checked when a newline is encountered
-            //else checksumFromNMEA=checksumFromNMEA*8+array[j];//something like this, keep shifting it up a character
+                 // removed this because it can be checked when a newline is encountered
+				 // something like this, keep shifting it up a character
+                 // else checksumFromNMEA=checksumFromNMEA*8+array[j];                            
             j++;
 
-            //keep emptying buffer until it's empty; doing this should limit roll-over data
+                 // keep emptying buffer until it's empty; doing this should limit roll-over data
             if(device == 'c')
-                dataAvailable = Serial2.available(); //check how many bytes are in the buffer
-            else if (device == 'w')
-                dataAvailable = Serial3.available(); //check how many bytes are in the buffer
-        }//end loop, used to be from 0 to dataAvailable, now its while dataAvailable
+                dataAvailable = Serial2.available(); // check how many bytes are in the buffer
+                else if (device == 'w')
+                dataAvailable = Serial3.available(); // check how many bytes are in the buffer
+        } // end loop, used to be from 0 to dataAvailable, now its while dataAvailable
 
 //   Serial.print("end, 0 is:");
 //   Serial.println(array[0]);
 
-        if ((j > 0) && (j < LONGEST_NMEA) && (twoCommasPresent==false)) { //this means that there was leftover data; set a flag and save the state globally
+        if ((j > 0) && (j < LONGEST_NMEA) && (twoCommasPresent==false)) { 
+			//this means that there was leftover data; set a flag and save the state globally
 
             if (device == 'w') {
                 for (i = 0; i < j; i++)
-                    extraWindDataArray[i] = array[i]; //copy the leftover data into the temp global array
+					// copy the leftover data into the temp global array
+                    extraWindDataArray[i] = array[i]; 
                 extraWindData = j;
                 savedWindChecksum=checksum;
                 savedWindXorState=xorState;
