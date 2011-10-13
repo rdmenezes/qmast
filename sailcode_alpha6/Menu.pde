@@ -49,10 +49,9 @@ int displayMenu() {
         Serial.println("");
         Serial.println("");
         Serial.println("a.     *Input Waypoints");
-        Serial.println("b.	Begin course sailing");
+        Serial.println("b.	Call SailCourse");
         Serial.println("c.     *Straight sail");
         Serial.println("d.	Sail to waypoint");
-        Serial.println("i.      Fleet Racing mode");
         Serial.println("j.     *Exit Menu");
         Serial.println("k.      Stationkeeping");
         Serial.println("l.     *View Current waypoints");
@@ -60,7 +59,7 @@ int displayMenu() {
         Serial.println("n.     *Toggle Rudder direction");
         Serial.println("o.     *perform diagnostics");
         Serial.println("p.     *get gps coordinate");
-        Serial.println("r.     *super Zigbee RC mode");
+        Serial.println("r.     *Zigbee RC mode");
         Serial.println("s.     *keyboard Zigbee RC mode");
         Serial.println("t.      Single point stationkeeping");
         Serial.println("u.     *Change Station Keeping time before exit");
@@ -286,43 +285,6 @@ int displayMenu() {
             return 4;
             break;
 
-            //puts boat in fleet racing mode, where rudder is manual but sails are autonomous
-        case 'i':
-            Serial.println("Selected Fleet Racing Mode (autonomous sails, RC rudder.");
-            Serial.println("Press q to return to menu.");
-            rudderDir *= -1;
-            Serial.println("~");
-            hasValue = false;
-            sailsVal = 0;
-            rudVal = 0;
-            while (hasValue == false) {
-                while(Serial.available() == false);
-                rcVal = Serial.read();
-                switch(rcVal) {
-                case '1'://rudder values are from 120 to 180, ignore the 1 then subtract 50 to get actual -30 to 30 value
-                    while(!Serial.available());
-                    rudVal = Serial.read() - '0';
-                    while(!Serial.available());
-                    rudVal = rudVal*10 + Serial.read() - '0';
-                    rudVal -= 50;
-                    setrudder(rudVal);
-                    break;
-                case 'q':
-                    hasValue = true;
-                    Serial.println("exiting RC mode");
-                    delay(2000);
-                    Serial.flush();
-                    Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");                  //ending symbol, lots so that the boat does not miss it
-                    rudderDir *= -1;
-                    break;
-                }
-                sailControl();     //calling this will cause a spamming of the Serial port, will have lag exiting
-                if (Serial.available() > 20)
-                    Serial.flush();
-            }
-            return 0;
-            break;
-
         case 'j':
             Serial.println("Exiting Menu");
             return 0;
@@ -412,48 +374,68 @@ int displayMenu() {
             //basic diagnostic to see if everything is turning properly and all sensors are working
         case 'o':
             Serial.println("Performing Diagnostic and calibration tests");
-            Serial.println("Turning Rudder right 30");
-            setrudder(-30);
-            delay(1000);
-            Serial.println("Turning Rudder left 30");
-            setrudder(30);
-            delay(1000);
-            Serial.println("Centering rudder");
-            setrudder(0);
-            delay(1000);
-            Serial.println("Setting Jib all out");
-            setJib(ALL_OUT);
-            delay(6000);
-            Serial.println("Setting Jib all in");
-            setJib(ALL_IN);
-            delay(6000);
-            Serial.println("Setting main all out");
-            setMain(ALL_OUT);
-            delay(5000);
-            Serial.println("Setting main all in");
-            setMain(ALL_IN);
-            delay(5000);
-            Serial.println("testing compass");
-            sensorData(BUFF_MAX,'c');
-            if(compassData == false) {
-                Serial.println("Compass Data: ");
-                Serial.print("  Heading:  ");
-                Serial.println(headingc);
-                Serial.print("  Pitch:   ");
-                Serial.println(pitch);
-                Serial.print("  Roll   ");
-                Serial.println(roll);
-            } else {
-                Serial.println("Error fetching compass data");
-            }
-            Serial.println("testing wind sensor");
-            sensorData(BUFF_MAX,'w');
-            Serial.println("Wind Sensor Data: ");
-            Serial.print("  Wind Angle:  ");
-            Serial.println(wind_angl);
-            Serial.print("  Wind Velocity (knots):   ");
-            Serial.println(wind_velocity);
-            Serial.println("testing complete");
+            Serial.println("enter 'r' for rudder test, 's' for sails test, and 'w' for sensor test");
+            hasValue = false;
+             while(hasValue == false) {
+                if(Serial.available() > 0) {
+                    select = Serial.read(); 
+            switch(select){  
+                case 'r':     
+                    Serial.println("Turning Rudder right 30");
+                    setrudder(-30);
+                    delay(1000);
+                    Serial.println("Turning Rudder left 30");
+                    setrudder(30);
+                    delay(1000);
+                    Serial.println("Centering rudder");
+                    setrudder(0);
+                    delay(1000);
+                    hasValue = true;                    
+                    break;
+                case 's':
+                    Serial.println("Setting Jib all out");
+                    setJib(ALL_OUT);
+                    delay(6000);
+                    Serial.println("Setting Jib all in");
+                    setJib(ALL_IN);
+                    delay(6000);
+                    Serial.println("Setting main all out");
+                    setMain(ALL_OUT);
+                    delay(5000);
+                    Serial.println("Setting main all in");
+                    setMain(ALL_IN);
+                    delay(5000);
+                    hasValue = true;
+                    break;
+                case 'w':
+                    Serial.println("testing compass");
+                    sensorData(BUFF_MAX,'c');
+                    if(compassData == false) {
+                    Serial.println("Compass Data: ");
+                    Serial.print("  Heading:  ");
+                    Serial.println(headingc);
+                    Serial.print("  Pitch:   ");
+                    Serial.println(pitch);
+                    Serial.print("  Roll   ");
+                    Serial.println(roll);
+                    } else {
+                    Serial.println("Error fetching compass data");
+                    }
+                    Serial.println("testing wind sensor");
+                    sensorData(BUFF_MAX,'w');
+                    Serial.println("Wind Sensor Data: ");
+                    Serial.print("  Wind Angle:  ");
+                    Serial.println(wind_angl);
+                    Serial.print("  Wind Velocity (knots):   ");
+                    Serial.println(wind_velocity);
+                    Serial.println("testing complete");
+                    hasValue = true;
+                    break;
+                default :
+                    Serial.println("invalid input try again");
+                   }
+                }
+             }
             return 0;
             break;
         case 'p':  //returns your current position
@@ -532,7 +514,13 @@ int displayMenu() {
                     Serial.println("||||||||||||||||||||||||||||||||||||||||||||||");            //ending symbol, lots so that it is not missed
                     rudderDir *= -1;
                     break;
-                }
+              case 'r':
+                   Serial.println("RC mode, receives inputs from other arduino and hacked old transmitter");
+                   Serial.println(" 'q' exits back to menu, you might need to press it up to 3 times.");
+                   delay(2000);
+                   Serial.println("~");
+                   break; 
+              }
             }
             //                         sensorData(BUFF_MAX, 'c');
             //                         sensorData(BUFF_MAX, 'w');

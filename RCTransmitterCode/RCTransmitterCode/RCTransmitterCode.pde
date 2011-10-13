@@ -46,7 +46,7 @@ void loop()
       if (sentR == false){
         delay(200);//eliminate debouncing
         sentR = true;
-        Serial.println("r"); //sends r in case program is allready in rc but controller isn't(ie you turned off controller while in rc)
+        Serial.println("r"); //sends r to put itself in rc may need to send multiple times to pull up menu first
       }
     }
   }else{//panic button not pressed
@@ -83,9 +83,6 @@ void loop()
     Serial.println(normalizedsails);
     Serial.print(normalizedrudder);  
     delay(100);
-
-  }
-
   }
 }
 //translates analog to digital scale from 0-1023 to a -25 to 25 degree angle that should be fed to the rudder
