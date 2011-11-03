@@ -35,6 +35,7 @@
 // the declination
 
 #include "LocationStruct.h"
+#include <Servo.h> /// servo motor
 #include <SoftwareSerial.h> /// for pololu non-buffering serial channel
 #include <stdio.h>			/// for parsing - necessary?
 #include <avr/io.h>
@@ -214,6 +215,11 @@ int ironTime; //!< tacking global
 
 int errorCode; //!< error code
 
+Servo rudderServo; //!<rudder servo motor
+Servo jibServo; //!<jib servo motor
+Servo mainServo; //!<main servo motor
+
+
 /** @} End of the global constants grouping*/
 
 /** Standard Setup function for Arduino, set pins and create object instances.
@@ -228,6 +234,9 @@ int errorCode; //!< error code
  * to start-up before the reset occurs.
  */
 void setup() {
+    rudderServo.attach(9);
+    mainServo.attach(10);
+    jibServo.attach(11);
     Serial.begin(19200);
 
     // set pins for pololu
