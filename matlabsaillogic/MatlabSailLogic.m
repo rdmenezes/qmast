@@ -17,9 +17,11 @@
 %tacking_angle
 
 function MatlabSailLogic
-global true false;
+global true false tacking setEndFlag;
+global windAngle irontime headingc;
 true=1;
 false=0;
+tacking=0;
 
 
 %environment
@@ -29,11 +31,12 @@ lastVel=[1,0]; %cant start from 0,0 so fix later cause lazy
 windDir=[0,-1];
 
 
+while(setEndFlag==0)
 
-sailCourse(lastPos, wayPointList)
+    sailCourse(lastPos, wayPointList)
+    
 
-
-
+end
 
 
 
@@ -42,9 +45,9 @@ end
 
 function result=between(boatHeading,windDirn)
 
-    angle=acosd(((boatHeading(1)*windDirn(1))+(boatHeading(2)*windDirn(2)))/(sqrt(boatHeading(1)^2+boatHeading(2)^2)*sqrt(windDirn(1)^2+windDirn(2)^2)))
+    angle=acosd(((boatHeading(1)*windDirn(1))+(boatHeading(2)*windDirn(2)))/(sqrt(boatHeading(1)^2+boatHeading(2)^2)*sqrt(windDirn(1)^2+windDirn(2)^2)));
 
-    if(angle>15)
+    if(angle>45)
         result=0;
     else
         result=1;
@@ -52,8 +55,16 @@ function result=between(boatHeading,windDirn)
 
 end
 
+function result=getWindDirn
+    global windAngle;
+    
+    result=windAngle;
+
+end
+
 
 function sailCourse(boatLocation, coursePoints) 
+    global setEndFlag;
 
     currentPoint=1;
     
@@ -74,7 +85,7 @@ end
 function result=GPSdistance(currentLocation,destination)
 
 
-    result=sqr((destination(1)-currentLocation(1))^2+(destination(2)-currentLocation(2))^2)
+    result=sqrt((destination(1)-currentLocation(1))^2+(destination(2)-currentLocation(2))^2)
 
 end
 
@@ -90,11 +101,10 @@ end
 
 %given a waypoint
 function result=sailToWaypoint(waypoint)
-    global tacking distance;
-
+global tacking;
 
     %// called to keep the gui up to date
-    distance = GPSdistance(boatLocation, waypoint);
+    %distance = GPSdistance(boatLocation, waypoint);
     %// get the next waypoint's compass bearing; must be positive 0-360 heading;
     waypointDirn = getWaypointDirn(boatLocation,waypoint);
 
@@ -114,6 +124,8 @@ end
 
 
 function sail(waypointDirn)
+
+    global headingc;
     
     windDirn = getWindDirn();
     %// check if the waypoint's direction is between the wind and closehauled on
@@ -133,34 +145,37 @@ end
 
 %was boolean
 function result=checkTack(corridorHalfWidth, waypoint) 
-    global distance;
+
+    global headingc;
 
     windDirn = getWindDirn();
-    currentHeading = headingc;
 
     %// Checks if closehauled first. Done with trig. It's a right-angled triangle, where
     %// opp is the distance perpendicular to the wind angle (the number we're looking for)
     %// and theta is the angle between the wind and the waypoint directions; positive
     %// when windDirn > waypointDirn
-    if(between(currentHeading,windDirn - TACKING_ANGLE, windDirn + TACKING_ANGLE)) 
+        
+    if(between(headingc, windDirn)) 
         waypointDirn = getWaypointDirn(waypoint);
-        theta = waypointDirn - windDirn;
+        theta = acos(((waypointDirn(1)*windDirn(1))+(waypointDirn(2)*windDirn(2)))/(sqrt(waypointDirn(1)^2+waypointDirn(2)^2)*sqrt(windDirn(1)^2+windDirn(2)^2)));
 
         %// the hypotenuse is as long as the distance between the boat and the waypoint, in meters
         hypotenuse = GPSdistance(boatLocation, waypoint); %// latitude is Y, longitude X for waypoints
-        distance = hypotenuse * sin(degreesToRadians(theta));
+        distance = hypotenuse * sin(theta);
 
         %// check the direction of the wind so we only try to tack towards the mark
-        if ( (distance < 0 && wind_angl > 180) || (distance > 0 && wind_angl < 180) ) 
+        if ( ((distance < 0) && (wind_angl > 180)) || ((distance > 0) && (wind_angl < 180))) 
 
             %//we're outside corridor
             if (abs(distance) > corridorHalfWidth)
 
                 result=true;
+                return
                 %//if we're past the layline
-            elseif(stuff)%!between(waypointDirn, windDirn + TACKING_ANGLE, windDirn - TACKING_ANGLE)) 
+            elseif(~between(waypointDirn, windDirn)) 
 
                 result=true;
+                return
             end
         end
     end
@@ -205,7 +220,7 @@ end
 % * @param[in] directionError This needs explanation.
 % */
 function rudderControl(directionError)
-    while (directionError < 0)
+    if (directionError < 0)
         directionError = directionError + 360;
     end
 
@@ -227,54 +242,59 @@ function rudderControl(directionError)
 end
 
 
+function result=wind_Angle
+    global windAngle;
+    
+    windDirn=[-windAngle(1) -windAngle(2)]
+    
+    result=acos(((headingc(1)*windDirn(1))+(headingc(2)*windDirn(2)))/(sqrt(headingc(1)^2+headingc(2)^2)*sqrt(windDirn(1)^2+windDirn(2)^2)));
+
+end
+
 
 function tack
     global tacking;
 
+    wind_angle=wind_Angle;
+
     if(tacking == false) 
-        if(wind_angl > 180) 
+        if(wind_angle > 180) 
             tackingSide = 1;
         else
             tackingSide = -1;
         end
     end
     
-    
-    ironTime = 0;
+
     tacking = true;
-    ironTime=ironTime+1;                  %//checks to see if turned far enough
-    if(ironTime > 200)           %//waits about 10 seconds to before assuming in irons
-        getOutofIrons(tackingSide);
-        inIrons = true;
-    end
-    if(((wind_angl > 180) && (wind_angl < 360-TACKING_ANGLE-5)) || ((wind_angl < 180) && (wind_angl > TACKING_ANGLE+5)))          %//check to see if still trying to tack
-        tacking = false;        %//resets variables
+    %ironTime=ironTime+1;                  %//checks to see if turned far enough
+%     if(ironTime > 200)           %//waits about 10 seconds to before assuming in irons
+%         getOutofIrons(tackingSide);
+%         inIrons = true;
+%     end
+    if(((wind_angle > 180) && (wind_angle < 310)) || ((wind_angle < 180) && (wind_angle > 50)))
         tackingSide = 0;
         dirn = getCloseHauledDirn();
         ironTime = 0;
-        inIrons = false;
+        %inIrons = false;
     
-    elseif(tacking == true && inIrons == false) %//tacks depending on the side the wind is aproaching from
+    elseif((tacking == true)) %&& (inIrons == false)) %//tacks depending on the side the wind is aproaching from
         if(tackingSide == 1)        %//nested if statements
             if(wind_angl > 180) 
-                setJib(ALL_OUT);
-                setMain(ALL_IN);
+                sailControl()
                 setrudder(-20);
             else
-                setJib(ALL_IN);    
-                setMain(ALL_OUT); %//sets main and jib to allows better turning               
+                sailControl()                    %//sets main and jib to allows better turning
                 setrudder(-20);
             end      %//rudder angle cannot be too steep, this would stall the boat, rather than turn it
         end
         %//mirror for other side
         if(tackingSide == -1) 
             if(wind_angl < 180) 
-                setJib(ALL_OUT);
-                setMain(ALL_IN);
+                sailControl()
                 setrudder(20);
             else
-                setJib(ALL_IN); 
-                setMain(ALL_OUT); %//sets main and jib to allows better turning                                   
+                sailControl()                    %//sets main and jib to allows better turning
                 setrudder(20);
             end      %//rudder angle cannot be too steep, this would stall the boat, rather than turn it
         end
@@ -312,6 +332,29 @@ function simulate
     end
     
 end
+
+function result=getCloseHauledDirn
+%//find the compass heading that is close-hauled on the present tack
+wind_angle=wind_Angle;
+
+windHeading = getWindDirn(); %//compass bearing for the wind
+%//determine which tack we're on
+if (wind_angle > 180) %//wind from left side of boat first
+    desiredDirection = windHeading + 45; %//bear off to the right
+else
+    desiredDirection = windHeading - 45; %//bear off to the left
+end
+    
+if(desiredDirection < 0)
+    desiredDirection =desiredDirection+ 360;
+elseif(desiredDirection > 360)
+    desiredDirection =desiredDirection- 360;
+end
+
+result=desiredDirection;
+
+end
+
 
 %//code to get out of irons if boat is stuck
 %function getOutofIrons(tackside)
