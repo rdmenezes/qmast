@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+   <NetworkLink>
+      <name>Ardupilot</name>
+      <open>1</open>
+      <refreshVisibility>1</refreshVisibility>
+      <flyToView>20</flyToView>
+      <Link>
+         <href>flight.kml</href>
+         <refreshMode>onInterval</refreshMode>
+         <refreshInterval>1</refreshInterval>
+      </Link>
+   </NetworkLink>
+</kml>
