@@ -294,6 +294,25 @@ end
 %       
 %end
 
+function simulate
+    % simulation details
+    framerate=10; % frames per second
+    windConstant=10;
+    dragConstant=5;
+
+    % initial conditions
+    position=[0,0]; % metres from origin
+    velocity=[0,0]; % metres per second
+    
+    while true
+        
+        position = position + velocity / framerate;
+        velocity = velocity + ( (windConstant*dot(velocity,windDir)/norm(velocity)) ...
+        - dragConstant*velocity) / framereate;
+    end
+    
+end
+
 %//code to get out of irons if boat is stuck
 %function getOutofIrons(tackside)
 
