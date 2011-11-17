@@ -314,7 +314,22 @@ end
 %       
 %end
 
+function rudderAngle=setRudder(destination)
+    global position
+    
+    targetDirection = destination - position;
+    bins = [-30 -15 0 15 30];
+    
+    angle = acosd(dot((velocity/norm(velocity)), ... 
+        (targetDirection/norm(targetDirection))))/5;
+    
+    rudderAngle = interp1(bins,bins,angle,'nearest');
+    
+end
+
 function simulate
+    global position
+
     % simulation details
     framerate=10; % frames per second
     windConstant=10;
@@ -328,7 +343,7 @@ function simulate
         
         position = position + velocity / framerate;
         velocity = velocity + ( (windConstant*dot(velocity,windDir)/norm(velocity)) ...
-        - dragConstant*velocity) / framereate;
+        - dragConstant*velocity) / framerate;
     end
     
 end
