@@ -18,16 +18,27 @@
 
 function MatlabSailLogic
 global true false tacking setEndFlag;
-global boatLocation windAngle irontime headingc;
+global boatLocation velocity windAngle irontime headingc rudderAngle mainAngle;
 true=1;
 false=0;
 tacking=0;
 
+    % simulation details
+    framerate=10; % frames per second
+
+    % initial conditions
+    boatLocation=[0,0]; % metres from origin
+    velocity=[0,0]; % metres per second
+    
+    windAngle=[-1,0]; % metres per second
+    
+    rudderAngle=0;  % degrees
+    mainAngle=0;    % degrees
+    
 
 %environment
 wayPointList={[104,134],[600,2000]};
-windAngle=[-1,0]
-boatLocation=[0,0];
+windAngle=[-1,0];
 lastVel=[1,0]; %cant start from 0,0 so fix later cause lazy
 windDir=[0,-1];
 setEndFlag=0;
@@ -248,16 +259,16 @@ function rudderControl(directionError)
     %// rudder deadzone to avoid constant adjustments and oscillating, only change the rudder
     %// if there's a big error
     if  (directionError > 10 && directionError < 350) 
-        %//turn left, so send a negative to setrudder function
+        %//turn left, so send a negative to setRudder function
         if (directionError > 180) 
             %//adjust rudder proportional;
-            setrudder((directionError-360)/5);
+            setRudder((directionError-360)/5);
         else
-            %// adjust rudder proportional; setrudder accepts -30 to +30
-            setrudder(directionError/5);
+            %// adjust rudder proportional; setRudder accepts -30 to +30
+            setRudder(directionError/5);
         end
     else
-        setrudder(0);%//set to neutral position
+        setRudder(0);%//set to neutral position
     end
     
     here='there'
@@ -309,20 +320,20 @@ function tack
         if(tackingSide == 1)        %//nested if statements
             if(wind_angl > 180) 
                 sailControl()
-                setrudder(-20);
+                setRudder(-20);
             else
                 sailControl();                  %//sets main and jib to allows better turning
-                setrudder(-20);
+                setRudder(-20);
             end      %//rudder angle cannot be too steep, this would stall the boat, rather than turn it
         end
         %//mirror for other side
         if(tackingSide == -1) 
             if(wind_angl < 180) 
                 sailControl();
-                setrudder(20);
+                setRudder(20);
             else
                 sailControl();                    %//sets main and jib to allows better turning
-                setrudder(20);
+                setRudder(20);
             end      %//rudder angle cannot be too steep, this would stall the boat, rather than turn it
         end
     end
@@ -341,38 +352,32 @@ end
 %       
 %end
 
-function rudderAngle=setRudder(destination)
-    global position
+function setRudder(angle)
+    global rudderAngle
     
-    targetDirection = destination - position;
     bins = [-30 -15 0 15 30];
     
-    angle = acosd(dot((velocity/norm(velocity)), ... 
-        (targetDirection/norm(targetDirection))))/5;
-    
     rudderAngle = interp1(bins,bins,angle,'nearest');
+end
+
+function setMain(angle)
+    global mainAngle
     
+    mainAngle = angle;
 end
 
 function simulate
-    global position
+    global boatLocation rudderAngle windAngle mainAngle velocity
 
-    % simulation details
-    framerate=10; % frames per second
+    %Constants for first order simluation
     windConstant=10;
     dragConstant=5;
-
-    % initial conditions
-    position=[0,0]; % metres from origin
-    velocity=[0,0]; % metres per second
-    
-    while true
         
-        position = position + velocity / framerate;
-        velocity = velocity + ( (windConstant*dot(velocity,windDir)/norm(velocity)) ...
-        - dragConstant*velocity) / framerate;
-    end
-    
+    boatLocation = boatLocation + velocity / framerate;
+    velocity = velocity + ( (windConstant*dot(velocity,windAngle)/norm(velocity)) ...
+    - dragConstant*velocity) / framerate; % First order approximation of acceleration
+    % windAngle = 
+ 
 end
 
 function result=getCloseHauledDirn
@@ -405,5 +410,5 @@ end
 
  %   setMain(ALL_OUT);
  %   setJib(ALL_IN);
-%    setrudder(30*tackside);
+%    setRudder(30*tackside);
 %end
