@@ -3,6 +3,15 @@
 %wind direction
 %last velocity
 
+%wind_angle is a an ANGLE
+%windAngle is actually a vector (and a global)
+%wind_Angle is a function that gets wind_angle using global windAngle
+%(i fully realize how bad this is...)
+%windDirn is a local variable commonly used to store windAngle
+%wind_angle is also a common local for wind_angle
+%getWindDirn is a function to get windDirn vector
+%windAngle was also formally a local to sail??? but changed
+
 
 %Things to do, add globals for tack etc.
 
@@ -18,48 +27,58 @@
 
 function MatlabSailLogic
 global true false tacking setEndFlag;
-global boatLocation velocity windAngle irontime headingc rudderAngle mainAngle;
+
+global setrudder sailAngle
+global MARK_DISTANCE
+MARK_DISTANCE=1;
 true=1;
 false=0;
 tacking=0;
 
-    % simulation details
-    framerate=10; % frames per second
 
-    % initial conditions
-    boatLocation=[0,0]; % metres from origin
-    velocity=[0,0]; % metres per second
-    
-    windAngle=[-1,0]; % metres per second
-    
-    rudderAngle=0;  % degrees
-    mainAngle=0;    % degrees
-    
+
+
+
+
+
+
+
+
+
+
+
 
 %environment
 wayPointList={[104,134],[600,2000]};
-windAngle=[-1,0];
+
 lastVel=[1,0]; %cant start from 0,0 so fix later cause lazy
+headingc=[1,0]; %cant start from 0,0 so fix later cause lazy
 windDir=[0,-1];
 setEndFlag=0;
 
+scatter(wayPointList{:})
+
+hold on
+
 here='top'
 while(setEndFlag==0)
-
+    
     sailCourse(boatLocation, wayPointList)
-
+    
+    
+    pause(0.5)
+    scatter(boatLocation(1),boatLocation(2),'MarkerFaceColor','r')
+    
+    
 end
 
-
+hold off
 
 end
 
 
 function result=between(boatHeading,windDirn)
 here='between'
-
-    a=boatHeading
-    b=windDirn
 
     angle=acosd(((boatHeading(1)*windDirn(1))+(boatHeading(2)*windDirn(2)))/(sqrt(boatHeading(1)^2+boatHeading(2)^2)*sqrt(windDirn(1)^2+windDirn(2)^2)));
 
@@ -68,6 +87,13 @@ here='between'
     else
         result=1;
     end
+
+end
+
+function result=dotAngle(a,b)
+here='dotAngle'
+
+    result=acosd(((a(1)*b(1))+(a(2)*b(2)))/(sqrt(a(1)^2+a(2)^2)*sqrt(b(1)^2+b(2)^2)));
 
 end
 
@@ -81,9 +107,10 @@ end
 
 
 function sailCourse(boatLocation, coursePoints) 
-    global setEndFlag;
+    global setEndFlag MARK_DISTANCE;
     here='sailCourse'
     currentPoint=1;
+    points=length(coursePoints);
     
     %returns in meters
     distanceToWaypoint = GPSdistance(boatLocation, coursePoints{currentPoint});
@@ -155,9 +182,9 @@ function sail(waypointDirn)
     %// either side (ie are we downwind?)
     if(between(waypointDirn, windDirn))
         %//*should* prevent boat from ever trying to sail upwind
-        directionError = getCloseHauledDirn() - headingc;
+        directionError = dotAngle(getCloseHauledDirn(), headingc);
     else 
-        directionError = waypointDirn - headingc;
+        directionError = dotAngle(waypointDirn, headingc);
     end
 
     rudderControl(directionError);
@@ -219,26 +246,32 @@ end
 function sailControl()
 
 here='sailControl'
-
-    if (wind_angl > 180)           %// wind is from port side, but we dont care
-        windAngle = 360 - wind_angl;   %// set to 180 scale, dont care if it's on port or starboard right now,
-    else
-        windAngle = wind_angl;
-    end
-
-    %//  If not in irons
-    if (windAngle > TACKING_ANGLE)
-        %// scale the range of winds from 40->180 (140 degree range) onto 0 to 100 controls;
-        %// 0 means all the way in
-        setSails( (windAngle-TACKING_ANGLE)*100/(180 - TACKING_ANGLE) );
-    else
-        setSails(ALL_IN);%// set sails all the way in, in irons
-    end
-
-    %// if heeled over a lot (experimentally found that 40 was appropriate according to cory)
-    if (abs(roll) > 40)        
-        setMain(ALL_OUT); %// set sails all the way out, keep jibaX
-    end
+     global sailAngle
+% 
+%     wind_angle=wind_Angle;
+% 
+%     if (wind_angle > 180)           %// wind is from port side, but we dont care
+%         windAngle = 360 - wind_angle;   %// set to 180 scale, dont care if it's on port or starboard right now,
+%     else
+%         windAngle = wind_angle;
+%     end
+% 
+%     %//  If not in irons
+%     if (windAngle > TACKING_ANGLE)
+%         %// scale the range of winds from 40->180 (140 degree range) onto 0 to 100 controls;
+%         %// 0 means all the way in
+%         setSails( (windAngle-TACKING_ANGLE)*100/(180 - TACKING_ANGLE) );
+%     else
+%         setSails(ALL_IN);%// set sails all the way in, in irons
+%     end
+% 
+%     %// if heeled over a lot (experimentally found that 40 was appropriate according to cory)
+%     if (abs(roll) > 40)        
+%         setMain(ALL_OUT); %// set sails all the way out, keep jibaX
+%     end
+    
+    sailAngle=0;
+    
 end
 
 
@@ -251,6 +284,8 @@ end
 function rudderControl(directionError)
     
     here='rudderControl'
+    
+    global setrudder
 
     if (directionError < 0)
         directionError = directionError + 360;
@@ -258,17 +293,19 @@ function rudderControl(directionError)
 
     %// rudder deadzone to avoid constant adjustments and oscillating, only change the rudder
     %// if there's a big error
-    if  (directionError > 10 && directionError < 350) 
+    directionError > 10
+    directionError < 350
+    if  ((directionError > 10) && (directionError < 350)) 
         %//turn left, so send a negative to setRudder function
         if (directionError > 180) 
             %//adjust rudder proportional;
-            setRudder((directionError-360)/5);
+            setrudder=(directionError-360)/5;
         else
-            %// adjust rudder proportional; setRudder accepts -30 to +30
-            setRudder(directionError/5);
+            %// adjust rudder proportional; setrudder accepts -30 to +30
+            setrudder=(directionError/5);
         end
     else
-        setRudder(0);%//set to neutral position
+        setrudder=0;%//set to neutral position
     end
     
     here='there'
@@ -277,7 +314,7 @@ end
 
 
 function result=wind_Angle
-    global windAngle;
+    global windAngle headingc;
     
     here='wind_Angle'
     
