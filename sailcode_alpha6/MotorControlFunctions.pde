@@ -34,6 +34,7 @@ void setrudder(float ang) {
     constrain(ang,-30,30);//ang is returned as value from -30 to 30
     pos=90+ang;//90 is the midpoint of the servo's rotation and is added or subtracted to turn 30 degree right or left.
     rudderServo.write(pos);
+    Serial.println("RUDDER: %d",pos); // Serial output for simulator
     //pos = (ang + 45) * rudderDir * 254.0 / 90.0;//convert from 180 degree range, -90 to +90 angle to a 0 to 256 maximum position range
     //servo_command(servo_num,pos,0);
     //rudderVal = ang;
@@ -55,6 +56,7 @@ void setJib(float ang)
     constrain(ang, 1,100);//returns ang in a percent to turn the motor out of 100%
     pos = (ang/100.0) * 180;//set percent to angle
     jibServo.write(pos);//move motor to angle
+    Serial.println("JIB: %d",pos); // Serial output for simulator
     //pos = ang*110.0/100.0; //tweaking for gaelforce 2,
     //servo_command(servo_num,pos,0);
     //jibVal = ang;
@@ -69,6 +71,7 @@ void setMain(float ang)
     constrain(ang,1,100);//returns ang in a percent to turn the motor out of 100%
     pos = (ang/100.0) * 180;//set percent to angle
     mainServo.write(pos);//move motor to angle
+    Serial.println("MAIN: %d",pos); // Serial output for simulator
     //pos = (ang + 50)*104.0/100.0;  //tweaking for gaelforce 2, check if smartwinch fuse blows
     //servo_command(servo_num,pos,0);
     //mainVal = ang;
