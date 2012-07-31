@@ -192,10 +192,6 @@ int point;            ///< point for sail to waypoint in menu
 int currentPoint = 0; ///< current waypoint on course of travel
 
 
-int StraightSailDirection; //!< Menu hack globals
-int CurrentSelection;      //!< Menu hack globals
-
-
 long startTime;     //!< station-keeping global
 int stationCounter; //!< station-keeping global
 boolean timesUp;    //!< station-keeping global
@@ -215,11 +211,6 @@ int ironTime; //!< tacking global
 
 int errorCode; //!< error code
 
-Servo rudderServo; //!<rudder servo motor
-Servo jibServo; //!<jib servo motor
-Servo mainServo; //!<main servo motor
-
-
 /** @} End of the global constants grouping*/
 
 /** Standard Setup function for Arduino, set pins and create object instances.
@@ -234,17 +225,7 @@ Servo mainServo; //!<main servo motor
  * to start-up before the reset occurs.
  */
 void setup() {
-    rudderServo.attach(9);
-    mainServo.attach(10);
-    jibServo.attach(11);
     Serial.begin(19200);
-
-    // set pins for pololu
-    pinMode(txPin, OUTPUT);
-    pinMode(resetPin, OUTPUT);
-
-    // initiate servo instance
-    servo_ser.begin(4800);
 
     delay(2000);
     // next NEED to explicitly reset the Pololu board using a separate pin
@@ -306,8 +287,6 @@ void setup() {
      */
     Serial.println("$PAMTC,EN,MWVR,1,2");
 
-    delay(500);
-    setrudder(0);
     delay(2000);  //setup delay RCMode();
 }
 
@@ -323,49 +302,9 @@ void loop() {
     transmit();
     sensorData(BUFF_MAX, 'w');
     sensorData(BUFF_MAX, 'c');
-
-    if(Serial.available()) {
-        menuReturn = displayMenu();
-        if(menuReturn != 0) {
-            /** @brief if menu returned 0, any updating happened in the menu function
-             * itself and we want the code to just keep doing what it was doing before
-             * (e.g. setting RC mode)
-             */
-            CurrentSelection = menuReturn;
-        }
-    }
-
-    switch (CurrentSelection) {
-    case 0:
-        break;
-    case 1:
-        // this will be station keeping
-        stationKeep();
-        break;
-    case 2:
-        sailCourse();
-        break;
-    case 3:
-        /** @brief Straight Sail towards N,S,E,W as 0, 180, 90, 270.
-         * No sail control.
-         *
-         * Straightsail can no longer be called in
-         * isolation, needs sailtoWaypoint which keeps track of when
-         * tacking is necessary
-         */
-        sail(StraightSailDirection);
-        break;
-    case 4:
-        sailToWaypoint(waypoints[point]);
-        break;
-    case 5:
-        stationKeepSinglePoint();
-        /** stationskeeps around a single spot in the middle of the square */
-        break;
-    default:
-        Serial.println("Invalid menu return. Press any key");
-        delay(40);
-    }
+    getWindDirn();
+    
+    delay(100);
 }
 
 
