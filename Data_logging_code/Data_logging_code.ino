@@ -39,6 +39,7 @@
 #include <SoftwareSerial.h> /// for pololu non-buffering serial channel
 #include <stdio.h>			/// for parsing - necessary?
 #include <avr/io.h>
+#include <Time.h> // For time stamp in Transmit()
 // #include <String.h>
 /** @brief Arduino doesn't look like it contains the String.h lib, however it does have
  * its own string handling support built in.
@@ -228,7 +229,7 @@ int HallEffectParse(void);
  * to start-up before the reset occurs.
  */
 void setup() {
-    Serial.begin(19200);
+    Serial.begin(9600);
     
     delay(2000);
     // next NEED to explicitly reset the Pololu board using a separate pin

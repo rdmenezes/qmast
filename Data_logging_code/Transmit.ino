@@ -5,6 +5,7 @@
  *
  * Prints directly to the serial and takes input from global values
  */
+
 void transmit(void) {
     long boatLat;
     long boatLon;
