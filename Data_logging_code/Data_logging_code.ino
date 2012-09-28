@@ -211,6 +211,9 @@ int ironTime; //!< tacking global
 
 int errorCode; //!< error code
 
+int angle; //for hall effect sensor
+int HallEffectParse(void);
+
 /** @} End of the global constants grouping*/
 
 /** Standard Setup function for Arduino, set pins and create object instances.
@@ -303,6 +306,7 @@ void loop() {
     sensorData(BUFF_MAX, 'w');
     sensorData(BUFF_MAX, 'c');
     getWindDirn();
+    angle = HallEffectParse();
     
     delay(100);
 }
