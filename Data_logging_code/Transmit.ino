@@ -48,9 +48,30 @@ void transmit(void) {
     Serial.print(ironTime,DEC);
     Serial.print(",DMD:");
     Serial.print(distanceVal);  // current distance
+    
+     // Hall Effect Sensor
+    Serial.print("ANG:");
+    Serial.print(angle,DEC);
+    
+    // Time stamp -- dd/mm/yyyy HH:MM:SS (24 hr clk)
+    Serial.print("DATE: ");
+    Serial.print(month());
+    Serial.print("/");
+    Serial.print(day());
+    Serial.print("/");
+    Serial.print(year());
+    Serial.print(" ");
+    Serial.print(hour());
+    Serial.print(":");
+    Serial.print(minute());
+    Serial.print(":");
+    Serial.print(second());
+    
     Serial.print(",ERR:");
     Serial.print(errorCode);
     Serial.print("***");
+    
+   
 }
 
 /**
