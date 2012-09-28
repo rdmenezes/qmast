@@ -229,7 +229,7 @@ int HallEffectParse(void);
  */
 void setup() {
     Serial.begin(19200);
-
+    
     delay(2000);
     // next NEED to explicitly reset the Pololu board using a separate pin
     // else it times out and reports baud rate is too slow (red LED)
@@ -307,6 +307,9 @@ void loop() {
     sensorData(BUFF_MAX, 'c');
     getWindDirn();
     angle = HallEffectParse();
+    Serial.println("Angle:");
+    Serial.println(angle);
+    Serial.println("\n");
     
     delay(100);
 }
