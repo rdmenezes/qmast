@@ -1,7 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
-<Project Type="Project" LVVersion="11008008">
+<Project Type="Project" LVVersion="9008000">
 	<Item Name="My Computer" Type="My Computer">
-		<Property Name="NI.SortType" Type="Int">3</Property>
 		<Property Name="server.app.propertiesEnabled" Type="Bool">true</Property>
 		<Property Name="server.control.propertiesEnabled" Type="Bool">true</Property>
 		<Property Name="server.tcp.enabled" Type="Bool">false</Property>
@@ -56,23 +55,25 @@
 				<Item Name="VISA Configure Serial Port (Serial Instr).vi" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port (Serial Instr).vi"/>
 				<Item Name="VISA Set IO Buffer Mask.ctl" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Set IO Buffer Mask.ctl"/>
 			</Item>
-			<Item Name="System" Type="VI" URL="System">
-				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
-			</Item>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="ArduPilot GroundStation" Type="EXE">
+				<Property Name="App_applicationGUID" Type="Str">{EA82E5A5-8382-4E33-AB84-07ACC544400B}</Property>
+				<Property Name="App_applicationName" Type="Str">ArduStation.exe</Property>
+				<Property Name="App_autoIncrement" Type="Bool">true</Property>
+				<Property Name="App_companyName" Type="Str">DIYdrones.com</Property>
+				<Property Name="App_fileDescription" Type="Str">ArduPilot GroundStation</Property>
+				<Property Name="App_fileVersion.build" Type="Int">1</Property>
+				<Property Name="App_fileVersion.major" Type="Int">1</Property>
 				<Property Name="App_INI_aliasGUID" Type="Str">{3166D8B4-C0F0-4B35-B7EA-F185A2DC19D8}</Property>
 				<Property Name="App_INI_GUID" Type="Str">{2472E8F0-24C4-499D-A0E0-C6C0AD49BE53}</Property>
-				<Property Name="Bld_buildCacheID" Type="Str">{75442C4C-F660-4167-9ECD-57D7D82D0327}</Property>
+				<Property Name="App_internalName" Type="Str">ArduPilot GroundStation</Property>
+				<Property Name="App_legalCopyright" Type="Str">Copyright © 2009 </Property>
+				<Property Name="App_productName" Type="Str">ArduPilot GroundStation</Property>
 				<Property Name="Bld_buildSpecName" Type="Str">ArduPilot GroundStation</Property>
 				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
 				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
-				<Property Name="Bld_localDestDir" Type="Path">../GroundStation_Beta2/Builds</Property>
-				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
-				<Property Name="Bld_previewCacheID" Type="Str">{22D292F3-1F09-4F2C-A2FE-8BCF53829EF1}</Property>
-				<Property Name="Bld_targetDestDir" Type="Path"></Property>
 				<Property Name="Destination[0].destName" Type="Str">ArduStation.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../GroundStation_Beta2/Builds/ArduStation.exe</Property>
 				<Property Name="Destination[0].type" Type="Str">App</Property>
@@ -127,45 +128,32 @@
 				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[9].type" Type="Str">VI</Property>
 				<Property Name="SourceCount" Type="Int">13</Property>
-				<Property Name="TgtF_autoIncrement" Type="Bool">true</Property>
-				<Property Name="TgtF_companyName" Type="Str">DIYdrones.com</Property>
-				<Property Name="TgtF_fileDescription" Type="Str">ArduPilot GroundStation</Property>
-				<Property Name="TgtF_fileVersion.build" Type="Int">1</Property>
-				<Property Name="TgtF_fileVersion.major" Type="Int">1</Property>
-				<Property Name="TgtF_internalName" Type="Str">ArduPilot GroundStation</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2009 </Property>
-				<Property Name="TgtF_productName" Type="Str">ArduPilot GroundStation</Property>
-				<Property Name="TgtF_targetfileGUID" Type="Str">{EA82E5A5-8382-4E33-AB84-07ACC544400B}</Property>
-				<Property Name="TgtF_targetfileName" Type="Str">ArduStation.exe</Property>
 			</Item>
 			<Item Name="ArduInstaller" Type="Installer">
-				<Property Name="Destination[0].name" Type="Str">ArduPilot_GroundStation</Property>
-				<Property Name="Destination[0].parent" Type="Str">{3912416A-D2E5-411B-AFEE-B63654D690C0}</Property>
-				<Property Name="Destination[0].tag" Type="Str">{E016117F-9C0C-4AFD-A317-8789A8921FF0}</Property>
-				<Property Name="Destination[0].type" Type="Str">userFolder</Property>
-				<Property Name="DestinationCount" Type="Int">1</Property>
-				<Property Name="INST_autoIncrement" Type="Bool">true</Property>
-				<Property Name="INST_buildLocation" Type="Path">../Builds/ArduPilot_GroundStation/ArduInstaller</Property>
-				<Property Name="INST_buildLocation.type" Type="Str">relativeToCommon</Property>
-				<Property Name="INST_buildSpecName" Type="Str">ArduInstaller</Property>
-				<Property Name="INST_defaultDir" Type="Str">{E016117F-9C0C-4AFD-A317-8789A8921FF0}</Property>
-				<Property Name="INST_productName" Type="Str">ArduPilot_GroundStation</Property>
-				<Property Name="INST_productVersion" Type="Str">1.0.1</Property>
-				<Property Name="INST_requireLVDevSys" Type="Bool">true</Property>
-				<Property Name="InstSpecBitness" Type="Str">32-bit</Property>
-				<Property Name="InstSpecVersion" Type="Str">11018015</Property>
-				<Property Name="MSI_arpCompany" Type="Str">DIYdrones.com</Property>
-				<Property Name="MSI_arpPhone" Type="Str">ardupilot@gmail.com</Property>
-				<Property Name="MSI_arpURL" Type="Str">DIYdrones.com</Property>
-				<Property Name="MSI_distID" Type="Str">{167FB195-FA6C-44F5-B4F5-BA0575732760}</Property>
-				<Property Name="MSI_osCheck" Type="Int">0</Property>
-				<Property Name="MSI_upgradeCode" Type="Str">{080D1CD2-2235-4F8A-93AB-5EF382A92DB8}</Property>
-				<Property Name="MSI_windowMessage" Type="Str">Thank you for choosing ArduPilot products!</Property>
-				<Property Name="MSI_windowTitle" Type="Str">HELLO!</Property>
-				<Property Name="RegDest[0].dirName" Type="Str">Software</Property>
-				<Property Name="RegDest[0].dirTag" Type="Str">{DDFAFC8B-E728-4AC8-96DE-B920EBB97A86}</Property>
-				<Property Name="RegDest[0].parentTag" Type="Str">2</Property>
-				<Property Name="RegDestCount" Type="Int">1</Property>
+				<Property Name="arpCompany" Type="Str">DIYdrones.com</Property>
+				<Property Name="arpPhone" Type="Str">ardupilot@gmail.com</Property>
+				<Property Name="arpURL" Type="Str">DIYdrones.com</Property>
+				<Property Name="AutoIncrement" Type="Bool">true</Property>
+				<Property Name="BldInfo.Count" Type="Int">0</Property>
+				<Property Name="BuildLabel" Type="Str">ArduInstaller</Property>
+				<Property Name="BuildLocation" Type="Path">../../Builds/ArduPilot_GroundStation/ArduInstaller</Property>
+				<Property Name="DirInfo.Count" Type="Int">1</Property>
+				<Property Name="DirInfo.DefaultDir" Type="Str">{E016117F-9C0C-4AFD-A317-8789A8921FF0}</Property>
+				<Property Name="DirInfo[0].DirName" Type="Str">ArduPilot_GroundStation</Property>
+				<Property Name="DirInfo[0].DirTag" Type="Str">{E016117F-9C0C-4AFD-A317-8789A8921FF0}</Property>
+				<Property Name="DirInfo[0].ParentTag" Type="Str">{3912416A-D2E5-411B-AFEE-B63654D690C0}</Property>
+				<Property Name="DistID" Type="Str">{167FB195-FA6C-44F5-B4F5-BA0575732760}</Property>
+				<Property Name="InstSpecVersion" Type="Str">8608001</Property>
+				<Property Name="LicenseFile" Type="Ref"></Property>
+				<Property Name="LV80Higher" Type="Bool">true</Property>
+				<Property Name="OSCheck" Type="Int">0</Property>
+				<Property Name="OSCheck_Vista" Type="Bool">false</Property>
+				<Property Name="ProductName" Type="Str">ArduPilot_GroundStation</Property>
+				<Property Name="ProductVersion" Type="Str">1.0.1</Property>
+				<Property Name="ReadmeFile" Type="Ref"></Property>
+				<Property Name="UpgradeCode" Type="Str">{080D1CD2-2235-4F8A-93AB-5EF382A92DB8}</Property>
+				<Property Name="WindowMessage" Type="Str">Thank you for choosing ArduPilot products!</Property>
+				<Property Name="WindowTitle" Type="Str">HELLO!</Property>
 			</Item>
 		</Item>
 	</Item>
