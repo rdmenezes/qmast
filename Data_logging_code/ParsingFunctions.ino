@@ -178,7 +178,7 @@ int Parser(char *val) {
         speed_unit = (char) * strtok(NULL, ",");
 
         //convert to floats from strings
-        wind_ang = atof(wind_ang_string);
+        wind_ang = atof(wind_ang_string) - 180; // Subtract 180 for Hull Effect Sensor
         
         wind_vel = atof(wind_vel_string);
 

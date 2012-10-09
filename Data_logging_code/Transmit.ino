@@ -5,6 +5,7 @@
  *
  * Prints directly to the serial and takes input from global values
  */
+
 void transmit(void) {
     long boatLat;
     long boatLon;
@@ -53,6 +54,12 @@ void transmit(void) {
     
     // Time stamp -- dd/mm/yyyy HH:MM:SS (24 hr clk)
     Serial.print("DATE: ");
+    Serial.print(month());
+    Serial.print("/");
+    Serial.print(day());
+    Serial.print("/");
+    Serial.print(year());
+    Serial.print(" ");
     Serial.print(hour());
     Serial.print(":");
     Serial.print(minute());
@@ -62,6 +69,8 @@ void transmit(void) {
     Serial.print(",ERR:");
     Serial.print(errorCode);
     Serial.print("***");
+    
+   
 }
 
 /**
