@@ -13,7 +13,7 @@ int HallEffectParse(void)
   input_angle = analogRead(ANGLE_PIN);
   no_field = digitalRead(NO_FIELD_PIN);
   angleOut = (input_angle - ZERO_VOLTS)*(180.0/408.0); //scale factor for degrees to analog voltage
-  if(no_field == HIGH)
+  if(no_field == LOW)
   {
     return -360;
   }
