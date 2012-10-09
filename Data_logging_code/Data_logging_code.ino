@@ -221,6 +221,9 @@ int ironTime; //!< tacking global
 
 int errorCode; //!< error code
 
+int angle; //for hall effect sensor
+int HallEffectParse(void);
+
 /** @} End of the global constants grouping*/
 
 /** Standard Setup function for Arduino, set pins and create object instances.
@@ -235,8 +238,8 @@ int errorCode; //!< error code
  * to start-up before the reset occurs.
  */
 void setup() {
-    Serial.begin(19200);
-
+    Serial.begin(9600);
+    
     delay(2000);
     // next NEED to explicitly reset the Pololu board using a separate pin
     // else it times out and reports baud rate is too slow (red LED)
@@ -313,6 +316,9 @@ void loop() {
     sensorData(BUFF_MAX, 'w');
     sensorData(BUFF_MAX, 'c');
     angle = HallEffectParse();
+    Serial.println("Angle:");
+    Serial.println(angle);
+    Serial.println("\n");
     
     delay(100);
 }
