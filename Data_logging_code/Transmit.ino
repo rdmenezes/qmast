@@ -9,8 +9,10 @@
 void transmit(void) {
     long boatLat;
     long boatLon;
+    time_t t;
     boatLat = boatLocation.latDeg*1000000+boatLocation.latMin*10000/0.6;
     boatLon = boatLocation.lonDeg*1000000+boatLocation.lonMin*10000/0.6;
+    
     Serial.print("###");
     // GPS
     Serial.print("LAT:");
@@ -53,18 +55,19 @@ void transmit(void) {
     Serial.print(angle,DEC);
     
     // Time stamp -- dd/mm/yyyy HH:MM:SS (24 hr clk)
+    t = now();
     Serial.print("DATE: ");
-    Serial.print(month());
+    Serial.print(month(t));
     Serial.print("/");
-    Serial.print(day());
+    Serial.print(day(t));
     Serial.print("/");
-    Serial.print(year());
+    Serial.print(year(t));
     Serial.print(" ");
-    Serial.print(hour());
+    Serial.print(hour(t));
     Serial.print(":");
-    Serial.print(minute());
+    Serial.print(minute(t));
     Serial.print(":");
-    Serial.print(second());
+    Serial.print(second(t));
     
     Serial.print(",ERR:");
     Serial.print(errorCode);

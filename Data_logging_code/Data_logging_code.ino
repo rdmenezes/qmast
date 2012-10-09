@@ -221,7 +221,7 @@ int ironTime; //!< tacking global
 
 int errorCode; //!< error code
 
-int angle; //for hall effect sensor
+int angleOut; //for hall effect sensor
 int HallEffectParse(void);
 
 /** @} End of the global constants grouping*/
@@ -315,9 +315,9 @@ void loop() {
     transmit();
     sensorData(BUFF_MAX, 'w');
     sensorData(BUFF_MAX, 'c');
-    angle = HallEffectParse();
+    angleOut = HallEffectParse();
     Serial.println("Angle:");
-    Serial.println(angle);
+    Serial.println(angleOut);
     Serial.println("\n");
     
     delay(100);

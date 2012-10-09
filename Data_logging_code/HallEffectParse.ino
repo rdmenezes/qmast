@@ -19,6 +19,7 @@ int HallEffectParse(void)
   }
   else
   {
+    angleOut = angleOut + 180; //adjust since sensor outputs -180 to 180
     return angleOut;
   }
 }
