@@ -1,3 +1,6 @@
+#include <Time.h>
+
+
 /** @mainpage The QMAST Alpha 6 Sailing Code
  *
  * 	@par This Documentation
@@ -37,8 +40,9 @@
 #include "LocationStruct.h"
 #include <Servo.h> /// servo motor
 #include <SoftwareSerial.h> /// for pololu non-buffering serial channel
-#include <stdio.h>			/// for parsing - necessary?
+#include <stdio.h>		/// for parsing - necessary?
 #include <avr/io.h>
+#include <Time.h> // For time stamp in Transmit()
 // #include <String.h>
 /** @brief Arduino doesn't look like it contains the String.h lib, however it does have
  * its own string handling support built in.
@@ -121,6 +125,13 @@
 /** @brief Pololu serial pin (with SoftwareSerial library) */
 #define txPin 9
 
+//Hall Effect Sensor
+#define ANGLE_PIN A5
+#define NO_FIELD_PIN 2
+#define ZERO_VOLTS 512
+int angle; 
+int HallEffectParse(void);
+
 // For serial data acquisition
 /** @brief The shortest possible NMEA String */
 #define SHORTEST_NMEA 5
@@ -176,7 +187,6 @@ float trueWind; ///< wind direction calculated at checkteck
 
 
 int rudderVal; //!< variables for transmiting data
-int jibVal;    //!< variables for transmiting data
 int mainVal;   //!< variables for transmiting data
 float headingVal;       ///< where we are going, temporary compass smoothing test
 float distanceVal;      ///< distance to next waypoint one-shots, no averaging, present conditions
@@ -190,10 +200,6 @@ int rudderDir = -1;   ///< global for reversing rudder if we are parking lot tes
 int points;           ///< max waypoints selected for travel
 int point;            ///< point for sail to waypoint in menu
 int currentPoint = 0; ///< current waypoint on course of travel
-
-
-int StraightSailDirection; //!< Menu hack globals
-int CurrentSelection;      //!< Menu hack globals
 
 
 long startTime;     //!< station-keeping global
@@ -215,11 +221,6 @@ int ironTime; //!< tacking global
 
 int errorCode; //!< error code
 
-Servo rudderServo; //!<rudder servo motor
-Servo jibServo; //!<jib servo motor
-Servo mainServo; //!<main servo motor
-
-
 /** @} End of the global constants grouping*/
 
 /** Standard Setup function for Arduino, set pins and create object instances.
@@ -234,17 +235,7 @@ Servo mainServo; //!<main servo motor
  * to start-up before the reset occurs.
  */
 void setup() {
-    rudderServo.attach(9);
-    mainServo.attach(10);
-    jibServo.attach(11);
     Serial.begin(19200);
-
-    // set pins for pololu
-    pinMode(txPin, OUTPUT);
-    pinMode(resetPin, OUTPUT);
-
-    // initiate servo instance
-    servo_ser.begin(4800);
 
     delay(2000);
     // next NEED to explicitly reset the Pololu board using a separate pin
@@ -306,8 +297,6 @@ void setup() {
      */
     Serial.println("$PAMTC,EN,MWVR,1,2");
 
-    delay(500);
-    setrudder(0);
     delay(2000);  //setup delay RCMode();
 }
 
@@ -323,49 +312,9 @@ void loop() {
     transmit();
     sensorData(BUFF_MAX, 'w');
     sensorData(BUFF_MAX, 'c');
-
-    if(Serial.available()) {
-        menuReturn = displayMenu();
-        if(menuReturn != 0) {
-            /** @brief if menu returned 0, any updating happened in the menu function
-             * itself and we want the code to just keep doing what it was doing before
-             * (e.g. setting RC mode)
-             */
-            CurrentSelection = menuReturn;
-        }
-    }
-
-    switch (CurrentSelection) {
-    case 0:
-        break;
-    case 1:
-        // this will be station keeping
-        stationKeep();
-        break;
-    case 2:
-        sailCourse();
-        break;
-    case 3:
-        /** @brief Straight Sail towards N,S,E,W as 0, 180, 90, 270.
-         * No sail control.
-         *
-         * Straightsail can no longer be called in
-         * isolation, needs sailtoWaypoint which keeps track of when
-         * tacking is necessary
-         */
-        sail(StraightSailDirection);
-        break;
-    case 4:
-        sailToWaypoint(waypoints[point]);
-        break;
-    case 5:
-        stationKeepSinglePoint();
-        /** stationskeeps around a single spot in the middle of the square */
-        break;
-    default:
-        Serial.println("Invalid menu return. Press any key");
-        delay(40);
-    }
+    angle = HallEffectParse();
+    
+    delay(100);
 }
 
 
