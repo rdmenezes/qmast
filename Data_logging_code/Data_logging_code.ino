@@ -312,7 +312,7 @@ void setup() {
 void loop() {
     int menuReturn;
 
-   // transmit();
+    transmit();
     sensorData(BUFF_MAX, 'w');
     sensorData(BUFF_MAX, 'c');
     angle = HallEffectParse();
