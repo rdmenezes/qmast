@@ -6,8 +6,8 @@
 
 #define ZERO_VOLTS 512 
 #define NO_FIELD_PIN 2
-#define MIN_ANGLE 110          //set later when in boat and sail on
-#define MAX_ANGLE 200
+#define MIN_ANGLE 485          //set later when in boat and sail on
+#define MAX_ANGLE 380
 
 
 int input_angle;
@@ -34,20 +34,25 @@ void loop(){
   input_no_field = digitalRead(NO_FIELD_PIN);
 
   Serial.print("input_angle:");
-  Serial.print(input_angle);
-  Serial.print("   winchval:");
-  Serial.print(winchVal);
+  Serial.println(input_angle);
+
+ Serial.print("   winchval:");
+  Serial.println(winchVal);
   
-  if( (winchVal < 20 && winchVal > 0) && (input_angle > MIN_ANGLE)){
+  Serial.println(input_no_field);
+  
+  if((winchVal < 40 && winchVal > 3) && winchVal > 0) && (input_angle > MIN_ANGLE))
+  {
     // pull in
     digitalWrite(POWER, HIGH);
     digitalWrite(DIRECTION, LOW);
-    Serial.println(" Dir-LOW");
+    //Serial.println(" Dir-LOW");
   }
-  else if ((winchVal > 60) && (input_angle < MAX_ANGLE)){
+  else if ((winchVal > 50 && winchVal < 100) &&(input_angle < MAX_ANGLE))
+  {  
     digitalWrite(POWER, HIGH);
     digitalWrite(DIRECTION, HIGH);
-    Serial.println(" Dir-HIGH");
+    //Serial.println(" Dir-HIGH");
   }
   else{
     digitalWrite(POWER, LOW);
@@ -58,10 +63,12 @@ void loop(){
   delay(100);
 }//end of loop
 
-int getPWM_Value(int pinIn){
+int getPWM_Value(int pinIn)
+{
 
   int RCVal = pulseIn(pinIn, HIGH, 20000);
-  if (RCVal == 0) {
+  if(RCVal == 0)
+  {
     RCVal = -1;
   }
 
