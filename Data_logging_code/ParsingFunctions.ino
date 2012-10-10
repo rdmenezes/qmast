@@ -118,7 +118,8 @@ int Parser(char *val) {
     //now we know what type of command we're dealing with and can parse it - wooooo
 
     //GPS String
-    if (strcmp(str, "$GPGLL") == 0) {
+    if (strcmp(str, "$GPGLL") == 0) 
+    {
         lat_deg_nmea_string = strtok(NULL, ","); // this will use the cp copied string, since strtok magically remembers which string it was initially referenced to if NULL if used instead of a string
         lat_dir = (char) * strtok(NULL, ","); // only a (char) not a array of chars. Hence, = typecast(char) dereferenced strtok.
         // strtok s a point to a character array; we only want the value at the pointer's address (first value)
@@ -131,21 +132,24 @@ int Parser(char *val) {
         ParseGPGLL(lat_deg_nmea_string, &boatLocation.latDeg, &boatLocation.latMin); //convert the ddmm.mmmm string into dd, mm.mmmm (because there isnt enough precision in an arduino float, we split it into 2)
         ParseGPGLL(lon_deg_nmea_string, &boatLocation.lonDeg, &boatLocation.lonMin);
 
-        if (lat_dir == 'S') {
+        if (lat_dir == 'S') 
+        {
             boatLocation.latDeg *= -1; // change the sign of latitude based on if it's north/south
             boatLocation.latMin *= -1;
         }
-        if (lon_dir == 'W') {
+        if (lon_dir == 'W') 
+        {
             boatLocation.lonDeg *= -1;
             boatLocation.lonMin *= -1;
         }
     }
 
     //Wind sensor compass
-    if (strcmp(str, "$HCHDG") == 0) {
+    if (strcmp(str, "$HCHDG") == 0) 
+    {
 
         //parse
-        head_deg_string = strtok(NULL, ","); // this will use the cp copied string, since strtok magically remembers which string it was initially referenced to if NULL if used instead of a string
+        head_deg_string = strtok(NULL, ","); // this will use the cp copied string, since strtok magically remembers which string it was initially referenced to if NULL is used instead of a string
         dev_deg_string = strtok(NULL, ",");
         dev_dir = (char) * strtok(NULL, ","); // only a (char) not a array of chars. Hence, = typecast(char) dereferenced strtok.
         // strtok returns a point to a character array; we only want the value at the pointer's address (first value)
@@ -167,7 +171,8 @@ int Parser(char *val) {
 
     //Wind speed and wind direction
     //when parsing this, need to verify that wind is strong enough to give a reading on the sensor
-    if (strcmp(str, "$WIMWV") == 0) {
+    if (strcmp(str, "$WIMWV") == 0) 
+    {
         //sscanf(val, "$%5s,%f,%c,%f,%c,%c,", str, &wind_ang, &wind_ref,&wind_vel, &speed_unit, &valid);
         //    printf("Wing angle: %f\n", wind_ang);
 
@@ -178,7 +183,7 @@ int Parser(char *val) {
         speed_unit = (char) * strtok(NULL, ",");
 
         //convert to floats from strings
-        wind_ang = atof(wind_ang_string) - 180; // Subtract 180 for Hull Effect Sensor
+        wind_ang = atof(wind_ang_string) - 180 + angle; // Subtract 180 for Hall Effect Sensor, add hall effect angle
         
         wind_vel = atof(wind_vel_string);
 
