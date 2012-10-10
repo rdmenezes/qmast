@@ -126,11 +126,9 @@
 #define txPin 9
 
 //Hall Effect Sensor
-#define ANGLE_PIN A5
+#define ANGLE_PIN A3
 #define NO_FIELD_PIN 2
 #define ZERO_VOLTS 512
-int angle; 
-int HallEffectParse(void);
 
 // For serial data acquisition
 /** @brief The shortest possible NMEA String */
@@ -221,7 +219,7 @@ int ironTime; //!< tacking global
 
 int errorCode; //!< error code
 
-int angleOut; //for hall effect sensor
+int angle; //for hall effect sensor
 int HallEffectParse(void);
 
 /** @} End of the global constants grouping*/
@@ -238,7 +236,7 @@ int HallEffectParse(void);
  * to start-up before the reset occurs.
  */
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(19200);
     
     delay(2000);
     // next NEED to explicitly reset the Pololu board using a separate pin
@@ -301,6 +299,8 @@ void setup() {
     Serial.println("$PAMTC,EN,MWVR,1,2");
 
     delay(2000);  //setup delay RCMode();
+    pinMode(ANGLE_PIN,INPUT);
+    pinMode(NO_FIELD_PIN,INPUT);
 }
 
 /** Main Function, handles menu input and calls the core functions.
@@ -312,12 +312,12 @@ void setup() {
 void loop() {
     int menuReturn;
 
-    transmit();
+   // transmit();
     sensorData(BUFF_MAX, 'w');
     sensorData(BUFF_MAX, 'c');
-    angleOut = HallEffectParse();
+    angle = HallEffectParse();
     Serial.println("Angle:");
-    Serial.println(angleOut);
+    Serial.println(angle);
     Serial.println("\n");
     
     delay(100);
