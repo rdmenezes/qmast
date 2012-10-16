@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Placemark>
+<name> SPD: HED:59.00vwR:0.00ROL:-0.50MAIN:0JIB:0RUD:0vbthetaT:59.46setPoint:0.00SID:0IRON:0</name>
+<visibility>1</visibility>
+<description>Current Position</description>
+<Style>
+<IconStyle>
+<Icon>
+<href>http://maps.google.com/mapfiles/kml/shapes/sailing.png</href>
+</Icon>
+</IconStyle>
+<LineStyle>
+<width>2</width>
+</LineStyle>
+</Style>
+<Point>
+<extrude>1</extrude>
+<altitudeMode>relativeToGround</altitudeMode>
+<coordinates>0.000000,0.000000,</coordinates>
+</Point>
+</Placemark>
+</kml>
