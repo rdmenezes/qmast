@@ -14,6 +14,7 @@ int input_angle;
 int input_no_field;
 int angle;
 int winchVal;
+boolean limit;
 
 void setup(){
 
@@ -41,26 +42,52 @@ void loop(){
   
   Serial.println(input_no_field);
   
-  if((winchVal < 40 && winchVal > 3) && winchVal > 0) && (input_angle > MIN_ANGLE))
+  if((winchVal < 40 && winchVal > 3) && winchVal > 0 && (input_angle > MIN_ANGLE))
   {
     // pull in
     digitalWrite(POWER, HIGH);
     digitalWrite(DIRECTION, LOW);
     //Serial.println(" Dir-LOW");
   }
-  else if ((winchVal > 50 && winchVal < 100) &&(input_angle < MAX_ANGLE))
+  else if ((winchVal > 50 && winchVal < 100) && (input_angle < MAX_ANGLE))
   {  
     digitalWrite(POWER, HIGH);
     digitalWrite(DIRECTION, HIGH);
     //Serial.println(" Dir-HIGH");
   }
+  else if (input_angle > MAX_ANGLE)
+  {
+    limit = true;
+    while(limit)
+    {
+      digitalWrite(POWER, HIGH);
+      digitalWrite(DIRECTION, HIGH);
+      if(input_angle < MAX_ANGLE)
+      {
+        limit = false;
+      }
+    } 
+  }
+  else if (input_angle < MIN_ANGLE)
+  {
+    limit = true;
+    while(limit)
+    {
+      digitalWrite(POWER, HIGH);
+      digitalWrite(DIRECTION, LOW);
+      if(input_angle > MIN_ANGLE)
+      {
+        limit = false;
+      }
+    } 
+  }
   else{
     digitalWrite(POWER, LOW);
-
   }
 
   Serial.println(" ");
   delay(100);
+  
 }//end of loop
 
 int getPWM_Value(int pinIn)
