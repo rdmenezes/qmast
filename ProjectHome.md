@@ -1,0 +1,1 @@
+Queen's Mostly Autonomous Sailboat Team is a student-run design team from Queen's University. We design and build robotic sailboats for annual competition.
